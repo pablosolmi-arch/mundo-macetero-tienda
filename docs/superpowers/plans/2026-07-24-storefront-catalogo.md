@@ -99,10 +99,12 @@ git commit -m "Scaffold Next.js project"
 ### Task 2: Provision Supabase Postgres and Vercel Blob
 
 **Files:**
-- Modify: `.env.local` (created by `vercel env pull`, not hand-written)
+- Modify: `.env.local` (populated from a real Supabase connection string plus `vercel env pull`, not hand-written placeholders)
 
 **Interfaces:**
 - Produces: a real `DATABASE_URL` and `BLOB_READ_WRITE_TOKEN` in `.env.local` pointing at a provisioned Supabase Postgres instance and a Vercel Blob store — every later task that touches the DB depends on `DATABASE_URL`; Task 4's image importer depends on `BLOB_READ_WRITE_TOKEN`.
+
+Decision (per Pablo, 2026-07-24): Supabase is provisioned directly at supabase.com, NOT through the Vercel Marketplace — the Marketplace requires a payment method on file to install any integration, even free-tier ones. Supabase's own free tier requires no card. The connection string is then added to Vercel as a plain environment variable.
 
 - [ ] **Step 1: Link the project to Vercel**
 
@@ -110,27 +112,40 @@ git commit -m "Scaffold Next.js project"
 vercel link --yes
 ```
 
-- [ ] **Step 2: Install Supabase from the Marketplace**
+- [ ] **Step 2: Create the Supabase project manually (human step)**
+
+This step cannot be automated — it requires Pablo to sign up/log in. Ask Pablo to:
+1. Go to https://supabase.com/dashboard and create a free account (or log in) — no credit card required for the Free plan.
+2. Create a new project (e.g. name it `mundo-macetero`), choose a region close to Chile (e.g. `sa-east-1` if offered, otherwise the closest available), and set a database password.
+3. Once the project is ready, go to Project Settings → Database → Connection string, and copy the "Connection pooling" URI (starts with `postgresql://postgres.[project-ref]:[password]@...pooler.supabase.com:6543/postgres`) — this is the pooled connection, correct for a serverless/Vercel deployment.
+
+Wait for Pablo to paste the connection string before continuing.
+
+- [ ] **Step 3: Add the connection string to Vercel and locally**
 
 ```bash
-vercel integration add supabase --yes --no-claim
+vercel env add DATABASE_URL production
+vercel env add DATABASE_URL preview
+vercel env add DATABASE_URL development
 ```
 
-**STOP if this hands off to a dashboard/browser claim step** — Supabase installs are connectable, not fully CLI-driven. Ask Pablo to finish the claim in the browser tab that opens, then continue.
+(Each prompts for the value — paste the connection string Pablo provided.)
 
-- [ ] **Step 3: Create a Vercel Blob store**
+- [ ] **Step 4: Attempt to create a Vercel Blob store**
 
 ```bash
 vercel blob create-store mundo-macetero-images
 ```
 
-- [ ] **Step 4: Pull the real environment variables**
+**If this asks for a payment method, STOP and report back to Pablo before proceeding** — do not add a card without explicit confirmation. Report the exact prompt text so the controller can ask Pablo how he wants to proceed (add a card, or use an alternative free image host for this phase).
+
+- [ ] **Step 5: Pull the real environment variables**
 
 ```bash
 vercel env pull .env.local --yes
 ```
 
-- [ ] **Step 5: Verify the connection**
+- [ ] **Step 6: Verify the connection**
 
 ```bash
 node -e "
@@ -143,7 +158,7 @@ sql\`select 1 as ok\`.then(r => { console.log(r); process.exit(0); });
 
 Expected: prints `[ { ok: 1 } ]`. If this fails, do not proceed — the DB connection is a hard dependency for every subsequent task.
 
-- [ ] **Step 6: Commit** (env values themselves are gitignored by create-next-app's default `.gitignore`; only commit if anything else changed)
+- [ ] **Step 7: Commit** (env values themselves are gitignored by create-next-app's default `.gitignore`; only commit if anything else changed)
 
 ```bash
 git add -A
