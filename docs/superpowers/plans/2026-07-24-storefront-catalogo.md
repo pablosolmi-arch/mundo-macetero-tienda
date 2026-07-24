@@ -96,13 +96,13 @@ git commit -m "Scaffold Next.js project"
 
 ---
 
-### Task 2: Provision Supabase Postgres via Vercel Marketplace
+### Task 2: Provision Supabase Postgres and Vercel Blob
 
 **Files:**
 - Modify: `.env.local` (created by `vercel env pull`, not hand-written)
 
 **Interfaces:**
-- Produces: a real `DATABASE_URL` in `.env.local` pointing at a provisioned Supabase Postgres instance — every later task that touches the DB depends on this.
+- Produces: a real `DATABASE_URL` and `BLOB_READ_WRITE_TOKEN` in `.env.local` pointing at a provisioned Supabase Postgres instance and a Vercel Blob store — every later task that touches the DB depends on `DATABASE_URL`; Task 4's image importer depends on `BLOB_READ_WRITE_TOKEN`.
 
 - [ ] **Step 1: Link the project to Vercel**
 
@@ -118,13 +118,19 @@ vercel integration add supabase --yes --no-claim
 
 **STOP if this hands off to a dashboard/browser claim step** — Supabase installs are connectable, not fully CLI-driven. Ask Pablo to finish the claim in the browser tab that opens, then continue.
 
-- [ ] **Step 3: Pull the real environment variables**
+- [ ] **Step 3: Create a Vercel Blob store**
+
+```bash
+vercel blob create-store mundo-macetero-images
+```
+
+- [ ] **Step 4: Pull the real environment variables**
 
 ```bash
 vercel env pull .env.local --yes
 ```
 
-- [ ] **Step 4: Verify the connection**
+- [ ] **Step 5: Verify the connection**
 
 ```bash
 node -e "
@@ -137,11 +143,11 @@ sql\`select 1 as ok\`.then(r => { console.log(r); process.exit(0); });
 
 Expected: prints `[ { ok: 1 } ]`. If this fails, do not proceed — the DB connection is a hard dependency for every subsequent task.
 
-- [ ] **Step 5: Commit** (env values themselves are gitignored by create-next-app's default `.gitignore`; only commit if anything else changed)
+- [ ] **Step 6: Commit** (env values themselves are gitignored by create-next-app's default `.gitignore`; only commit if anything else changed)
 
 ```bash
 git add -A
-git commit -m "Provision Supabase Postgres via Vercel Marketplace" --allow-empty
+git commit -m "Provision Supabase Postgres and Vercel Blob" --allow-empty
 ```
 
 ---
@@ -311,14 +317,16 @@ git commit -m "Add Drizzle schema for categories/products/variants"
 
 **Interfaces:**
 - Consumes: `db` from `db/client.ts`, `categories`/`products`/`productVariants` from `db/schema.ts` (Task 3).
-- Produces: `importCatalogFromCsv(csvPath: string): Promise<{ productsImported: number; variantsImported: number; categoriesImported: number }>`, exported from `scripts/import-catalog.ts`. Later tasks (Task 5/6 pages) rely on the DB rows this produces, not on this function directly.
+- Produces: `importCatalogFromCsv(csvPath: string, uploadImage?: ImageUploader): Promise<{ productsImported: number; variantsImported: number; categoriesImported: number }>` and `type ImageUploader = (sourceUrl: string) => Promise<string>`, exported from `scripts/import-catalog.ts`. Later tasks (Task 5/6 pages) rely on the DB rows this produces, not on this function directly.
 
 Shopify's product export has one row per variant/image combination, with `Title`/`Body (HTML)`/`Type` only populated on a product's first row. Rows are grouped by `Handle`.
 
-- [ ] **Step 1: Install CSV parser**
+Per Global Constraints, product images must not stay pointed at Shopify's CDN — each `Image Src` URL is re-uploaded to Vercel Blob during import, and the Blob URL (not the original Shopify URL) is what gets stored in `products.images`. The uploader is injected as a parameter so the test below can verify the transformation happens without making real network calls.
+
+- [ ] **Step 1: Install CSV parser and Blob client**
 
 ```bash
-npm install csv-parse
+npm install csv-parse @vercel/blob
 ```
 
 - [ ] **Step 2: Write the fixture CSV**
@@ -358,12 +366,26 @@ describe("importCatalogFromCsv", () => {
     await db.delete(categories).where(inArray(categories.slug, ["maceteros", "molduras"]));
   });
 
-  it("imports products, variants, and categories from the CSV", async () => {
-    const result = await importCatalogFromCsv(FIXTURE);
+  it("imports products, variants, and categories from the CSV, uploading images via the injected uploader", async () => {
+    const uploadedUrls: string[] = [];
+    const fakeUploader = async (sourceUrl: string) => {
+      uploadedUrls.push(sourceUrl);
+      const filename = sourceUrl.split("/").pop();
+      return `https://blob.example/${filename}`;
+    };
+
+    const result = await importCatalogFromCsv(FIXTURE, fakeUploader);
 
     expect(result.categoriesImported).toBe(2);
     expect(result.productsImported).toBe(2);
     expect(result.variantsImported).toBe(3); // 2 for terracota + 1 for moldura
+
+    expect(uploadedUrls).toEqual(
+      expect.arrayContaining([
+        "https://example.com/terracota-1.jpg",
+        "https://example.com/terracota-2.jpg",
+      ])
+    );
 
     const terracota = await db.query.products.findFirst({
       where: (p, { eq }) => eq(p.slug, "macetero-terracota"),
@@ -371,8 +393,8 @@ describe("importCatalogFromCsv", () => {
     });
     expect(terracota?.name).toBe("Macetero Terracota");
     expect(terracota?.images).toEqual([
-      "https://example.com/terracota-1.jpg",
-      "https://example.com/terracota-2.jpg",
+      "https://blob.example/terracota-1.jpg",
+      "https://blob.example/terracota-2.jpg",
     ]);
 
     const variants = await db.query.productVariants.findMany({
@@ -394,9 +416,26 @@ Expected: FAIL with "Cannot find module '../../scripts/import-catalog'" (or simi
 // scripts/import-catalog.ts
 import fs from "node:fs";
 import { parse } from "csv-parse/sync";
+import { put } from "@vercel/blob";
 import { db } from "../db/client";
 import { categories, products, productVariants } from "../db/schema";
 import { eq } from "drizzle-orm";
+
+export type ImageUploader = (sourceUrl: string) => Promise<string>;
+
+export async function uploadImageToBlob(sourceUrl: string): Promise<string> {
+  const response = await fetch(sourceUrl);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch image ${sourceUrl}: ${response.status}`);
+  }
+  const buffer = await response.arrayBuffer();
+  const filename = sourceUrl.split("/").pop() ?? `image-${Date.now()}`;
+  const blob = await put(filename, Buffer.from(buffer), {
+    access: "public",
+    addRandomSuffix: true,
+  });
+  return blob.url;
+}
 
 interface ShopifyCsvRow {
   Handle: string;
@@ -421,7 +460,10 @@ function slugify(value: string): string {
     .replace(/(^-|-$)/g, "");
 }
 
-export async function importCatalogFromCsv(csvPath: string) {
+export async function importCatalogFromCsv(
+  csvPath: string,
+  uploadImage: ImageUploader = uploadImageToBlob
+) {
   const raw = fs.readFileSync(csvPath, "utf-8");
   const rows: ShopifyCsvRow[] = parse(raw, { columns: true, skip_empty_lines: true });
 
@@ -457,9 +499,10 @@ export async function importCatalogFromCsv(csvPath: string) {
       categoryId = categorySlugToId.get(categorySlug);
     }
 
-    const images = [
+    const sourceImageUrls = [
       ...new Set(groupRows.map((r) => r["Image Src"]?.trim()).filter(Boolean)),
     ];
+    const images = await Promise.all(sourceImageUrls.map((url) => uploadImage(url)));
 
     const variantRows = groupRows.filter((r) => r["Variant SKU"]?.trim());
     const basePrice = variantRows[0]?.["Variant Price"] ?? "0";
