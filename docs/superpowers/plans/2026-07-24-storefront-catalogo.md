@@ -341,6 +341,8 @@ Shopify's product export has one row per variant/image combination, with `Title`
 
 Per Global Constraints, product images must not stay pointed at Shopify's CDN — each `Image Src` URL is re-uploaded to Vercel Blob during import, and the Blob URL (not the original Shopify URL) is what gets stored in `products.images`. The uploader is injected as a parameter so the test below can verify the transformation happens without making real network calls.
 
+Amendment (2026-07-27, post-review): the importer must be safe to re-run against the same CSV — Task 10 runs it against the real catalog and a mid-import failure (e.g. one flaky image fetch) must be recoverable by simply re-running. Concretely: products upsert by `slug` (`onConflictDoUpdate`, refreshing name/description/price/category/images/stock/status and replacing that product's variants) instead of plain insert, and the returned counts reflect rows actually written this run (a category that already existed does not increment `categoriesImported`).
+
 - [ ] **Step 1: Install CSV parser and Blob client**
 
 ```bash
