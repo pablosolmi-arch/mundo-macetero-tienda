@@ -1,0 +1,5 @@
+Handle,Title,Body (HTML),Type,Published,Option1 Name,Option1 Value,Variant SKU,Variant Price,Variant Inventory Qty,Image Src
+macetero-terracota,Macetero Terracota,<p>Macetero de terracota hecho a mano.</p>,Maceteros,TRUE,Tamaño,Chico,MAC-TC-S,9990,20,https://example.com/terracota-1.jpg
+macetero-terracota,,,,,Tamaño,Grande,MAC-TC-L,14990,10,https://example.com/terracota-2.jpg
+moldura-clasica,Moldura Clásica,<p>Moldura decorativa de yeso.</p>,Molduras,TRUE,,,MOL-CL-01,5990,15,https://example.com/moldura-1.jpg
+moldura-clasica,,,,,,,,,,https://example.com/moldura-2.jpg
