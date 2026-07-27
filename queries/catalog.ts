@@ -3,7 +3,7 @@ import { db } from "../db/client";
 import { categories, products, productVariants } from "../db/schema";
 import { eq, and } from "drizzle-orm";
 
-export async function getAllActiveCategories() {
+export async function getAllCategories() {
   return db.query.categories.findMany();
 }
 

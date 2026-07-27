@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { db } from "../../db/client";
 import { categories, products } from "../../db/schema";
 import { eq } from "drizzle-orm";
-import { getAllActiveCategories, getProductsByCategory, getProductBySlug } from "../../queries/catalog";
+import { getAllCategories, getProductsByCategory, getProductBySlug } from "../../queries/catalog";
 
 describe("catalog queries", () => {
   beforeAll(async () => {
@@ -28,7 +28,7 @@ describe("catalog queries", () => {
   });
 
   it("lists active categories", async () => {
-    const cats = await getAllActiveCategories();
+    const cats = await getAllCategories();
     expect(cats.some((c) => c.slug === "query-test-cat")).toBe(true);
   });
 
