@@ -708,6 +708,8 @@ git commit -m "Add catalog data-access queries"
 - Consumes: `Product`, `ProductVariant`, `Category` types (Task 3).
 - Produces: `buildProductJsonLd(product: Product & { variants: ProductVariant[] }): object`, `buildProductMetadata(product: Product): Metadata` (Next.js `Metadata` type) — Task 7/8 pages call these directly in `generateMetadata` and in the page body.
 
+Amendment (2026-07-27, post-review): `product.description` contains HTML — Task 4's importer stores Shopify's `Body (HTML)` column verbatim. Meta descriptions and JSON-LD descriptions must be plain text: both builders strip HTML tags (and collapse whitespace) from the description before using it. The product page (Task 7) still renders the description as HTML — only the SEO surfaces get the stripped version.
+
 - [ ] **Step 1: Write the failing test**
 
 ```typescript
