@@ -58,4 +58,45 @@ describe("importCatalogFromCsv", () => {
     });
     expect(variants.map((v) => v.name).sort()).toEqual(["Chico", "Grande"]);
   }, 15000);
+
+  it("is safe to re-run against the same CSV (upserts, no duplicates)", async () => {
+    const fakeUploader = async (sourceUrl: string) => {
+      const filename = sourceUrl.split("/").pop();
+      return `https://blob.example/${filename}`;
+    };
+
+    // First run establishes the rows.
+    await importCatalogFromCsv(FIXTURE, fakeUploader);
+
+    const countRows = async () => {
+      const productRows = await db
+        .select({ id: products.id })
+        .from(products)
+        .where(inArray(products.slug, ["macetero-terracota", "moldura-clasica"]));
+      const variantRows = await db
+        .select({ id: productVariants.id })
+        .from(productVariants)
+        .where(
+          inArray(
+            productVariants.productId,
+            db.select({ id: products.id }).from(products).where(inArray(products.slug, ["macetero-terracota", "moldura-clasica"]))
+          )
+        );
+      const categoryRows = await db
+        .select({ id: categories.id })
+        .from(categories)
+        .where(inArray(categories.slug, ["maceteros", "molduras"]));
+      return { products: productRows.length, variants: variantRows.length, categories: categoryRows.length };
+    };
+
+    const afterFirstRun = await countRows();
+
+    // Second run against the identical CSV must not throw on the unique slug
+    // constraint, and must converge to the same row counts (no duplicates).
+    const secondResult = await importCatalogFromCsv(FIXTURE, fakeUploader);
+    const afterSecondRun = await countRows();
+
+    expect(secondResult.productsImported).toBe(2);
+    expect(afterSecondRun).toEqual(afterFirstRun);
+  }, 30000);
 });
