@@ -3,12 +3,16 @@ import type { Product, ProductVariant } from "../db/schema";
 
 const SITE_NAME = "Mundo Macetero";
 
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+}
+
 export function buildProductJsonLd(product: Product & { variants: ProductVariant[] }) {
   return {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
-    description: product.description,
+    description: stripHtml(product.description),
     image: product.images,
     offers: {
       "@type": "Offer",
@@ -21,12 +25,13 @@ export function buildProductJsonLd(product: Product & { variants: ProductVariant
 }
 
 export function buildProductMetadata(product: Product): Metadata {
+  const cleanDescription = stripHtml(product.description).slice(0, 160);
   return {
     title: `${product.name} | ${SITE_NAME}`,
-    description: product.description.slice(0, 160),
+    description: cleanDescription,
     openGraph: {
       title: product.name,
-      description: product.description.slice(0, 160),
+      description: cleanDescription,
       images: product.images,
     },
   };

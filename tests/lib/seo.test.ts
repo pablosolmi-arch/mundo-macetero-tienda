@@ -31,6 +31,15 @@ describe("buildProductJsonLd", () => {
     const jsonLd = buildProductJsonLd({ ...sampleProduct, stock: 0 });
     expect(jsonLd.offers.availability).toBe("https://schema.org/OutOfStock");
   });
+
+  it("strips HTML tags from description", () => {
+    const htmlProduct = {
+      ...sampleProduct,
+      description: "<p>Macetero de <strong>terracota</strong> hecho a mano.</p>",
+    };
+    const jsonLd = buildProductJsonLd(htmlProduct);
+    expect(jsonLd.description).toBe("Macetero de terracota hecho a mano.");
+  });
 });
 
 describe("buildProductMetadata", () => {
@@ -39,5 +48,15 @@ describe("buildProductMetadata", () => {
     expect(metadata.title).toBe("Macetero Terracota | Mundo Macetero");
     expect(metadata.description).toContain("Macetero de terracota hecho a mano.");
     expect(metadata.openGraph?.images).toEqual(["https://example.com/terracota-1.jpg"]);
+  });
+
+  it("strips HTML tags from description in metadata", () => {
+    const htmlProduct = {
+      ...sampleProduct,
+      description: "<p>Macetero de <strong>terracota</strong> hecho a mano.</p>",
+    };
+    const metadata = buildProductMetadata(htmlProduct);
+    expect(metadata.description).toBe("Macetero de terracota hecho a mano.");
+    expect(metadata.openGraph?.description).toBe("Macetero de terracota hecho a mano.");
   });
 });
