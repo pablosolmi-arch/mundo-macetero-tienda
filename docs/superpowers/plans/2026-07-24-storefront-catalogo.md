@@ -35,7 +35,7 @@ mundo-macetero-tienda/
     schema.ts                       # Drizzle table defs
     client.ts                       # db connection singleton
   queries/
-    catalog.ts                      # getAllActiveCategories, getProductsByCategory, getProductBySlug
+    catalog.ts                      # getAllCategories, getProductsByCategory, getProductBySlug
   scripts/
     import-catalog.ts               # Shopify CSV -> DB importer
   lib/
@@ -585,7 +585,7 @@ git commit -m "Add Shopify CSV catalog importer"
 
 **Interfaces:**
 - Consumes: `db`, `categories`, `products`, `productVariants` (Tasks 3/4).
-- Produces: `getAllActiveCategories(): Promise<Category[]>`, `getProductsByCategory(categorySlug: string): Promise<Product[]>`, `getProductBySlug(slug: string): Promise<(Product & { variants: ProductVariant[] }) | null>` — Tasks 6/7/8 (pages, sitemap) import these directly, no other data-access path exists.
+- Produces: `getAllCategories(): Promise<Category[]>`, `getProductsByCategory(categorySlug: string): Promise<Product[]>`, `getProductBySlug(slug: string): Promise<(Product & { variants: ProductVariant[] }) | null>` — Tasks 6/7/8 (pages, sitemap) import these directly, no other data-access path exists.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -595,7 +595,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { db } from "../../db/client";
 import { categories, products } from "../../db/schema";
 import { eq } from "drizzle-orm";
-import { getAllActiveCategories, getProductsByCategory, getProductBySlug } from "../../queries/catalog";
+import { getAllCategories, getProductsByCategory, getProductBySlug } from "../../queries/catalog";
 
 describe("catalog queries", () => {
   beforeAll(async () => {
@@ -620,7 +620,7 @@ describe("catalog queries", () => {
   });
 
   it("lists active categories", async () => {
-    const cats = await getAllActiveCategories();
+    const cats = await getAllCategories();
     expect(cats.some((c) => c.slug === "query-test-cat")).toBe(true);
   });
 
@@ -655,7 +655,7 @@ import { db } from "../db/client";
 import { categories, products, productVariants } from "../db/schema";
 import { eq, and } from "drizzle-orm";
 
-export async function getAllActiveCategories() {
+export async function getAllCategories() {
   return db.query.categories.findMany();
 }
 
@@ -904,7 +904,7 @@ git commit -m "Add product detail page"
 - Create: `components/ProductGrid.tsx`
 
 **Interfaces:**
-- Consumes: `getAllActiveCategories`, `getProductsByCategory` (Task 5).
+- Consumes: `getAllCategories`, `getProductsByCategory` (Task 5).
 - Produces: renders at `/` and `/:categorySlug` — leaf pages.
 
 - [ ] **Step 1: Implement `components/ProductCard.tsx`**
@@ -975,10 +975,10 @@ export default async function CategoryPage({ params }: Props) {
 ```tsx
 // app/page.tsx
 import Link from "next/link";
-import { getAllActiveCategories } from "../queries/catalog";
+import { getAllCategories } from "../queries/catalog";
 
 export default async function HomePage() {
-  const categories = await getAllActiveCategories();
+  const categories = await getAllCategories();
 
   return (
     <main className="mx-auto max-w-6xl p-6">
@@ -1019,7 +1019,7 @@ git commit -m "Add home and category listing pages"
 - Create: `app/sitemap.ts`
 
 **Interfaces:**
-- Consumes: `getAllActiveCategories`, `getProductsByCategory` (Task 5).
+- Consumes: `getAllCategories`, `getProductsByCategory` (Task 5).
 - Produces: `/sitemap.xml` served by Next.js's built-in sitemap convention — nothing later depends on this.
 
 - [ ] **Step 1: Implement `app/sitemap.ts`**
@@ -1027,12 +1027,12 @@ git commit -m "Add home and category listing pages"
 ```typescript
 // app/sitemap.ts
 import type { MetadataRoute } from "next";
-import { getAllActiveCategories, getProductsByCategory } from "../queries/catalog";
+import { getAllCategories, getProductsByCategory } from "../queries/catalog";
 
 const BASE_URL = process.env.SITE_URL ?? "https://mundo-macetero-tienda.vercel.app";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const categories = await getAllActiveCategories();
+  const categories = await getAllCategories();
 
   const categoryEntries: MetadataRoute.Sitemap = categories.map((c) => ({
     url: `${BASE_URL}/${c.slug}`,
