@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import type { Product, ProductVariant } from "../db/schema";
 
-const SITE_NAME = "Mundo Macetero";
-
 function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 }
@@ -39,7 +37,9 @@ export function serializeJsonLd(jsonLd: object): string {
 export function buildProductMetadata(product: Product): Metadata {
   const cleanDescription = stripHtml(product.description).slice(0, 160);
   return {
-    title: `${product.name} | ${SITE_NAME}`,
+    // Plain string title: the root layout's title.template ("%s | Mundo Macetero")
+    // adds the site-name suffix once. Do NOT pre-suffix here, or it double-suffixes.
+    title: product.name,
     description: cleanDescription,
     openGraph: {
       title: product.name,

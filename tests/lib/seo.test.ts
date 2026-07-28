@@ -43,9 +43,11 @@ describe("buildProductJsonLd", () => {
 });
 
 describe("buildProductMetadata", () => {
-  it("builds a title and description from the product", () => {
+  it("builds a plain-name title (the root layout template adds the site suffix)", () => {
     const metadata = buildProductMetadata(sampleProduct);
-    expect(metadata.title).toBe("Macetero Terracota | Mundo Macetero");
+    // Plain product name only: app/layout.tsx's title.template appends
+    // " | Mundo Macetero" once. Pre-suffixing here would double it.
+    expect(metadata.title).toBe("Macetero Terracota");
     expect(metadata.description).toContain("Macetero de terracota hecho a mano.");
     expect(metadata.openGraph?.images).toEqual(["https://example.com/terracota-1.jpg"]);
   });
