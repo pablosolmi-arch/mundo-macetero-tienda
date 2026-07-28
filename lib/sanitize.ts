@@ -10,7 +10,9 @@ import sanitizeHtmlLib from "sanitize-html";
 // runtime with ERR_REQUIRE_ESM (a jsdom dependency is ESM loaded via require).
 export function sanitizeHtml(html: string): string {
   return sanitizeHtmlLib(html, {
-    allowedTags: sanitizeHtmlLib.defaults.allowedTags.concat(["img", "h1", "h2"]),
+    // h1/h2 are already in sanitize-html's defaults; img is the only real
+    // addition (Shopify descriptions embed product photos).
+    allowedTags: sanitizeHtmlLib.defaults.allowedTags.concat(["img"]),
     allowedAttributes: {
       ...sanitizeHtmlLib.defaults.allowedAttributes,
       img: ["src", "alt", "title", "width", "height", "loading"],

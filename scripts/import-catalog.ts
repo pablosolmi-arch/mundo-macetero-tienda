@@ -116,6 +116,14 @@ export async function importCatalogFromCsv(
     // Base ("from") price = the first priced row for the handle.
     const basePrice = variantRows[0]?.["Variant Price"] ?? "0";
 
+    // Surface the price-0 landmine on future re-imports: an ACTIVE product with
+    // no priced row is almost certainly a data problem worth a human's eyes
+    // (drafts legitimately have no price and are archived, so we don't warn on them).
+    const isActive = head.Published?.trim().toUpperCase() === "TRUE";
+    if (isActive && Number(basePrice) === 0) {
+      console.warn(`WARN: active product "${handle}" imported with basePrice 0 (no priced row found)`);
+    }
+
     // Shopify's standard product export does NOT always include a
     // "Variant Inventory Qty" column (inventory is often exported separately).
     // parseQty returns null for a missing/blank/non-numeric cell — distinct from
@@ -139,7 +147,7 @@ export async function importCatalogFromCsv(
       categoryId,
       images,
       stock: totalStock,
-      status: head.Published?.trim().toUpperCase() === "TRUE" ? "active" : "archived",
+      status: isActive ? "active" : "archived",
     };
 
     // Upsert by slug so re-running the importer against the same CSV (e.g. Task

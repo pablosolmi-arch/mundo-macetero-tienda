@@ -28,4 +28,18 @@ describe("sanitizeHtml", () => {
     expect(result).not.toContain("onerror");
     expect(result).not.toContain("alert");
   });
+
+  it("drops javascript: URLs in links", () => {
+    const result = sanitizeHtml('<a href="javascript:alert(1)">click</a>');
+    expect(result).not.toContain("javascript:");
+    expect(result).not.toContain("alert");
+    expect(result).toContain("click");
+  });
+
+  it("preserves safe images and headings (allowed tags)", () => {
+    const result = sanitizeHtml('<h1>Título</h1><img src="https://cdn.example/p.jpg" alt="foto">');
+    expect(result).toContain("<h1>");
+    expect(result).toContain('src="https://cdn.example/p.jpg"');
+    expect(result).toContain('alt="foto"');
+  });
 });
