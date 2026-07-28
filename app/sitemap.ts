@@ -4,7 +4,8 @@ import { getAllCategories, getAllActiveProducts } from "../queries/catalog";
 
 export const revalidate = 3600;
 
-const BASE_URL = process.env.SITE_URL ?? "https://mundo-macetero-tienda.vercel.app";
+// `||` (not `??`) so a blank SITE_URL="" also falls back to a valid absolute URL.
+const BASE_URL = process.env.SITE_URL || "https://fase1-storefront-catalogo.vercel.app";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [categories, products] = await Promise.all([

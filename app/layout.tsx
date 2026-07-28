@@ -12,7 +12,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const SITE_URL = process.env.SITE_URL ?? "https://fase1-storefront-catalogo.vercel.app";
+// `||` (not `??`) so a blank SITE_URL="" (as documented in .env.example) also
+// falls back — new URL("") would throw at module load and crash every route.
+const SITE_URL = process.env.SITE_URL || "https://fase1-storefront-catalogo.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
