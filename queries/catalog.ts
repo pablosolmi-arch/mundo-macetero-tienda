@@ -18,6 +18,12 @@ export async function getProductsByCategory(categorySlug: string) {
   });
 }
 
+export async function getAllActiveProducts() {
+  return db.query.products.findMany({
+    where: eq(products.status, "active"),
+  });
+}
+
 export async function getProductBySlug(slug: string) {
   const product = await db.query.products.findFirst({
     where: eq(products.slug, slug),

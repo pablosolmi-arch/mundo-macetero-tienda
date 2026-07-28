@@ -3,7 +3,12 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { db } from "../../db/client";
 import { categories, products } from "../../db/schema";
 import { eq } from "drizzle-orm";
-import { getAllCategories, getProductsByCategory, getProductBySlug } from "../../queries/catalog";
+import {
+  getAllCategories,
+  getProductsByCategory,
+  getProductBySlug,
+  getAllActiveProducts,
+} from "../../queries/catalog";
 
 describe("catalog queries", () => {
   beforeAll(async () => {
@@ -24,6 +29,8 @@ describe("catalog queries", () => {
 
   afterAll(async () => {
     await db.delete(products).where(eq(products.slug, "query-test-product"));
+    await db.delete(products).where(eq(products.slug, "sitemap-test-uncategorized"));
+    await db.delete(products).where(eq(products.slug, "sitemap-test-archived"));
     await db.delete(categories).where(eq(categories.slug, "query-test-cat"));
   });
 
@@ -46,5 +53,30 @@ describe("catalog queries", () => {
   it("returns null for an unknown slug", async () => {
     const product = await getProductBySlug("does-not-exist");
     expect(product).toBeNull();
+  });
+
+  it("includes uncategorized active products and excludes archived products", async () => {
+    await db.insert(products).values({
+      slug: "sitemap-test-uncategorized",
+      name: "Sitemap Test Uncategorized",
+      basePrice: "1000",
+      categoryId: null,
+      images: [],
+      stock: 1,
+      status: "active",
+    });
+    await db.insert(products).values({
+      slug: "sitemap-test-archived",
+      name: "Sitemap Test Archived",
+      basePrice: "1000",
+      categoryId: null,
+      images: [],
+      stock: 1,
+      status: "archived",
+    });
+
+    const result = await getAllActiveProducts();
+    expect(result.some((p) => p.slug === "sitemap-test-uncategorized")).toBe(true);
+    expect(result.some((p) => p.slug === "sitemap-test-archived")).toBe(false);
   });
 });
