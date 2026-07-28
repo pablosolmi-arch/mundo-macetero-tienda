@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { getProductBySlug } from "../../../queries/catalog";
 import { buildProductJsonLd, buildProductMetadata, serializeJsonLd } from "../../../lib/seo";
 import { sanitizeHtml } from "../../../lib/sanitize";
+import { formatCLP } from "../../../lib/format";
 
 interface Props {
   params: Promise<{ productSlug: string }>;
@@ -31,7 +32,7 @@ export default async function ProductPage({ params }: Props) {
       />
       <h1 className="text-2xl font-bold">{product.name}</h1>
       <div className="mt-2 text-gray-700" dangerouslySetInnerHTML={{ __html: sanitizeHtml(product.description) }} />
-      <p className="mt-4 text-xl font-semibold">${product.basePrice} CLP</p>
+      <p className="mt-4 text-xl font-semibold">{formatCLP(product.basePrice)}</p>
       {product.variants.length > 0 && (
         <ul className="mt-4 flex gap-2">
           {product.variants.map((v) => (
