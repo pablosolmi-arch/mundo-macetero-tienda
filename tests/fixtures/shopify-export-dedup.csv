@@ -1,0 +1,5 @@
+Handle,Title,Body (HTML),Type,Published,Option1 Name,Option1 Value,Variant SKU,Variant Price,Image Src
+jardinera-test,Jardinera Test,<p>Jardinera de prueba.</p>,JardineraTest,TRUE,Terminación,Cemento,,150000,https://example.com/jt-1.jpg
+jardinera-test,,,,,,Cemento,,180000,
+jardinera-test,,,,,,Negro,,155000,
+jardinera-test,,,,,,Negro,,185000,https://example.com/jt-2.jpg

@@ -9,7 +9,7 @@ import { importCatalogFromCsv } from "../../scripts/import-catalog";
 const FIXTURE = path.join(__dirname, "../fixtures/shopify-export-sample.csv");
 
 describe("importCatalogFromCsv", () => {
-  const testSlugs = ["macetero-terracota", "moldura-clasica", "macetero-sin-stock"];
+  const testSlugs = ["macetero-terracota", "moldura-clasica", "macetero-sin-stock", "jardinera-test"];
   afterAll(async () => {
     await db.delete(productVariants).where(
       inArray(
@@ -18,7 +18,7 @@ describe("importCatalogFromCsv", () => {
       )
     );
     await db.delete(products).where(inArray(products.slug, testSlugs));
-    await db.delete(categories).where(inArray(categories.slug, ["maceteros", "molduras"]));
+    await db.delete(categories).where(inArray(categories.slug, ["maceteros", "molduras", "jardineratest"]));
   });
 
   it("imports products, variants, and categories from the CSV, uploading images via the injected uploader", async () => {
@@ -124,5 +124,31 @@ describe("importCatalogFromCsv", () => {
     });
     expect(variants).toHaveLength(1);
     expect(variants[0].stock).toBeGreaterThan(0);
+  }, 15000);
+
+  it("prices from Variant Price (not SKU) and dedupes variants by option value", async () => {
+    // Real Shopify exports carry the price in Variant Price while leaving
+    // Variant SKU blank, and flatten a size×option matrix into many priced rows.
+    // basePrice must be the first priced row, and variants collapse to distinct
+    // option values (Cemento, Negro) rather than one-per-row.
+    const dedupFixture = path.join(__dirname, "../fixtures/shopify-export-dedup.csv");
+    const fakeUploader = async (sourceUrl: string) => {
+      const filename = sourceUrl.split("/").pop();
+      return `https://blob.example/${filename}`;
+    };
+
+    const result = await importCatalogFromCsv(dedupFixture, fakeUploader);
+    expect(result.productsImported).toBe(1);
+    expect(result.variantsImported).toBe(2); // Cemento + Negro, not 4 rows
+
+    const product = await db.query.products.findFirst({
+      where: (p, { eq }) => eq(p.slug, "jardinera-test"),
+    });
+    expect(Number(product?.basePrice)).toBe(150000); // first priced row, not 0
+
+    const variants = await db.query.productVariants.findMany({
+      where: (v, { eq }) => eq(v.productId, product!.id),
+    });
+    expect(variants.map((v) => v.name).sort()).toEqual(["Cemento", "Negro"]);
   }, 15000);
 });

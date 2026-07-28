@@ -107,7 +107,13 @@ export async function importCatalogFromCsv(
     ];
     const images = await Promise.all(sourceImageUrls.map((url) => uploadImage(url)));
 
-    const variantRows = groupRows.filter((r) => r["Variant SKU"]?.trim());
+    // A "variant row" is any row carrying a Variant Price. We deliberately do
+    // NOT key off Variant SKU: real Shopify exports frequently leave SKU blank
+    // on every row while still carrying prices, and keying off SKU left 24/25
+    // products at price 0. Image-only extra rows have a blank Variant Price and
+    // are correctly excluded here.
+    const variantRows = groupRows.filter((r) => r["Variant Price"]?.trim());
+    // Base ("from") price = the first priced row for the handle.
     const basePrice = variantRows[0]?.["Variant Price"] ?? "0";
 
     // Shopify's standard product export does NOT always include a
@@ -159,16 +165,28 @@ export async function importCatalogFromCsv(
     // this product with zero variants until the next run, which self-heals it.
     await db.delete(productVariants).where(eq(productVariants.productId, product.id));
 
+    // Deduplicate variants by their Option1 Value. A Shopify export flattens a
+    // size×color matrix into one priced row per combination (e.g. "jardineras"
+    // has 92 priced rows that are really just 3 finishes across many sizes).
+    // Storing one variant per row would list 92 near-identical option pills;
+    // collapsing to distinct option values gives a clean, meaningful variant
+    // list for this catalog-display phase (size selection is a Fase 2 concern).
+    // Option1 Value blank (single-variant product) falls back to "Default Title".
+    const seenVariants = new Map<string, { price: string; stock: number }>();
     for (const variantRow of variantRows) {
-      // Shopify omits Option1 Value for products with no distinct option (single
-      // "Default Title" variant); fall back to that convention instead of skipping
-      // the row, so every variant row still gets a productVariants record.
       const optionName = variantRow["Option1 Value"]?.trim() || "Default Title";
+      if (seenVariants.has(optionName)) continue;
+      seenVariants.set(optionName, {
+        price: variantRow["Variant Price"],
+        stock: parseQty(variantRow["Variant Inventory Qty"]) ?? fallbackStock,
+      });
+    }
+    for (const [name, { price, stock }] of seenVariants) {
       await db.insert(productVariants).values({
         productId: product.id,
-        name: optionName,
-        priceOverride: variantRow["Variant Price"],
-        stock: parseQty(variantRow["Variant Inventory Qty"]) ?? fallbackStock,
+        name,
+        priceOverride: price,
+        stock,
       });
       variantsImported += 1;
     }
