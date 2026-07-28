@@ -7,6 +7,10 @@ export async function getAllCategories() {
   return db.query.categories.findMany();
 }
 
+export async function getCategoryBySlug(slug: string) {
+  return (await db.query.categories.findFirst({ where: eq(categories.slug, slug) })) ?? null;
+}
+
 export async function getProductsByCategory(categorySlug: string) {
   const category = await db.query.categories.findFirst({
     where: eq(categories.slug, categorySlug),

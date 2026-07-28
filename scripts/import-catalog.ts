@@ -130,6 +130,8 @@ export async function importCatalogFromCsv(
     // Replace this product's variants wholesale on every run: delete whatever
     // is there, then re-insert from the CSV. This keeps variants convergent
     // across re-runs (no duplicates) without having to diff old vs. new rows.
+    // Not wrapped in a transaction: a crash between delete and reinsert leaves
+    // this product with zero variants until the next run, which self-heals it.
     await db.delete(productVariants).where(eq(productVariants.productId, product.id));
 
     for (const variantRow of variantRows) {

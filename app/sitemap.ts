@@ -2,6 +2,8 @@
 import type { MetadataRoute } from "next";
 import { getAllCategories, getAllActiveProducts } from "../queries/catalog";
 
+export const revalidate = 3600;
+
 const BASE_URL = process.env.SITE_URL ?? "https://mundo-macetero-tienda.vercel.app";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

@@ -5,6 +5,7 @@ import { categories, products } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import {
   getAllCategories,
+  getCategoryBySlug,
   getProductsByCategory,
   getProductBySlug,
   getAllActiveProducts,
@@ -37,6 +38,16 @@ describe("catalog queries", () => {
   it("lists active categories", async () => {
     const cats = await getAllCategories();
     expect(cats.some((c) => c.slug === "query-test-cat")).toBe(true);
+  });
+
+  it("gets a category by slug", async () => {
+    const category = await getCategoryBySlug("query-test-cat");
+    expect(category?.name).toBe("Query Test Cat");
+  });
+
+  it("returns null for an unknown category slug", async () => {
+    const category = await getCategoryBySlug("definitely-not-a-category-xyz");
+    expect(category).toBeNull();
   });
 
   it("lists products in a category", async () => {

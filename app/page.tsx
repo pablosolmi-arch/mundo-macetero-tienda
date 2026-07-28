@@ -2,6 +2,8 @@
 import Link from "next/link";
 import { getAllCategories } from "../queries/catalog";
 
+export const revalidate = 3600;
+
 export default async function HomePage() {
   const categories = await getAllCategories();
 
