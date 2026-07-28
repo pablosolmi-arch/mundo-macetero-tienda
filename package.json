@@ -12,17 +12,18 @@
     "@vercel/blob": "^2.6.1",
     "csv-parse": "^7.0.1",
     "drizzle-orm": "^0.45.2",
-    "isomorphic-dompurify": "^3.19.0",
     "next": "16.2.11",
     "postgres": "^3.4.9",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "sanitize-html": "^2.17.6"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/sanitize-html": "^2.16.1",
     "dotenv": "^17.4.2",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",

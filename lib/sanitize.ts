@@ -1,8 +1,21 @@
-import DOMPurify from "isomorphic-dompurify";
+import sanitizeHtmlLib from "sanitize-html";
 
-// Sanitizes Shopify's `Body (HTML)` product description before it's rendered
-// via dangerouslySetInnerHTML. We want to keep the formatting (bold,
-// paragraphs, lists) but strip anything that could execute script (XSS).
+// Sanitizes Shopify's `Body (HTML)` product description before it's rendered via
+// dangerouslySetInnerHTML. Keeps safe formatting (bold, paragraphs, lists,
+// headings, links, images) but strips scripts, event-handler attributes, and
+// javascript: URLs (XSS).
+//
+// Uses sanitize-html (htmlparser2-based, pure Node) rather than DOMPurify:
+// isomorphic-dompurify pulls in jsdom, which crashes on Vercel's serverless
+// runtime with ERR_REQUIRE_ESM (a jsdom dependency is ESM loaded via require).
 export function sanitizeHtml(html: string): string {
-  return DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
+  return sanitizeHtmlLib(html, {
+    allowedTags: sanitizeHtmlLib.defaults.allowedTags.concat(["img", "h1", "h2"]),
+    allowedAttributes: {
+      ...sanitizeHtmlLib.defaults.allowedAttributes,
+      img: ["src", "alt", "title", "width", "height", "loading"],
+    },
+    // allowedSchemes defaults to http/https/ftp/mailto/tel — javascript: is not
+    // allowed, so javascript: URLs in href/src are dropped.
+  });
 }
