@@ -24,6 +24,18 @@ export function buildProductJsonLd(product: Product & { variants: ProductVariant
   };
 }
 
+// Serializes JSON-LD for safe embedding inside a <script type="application/ld+json">
+// tag. Without this, a product name/image URL containing "</script>" (or a raw
+// "<") could break out of the script context and inject markup (XSS). U+2028 and
+// U+2029 are also escaped: they're valid in JSON strings but are line terminators
+// to some JS parsers, which would corrupt the inline script.
+export function serializeJsonLd(jsonLd: object): string {
+  return JSON.stringify(jsonLd)
+    .replace(/</g, "\\u003c")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
+}
+
 export function buildProductMetadata(product: Product): Metadata {
   const cleanDescription = stripHtml(product.description).slice(0, 160);
   return {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildProductJsonLd, buildProductMetadata } from "../../lib/seo";
+import { buildProductJsonLd, buildProductMetadata, serializeJsonLd } from "../../lib/seo";
 
 const sampleProduct = {
   id: 1,
@@ -58,5 +58,32 @@ describe("buildProductMetadata", () => {
     const metadata = buildProductMetadata(htmlProduct);
     expect(metadata.description).toBe("Macetero de terracota hecho a mano.");
     expect(metadata.openGraph?.description).toBe("Macetero de terracota hecho a mano.");
+  });
+});
+
+describe("serializeJsonLd", () => {
+  it("escapes </script> so a malicious product name can't break out of the script tag", () => {
+    const maliciousProduct = {
+      ...sampleProduct,
+      name: '</script><script>alert(1)</script>',
+    };
+    const jsonLd = buildProductJsonLd(maliciousProduct);
+    const serialized = serializeJsonLd(jsonLd);
+
+    expect(serialized).not.toContain("</script>");
+
+    // Still valid, script-safe JSON that round-trips the original data once
+    // the escape is reversed (the browser's JSON.parse would see < the
+    // same way it sees a literal "<").
+    const roundTripped = JSON.parse(serialized.replace(/\\u003c/g, "<"));
+    expect(roundTripped.name).toBe(maliciousProduct.name);
+  });
+
+  it("produces parseable JSON for a normal product", () => {
+    const jsonLd = buildProductJsonLd(sampleProduct);
+    const serialized = serializeJsonLd(jsonLd);
+    const parsed = JSON.parse(serialized);
+    expect(parsed.name).toBe("Macetero Terracota");
+    expect(parsed["@type"]).toBe("Product");
   });
 });

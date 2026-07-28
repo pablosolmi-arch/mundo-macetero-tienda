@@ -2,7 +2,8 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getProductBySlug } from "../../../queries/catalog";
-import { buildProductJsonLd, buildProductMetadata } from "../../../lib/seo";
+import { buildProductJsonLd, buildProductMetadata, serializeJsonLd } from "../../../lib/seo";
+import { sanitizeHtml } from "../../../lib/sanitize";
 
 interface Props {
   params: Promise<{ productSlug: string }>;
@@ -26,10 +27,10 @@ export default async function ProductPage({ params }: Props) {
     <main className="mx-auto max-w-4xl p-6">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
       <h1 className="text-2xl font-bold">{product.name}</h1>
-      <p className="mt-2 text-gray-700" dangerouslySetInnerHTML={{ __html: product.description }} />
+      <div className="mt-2 text-gray-700" dangerouslySetInnerHTML={{ __html: sanitizeHtml(product.description) }} />
       <p className="mt-4 text-xl font-semibold">${product.basePrice} CLP</p>
       {product.variants.length > 0 && (
         <ul className="mt-4 flex gap-2">
