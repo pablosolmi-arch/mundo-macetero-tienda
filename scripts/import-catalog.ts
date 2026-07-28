@@ -32,8 +32,22 @@ interface ShopifyCsvRow {
   "Option1 Value": string;
   "Variant SKU": string;
   "Variant Price": string;
-  "Variant Inventory Qty": string;
+  // Optional: Shopify's product export doesn't always include this column.
+  "Variant Inventory Qty"?: string;
   "Image Src": string;
+}
+
+// Used as product/variant stock when the CSV carries no inventory quantities at
+// all. Arbitrary positive value: it is never displayed as a count in this phase,
+// it only makes JSON-LD report the product as InStock (see parseQty usage).
+const DEFAULT_STOCK_WHEN_UNKNOWN = 100;
+
+// Returns the numeric quantity, or null when the cell is missing, blank, or
+// non-numeric — letting callers distinguish "no inventory data" from a real 0.
+function parseQty(raw: string | undefined): number | null {
+  if (raw === undefined || raw.trim() === "") return null;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : null;
 }
 
 function slugify(value: string): string {
@@ -95,10 +109,21 @@ export async function importCatalogFromCsv(
 
     const variantRows = groupRows.filter((r) => r["Variant SKU"]?.trim());
     const basePrice = variantRows[0]?.["Variant Price"] ?? "0";
-    const totalStock = variantRows.reduce(
-      (sum, r) => sum + (Number(r["Variant Inventory Qty"]) || 0),
-      0
-    );
+
+    // Shopify's standard product export does NOT always include a
+    // "Variant Inventory Qty" column (inventory is often exported separately).
+    // parseQty returns null for a missing/blank/non-numeric cell — distinct from
+    // a genuine 0 — so we can tell "no inventory data" apart from "zero stock".
+    const parsedQtys = variantRows.map((r) => parseQty(r["Variant Inventory Qty"]));
+    const hasAnyQty = parsedQtys.some((q) => q !== null);
+    // When the export carries no quantities at all, treat the product as
+    // available rather than out-of-stock: stock is never shown as a number in
+    // this phase, it only drives JSON-LD InStock/OutOfStock, and a live catalog
+    // that's actively selling should default to available.
+    const fallbackStock = hasAnyQty ? 0 : DEFAULT_STOCK_WHEN_UNKNOWN;
+    const totalStock = hasAnyQty
+      ? parsedQtys.reduce<number>((sum, q) => sum + (q ?? 0), 0)
+      : DEFAULT_STOCK_WHEN_UNKNOWN;
 
     const productValues = {
       slug: handle,
@@ -143,7 +168,7 @@ export async function importCatalogFromCsv(
         productId: product.id,
         name: optionName,
         priceOverride: variantRow["Variant Price"],
-        stock: Number(variantRow["Variant Inventory Qty"]) || 0,
+        stock: parseQty(variantRow["Variant Inventory Qty"]) ?? fallbackStock,
       });
       variantsImported += 1;
     }

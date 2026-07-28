@@ -9,14 +9,15 @@ import { importCatalogFromCsv } from "../../scripts/import-catalog";
 const FIXTURE = path.join(__dirname, "../fixtures/shopify-export-sample.csv");
 
 describe("importCatalogFromCsv", () => {
+  const testSlugs = ["macetero-terracota", "moldura-clasica", "macetero-sin-stock"];
   afterAll(async () => {
     await db.delete(productVariants).where(
       inArray(
         productVariants.productId,
-        db.select({ id: products.id }).from(products).where(inArray(products.slug, ["macetero-terracota", "moldura-clasica"]))
+        db.select({ id: products.id }).from(products).where(inArray(products.slug, testSlugs))
       )
     );
-    await db.delete(products).where(inArray(products.slug, ["macetero-terracota", "moldura-clasica"]));
+    await db.delete(products).where(inArray(products.slug, testSlugs));
     await db.delete(categories).where(inArray(categories.slug, ["maceteros", "molduras"]));
   });
 
@@ -99,4 +100,29 @@ describe("importCatalogFromCsv", () => {
     expect(secondResult.productsImported).toBe(2);
     expect(afterSecondRun).toEqual(afterFirstRun);
   }, 30000);
+
+  it("marks products as in-stock when the export has no inventory-quantity column", async () => {
+    // Real Shopify product exports frequently omit the "Variant Inventory Qty"
+    // column. Such products must import as available (stock > 0), not as 0/
+    // out-of-stock, since stock only drives JSON-LD availability in this phase.
+    const noInventoryFixture = path.join(__dirname, "../fixtures/shopify-export-no-inventory.csv");
+    const fakeUploader = async (sourceUrl: string) => {
+      const filename = sourceUrl.split("/").pop();
+      return `https://blob.example/${filename}`;
+    };
+
+    const result = await importCatalogFromCsv(noInventoryFixture, fakeUploader);
+    expect(result.productsImported).toBe(1);
+
+    const product = await db.query.products.findFirst({
+      where: (p, { eq }) => eq(p.slug, "macetero-sin-stock"),
+    });
+    expect(product?.stock).toBeGreaterThan(0);
+
+    const variants = await db.query.productVariants.findMany({
+      where: (v, { eq }) => eq(v.productId, product!.id),
+    });
+    expect(variants).toHaveLength(1);
+    expect(variants[0].stock).toBeGreaterThan(0);
+  }, 15000);
 });
