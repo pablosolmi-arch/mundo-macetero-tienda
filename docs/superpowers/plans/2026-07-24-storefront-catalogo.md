@@ -1023,8 +1023,10 @@ git commit -m "Add home and category listing pages"
 - Create: `app/sitemap.ts`
 
 **Interfaces:**
-- Consumes: `getAllCategories`, `getProductsByCategory` (Task 5).
+- Consumes: `getAllCategories`, `getAllActiveProducts` (Task 5).
 - Produces: `/sitemap.xml` served by Next.js's built-in sitemap convention — nothing later depends on this.
+
+Amendment (2026-07-27, post-review): the original design iterated products category-by-category via `getProductsByCategory`, which silently OMITS products whose `categoryId` is null (the importer leaves it null when Shopify's `Type` column is blank). Those products are live and reachable but would never appear in the sitemap — an SEO correctness bug. Fix: add `getAllActiveProducts(): Promise<Product[]>` to `queries/catalog.ts` (all products with `status = "active"`, regardless of category) and build the sitemap's product URLs from that. Category URLs still come from `getAllCategories`. This also removes the N+1 per-category query.
 
 - [ ] **Step 1: Implement `app/sitemap.ts`**
 
