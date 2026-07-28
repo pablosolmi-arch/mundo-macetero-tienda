@@ -823,8 +823,10 @@ git commit -m "Add SEO metadata and JSON-LD builders"
 - Create: `app/producto/[productSlug]/page.tsx`
 
 **Interfaces:**
-- Consumes: `getProductBySlug` (Task 5), `buildProductJsonLd`, `buildProductMetadata` (Task 6).
+- Consumes: `getProductBySlug` (Task 5), `buildProductJsonLd`, `buildProductMetadata`, `serializeJsonLd` (Task 6), `sanitizeHtml` (`lib/sanitize.ts`).
 - Produces: renders at `/producto/:slug` — this is a leaf page, nothing later depends on its internals.
+
+Security amendment (2026-07-27, post automated security review — 2 HIGH XSS): the code block below shows the ORIGINAL, VULNERABLE version. As shipped it MUST: (a) inject JSON-LD via `serializeJsonLd(jsonLd)` (escapes `<`, U+2028, U+2029) instead of raw `JSON.stringify`, and (b) render the description via `sanitizeHtml(product.description)` (isomorphic-dompurify, keeps safe formatting, strips scripts/handlers), inside a `<div>` (not `<p>`, since sanitized Shopify HTML holds block elements). `lib/sanitize.ts` and `serializeJsonLd` were added for this. Never inject unescaped `JSON.stringify` into a `<script>` or raw Shopify HTML into `dangerouslySetInnerHTML`.
 
 - [ ] **Step 1: Implement the page**
 
