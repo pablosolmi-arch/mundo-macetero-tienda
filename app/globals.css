@@ -2,25 +2,42 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #1a1a1a;
+  --ink: #1b202a;        /* dark navy used for header / hero / feature bands */
+  --ink-soft: #262c38;
+  --muted: #6b7280;
+  --line: #e6e6e6;
+  --wa: #25d366;         /* whatsapp green */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --font-sans: var(--font-jost);       /* body: Jost */
+  --font-display: var(--font-dm-sans); /* headings: DM Sans */
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-jost), "Jost", sans-serif;
+  letter-spacing: 0.01em;
 }
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-dm-sans), "DM Sans", sans-serif;
+}
+
+/* Sanitized Shopify description formatting */
+.rte p { margin: 0 0 0.85rem; line-height: 1.7; }
+.rte ul { list-style: disc; padding-left: 1.25rem; margin: 0 0 0.85rem; }
+.rte ol { list-style: decimal; padding-left: 1.25rem; margin: 0 0 0.85rem; }
+.rte li { margin: 0.15rem 0; }
+.rte h1, .rte h2, .rte h3 { margin: 1.2rem 0 0.5rem; font-weight: 600; }
+.rte a { text-decoration: underline; }
+.rte img { max-width: 100%; height: auto; border-radius: 6px; margin: 0.5rem 0; }
+.rte strong { font-weight: 600; }
