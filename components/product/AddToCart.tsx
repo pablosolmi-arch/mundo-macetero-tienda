@@ -1,74 +1,114 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useCart } from "../cart/CartContext";
 import { formatCLP } from "../../lib/format";
+import { HEXES } from "../../content/site";
+
+// Buy box: price that tracks the selected variant and quantity, the variant
+// selector, quantity stepper and add-to-cart button.
+//
+// The catalog stores one variant axis (size/finish, as imported from Shopify),
+// so a single group of option buttons is rendered. Prices shown here are display
+// only: /api/checkout recomputes the charged amount from the database.
 
 export interface VariantOption {
   id: number;
   name: string;
-  price: number; // CLP integer (priceOverride, or basePrice)
+  price: number;
+  stock: number;
 }
 
-interface Props {
+interface AddToCartProps {
   productSlug: string;
   productName: string;
   basePrice: number;
   image: string | null;
   variants: VariantOption[];
+  // Label for the option group, e.g. "Tamaño".
+  ejeNombre: string;
 }
 
-// Client-side buy box: size/variant pills that update the displayed price, a
-// quantity stepper, and add-to-cart / buy-now actions. Selecting a variant
-// updates the price shown, matching the live Shopify storefront behaviour.
-export function AddToCart({ productSlug, productName, basePrice, image, variants }: Props) {
-  const cart = useCart();
-  const selectable = variants.filter((v) => v.name && v.name !== "Default Title");
-  const [selected, setSelected] = useState<VariantOption | null>(
-    selectable.length > 0 ? selectable[0] : null
-  );
+// Some option values name a finish; show its colour as a dot, as the design does.
+function hexFor(name: string): string | null {
+  const key = name.trim().toLowerCase();
+  for (const [id, hex] of Object.entries(HEXES)) {
+    if (key.includes(id)) return hex;
+  }
+  return null;
+}
+
+export function AddToCart({
+  productSlug,
+  productName,
+  basePrice,
+  image,
+  variants,
+  ejeNombre,
+}: AddToCartProps) {
+  const { add } = useCart();
+  const [variantId, setVariantId] = useState<number | null>(variants[0]?.id ?? null);
   const [qty, setQty] = useState(1);
 
-  const unitPrice = selected ? selected.price : basePrice;
+  const selected = variants.find((v) => v.id === variantId) ?? null;
+  const unitPrice = selected?.price ?? basePrice;
 
-  function addToCart() {
-    cart.add(
-      {
-        productSlug,
-        name: productName,
-        variantId: selected ? selected.id : null,
-        variantName: selected ? selected.name : null,
-        unitPrice,
-        image,
-      },
-      qty
-    );
-    cart.open();
-  }
+  // A lone "Default Title" variant is Shopify's placeholder for "no options".
+  const mostrarEje =
+    variants.length > 1 || (variants.length === 1 && variants[0].name !== "Default Title");
 
   return (
-    <div>
-      <p className="font-display text-3xl font-semibold">{formatCLP(unitPrice)}</p>
-      <p className="mt-1 text-sm text-muted">Los gastos de envío se calculan al pagar.</p>
+    <>
+      <div style={{ display: "flex", alignItems: "baseline", gap: "12px", marginBottom: "6px" }}>
+        <span style={{ fontSize: "24px", fontWeight: 700 }}>{formatCLP(unitPrice * qty)}</span>
+      </div>
+      <div style={{ fontSize: "12.5px", color: "#6f6c66", marginBottom: "22px" }}>
+        Los{" "}
+        <Link href="/politicas" style={{ textDecoration: "underline" }}>
+          gastos de envío
+        </Link>{" "}
+        se calculan en la pantalla de pago.
+      </div>
 
-      {selectable.length > 0 && (
-        <div className="mt-6">
-          <span className="text-sm font-medium">Tamaño</span>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {selectable.map((v) => {
-              const active = selected?.id === v.id;
+      {mostrarEje && (
+        <div style={{ marginBottom: "18px" }}>
+          <div style={{ fontSize: "12.5px", fontWeight: 700, marginBottom: "9px" }}>{ejeNombre}</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+            {variants.map((v) => {
+              const on = v.id === variantId;
+              const hex = hexFor(v.name);
               return (
                 <button
                   key={v.id}
-                  type="button"
-                  onClick={() => setSelected(v)}
-                  aria-pressed={active}
-                  className={`rounded-full border px-4 py-2 text-sm transition-colors ${
-                    active
-                      ? "border-ink bg-ink text-white"
-                      : "border-line bg-white text-foreground hover:border-ink"
-                  }`}
+                  onClick={() => setVariantId(v.id)}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "9px 14px",
+                    borderRadius: "8px",
+                    fontSize: "13px",
+                    cursor: "pointer",
+                    border: on ? "1.5px solid #2a2925" : "1px solid #d8d5cf",
+                    background: on ? "#2a2925" : "#fff",
+                    color: on ? "#fff" : "#2a2925",
+                    fontWeight: on ? 700 : 500,
+                  }}
                 >
+                  {hex && (
+                    <span
+                      style={{
+                        width: "13px",
+                        height: "13px",
+                        borderRadius: "50%",
+                        background: hex,
+                        border: "1px solid rgba(42,41,37,.28)",
+                        display: "inline-block",
+                        flex: "none",
+                      }}
+                    />
+                  )}
                   {v.name}
                 </button>
               );
@@ -77,33 +117,78 @@ export function AddToCart({ productSlug, productName, basePrice, image, variants
         </div>
       )}
 
-      <div className="mt-6 flex items-center gap-3">
-        <span className="text-sm font-medium">Cantidad</span>
-        <div className="inline-flex items-center rounded-md border border-line">
-          <button type="button" className="px-3 py-2 text-muted hover:text-ink" onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Restar">−</button>
-          <span className="min-w-8 text-center text-sm">{qty}</span>
-          <button type="button" className="px-3 py-2 text-muted hover:text-ink" onClick={() => setQty((q) => q + 1)} aria-label="Sumar">+</button>
+      <div style={{ display: "flex", gap: "12px", alignItems: "stretch", margin: "24px 0 10px", flexWrap: "wrap" }}>
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            border: "1px solid #d8d5cf",
+            borderRadius: "9px",
+            background: "#fff",
+          }}
+        >
+          <button
+            onClick={() => setQty((q) => Math.max(1, q - 1))}
+            aria-label="Quitar una unidad"
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: "12px 16px",
+              fontSize: "16px",
+              color: "#2a2925",
+            }}
+          >
+            −
+          </button>
+          <span style={{ fontSize: "15px", fontWeight: 600, minWidth: "26px", textAlign: "center" }}>{qty}</span>
+          <button
+            onClick={() => setQty((q) => q + 1)}
+            aria-label="Agregar una unidad"
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: "12px 16px",
+              fontSize: "16px",
+              color: "#2a2925",
+            }}
+          >
+            +
+          </button>
         </div>
-      </div>
-
-      <div className="mt-6 space-y-3">
         <button
-          type="button"
-          onClick={addToCart}
-          className="w-full rounded-md border border-ink bg-white py-3 text-sm font-medium text-ink transition-colors hover:bg-neutral-50"
+          onClick={() =>
+            add(
+              {
+                productSlug,
+                name: productName,
+                variantId: selected?.id ?? null,
+                variantName: selected?.name ?? null,
+                unitPrice,
+                image,
+              },
+              qty,
+            )
+          }
+          className="mm-btn-dark"
+          style={{
+            flex: 1,
+            minWidth: "220px",
+            border: "none",
+            borderRadius: "9px",
+            padding: "14px 26px",
+            fontSize: "14.5px",
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
         >
           Agregar al carrito
         </button>
-        <button
-          type="button"
-          onClick={() => {
-            addToCart();
-          }}
-          className="w-full rounded-md bg-ink py-3 text-sm font-medium text-white transition-opacity hover:opacity-90"
-        >
-          Comprar ahora
-        </button>
       </div>
-    </div>
+      <div style={{ fontSize: "12.5px", color: "#4c7a4c", fontWeight: 600, marginBottom: "24px" }}>
+        ✓ Despacho gratis en comunas del sector oriente · Retiro en tienda disponible
+      </div>
+    </>
   );
 }

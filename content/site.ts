@@ -1,0 +1,243 @@
+// Static site content and business rules ported from the Claude Design source
+// ("Mundo Macetero.dc.html" + "products.json"). Product data itself is NOT here:
+// products, prices, variants and images all come from the database.
+
+export const TIENDA = {
+  nombre: "Mundo Macetero",
+  direccion: "Las Esteras Norte 2610, Galpón 16, Quilicura",
+  horario: "Lun a Vie de 8:30 a 18:00",
+  telefonos: ["+56 9 92891754", "+56 9 98294954", "+56 2 26218765"],
+  email: "mundo@mundomacetero.cl",
+  instagram: "https://www.instagram.com/mundomacetero/",
+  facebook: "https://www.facebook.com/maceteroslivianos",
+  whatsapp: "https://wa.me/56992891754",
+} as const;
+
+// Discount code and shipping rules. These drive what the customer is charged, so
+// the server re-derives them at checkout too (see lib/pricing.ts) instead of
+// trusting whatever the browser computed.
+export const DESCUENTO = {
+  codigo: "MACETERO10",
+  porcentaje: 10,
+} as const;
+
+export const ENVIO = {
+  // Free delivery to Santiago's eastern sector.
+  comunasOriente: [
+    "Las Condes",
+    "Vitacura",
+    "Lo Barnechea",
+    "Providencia",
+    "La Reina",
+    "Ñuñoa",
+    "Peñalolén",
+  ],
+  // Flat rate for the rest of the Metropolitan Region.
+  tarifaRM: 12990,
+  regionRM: "Metropolitana de Santiago",
+  notaRegiones:
+    "Envío a regiones por pagar, con transporte externo. Coordinamos el despacho contigo tras la compra.",
+  retiro: "Retiro en tienda (Quilicura)",
+} as const;
+
+export const REGIONES = [
+  "Arica y Parinacota",
+  "Tarapacá",
+  "Antofagasta",
+  "Atacama",
+  "Coquimbo",
+  "Valparaíso",
+  "Metropolitana de Santiago",
+  "O'Higgins",
+  "Maule",
+  "Ñuble",
+  "Biobío",
+  "La Araucanía",
+  "Los Ríos",
+  "Los Lagos",
+  "Aysén",
+  "Magallanes",
+] as const;
+
+export const COMUNAS_RM = [
+  "Cerrillos",
+  "Cerro Navia",
+  "Colina",
+  "Conchalí",
+  "El Bosque",
+  "Estación Central",
+  "Huechuraba",
+  "Independencia",
+  "La Cisterna",
+  "La Florida",
+  "La Granja",
+  "La Pintana",
+  "La Reina",
+  "Lampa",
+  "Las Condes",
+  "Lo Barnechea",
+  "Lo Espejo",
+  "Lo Prado",
+  "Macul",
+  "Maipú",
+  "Ñuñoa",
+  "Padre Hurtado",
+  "Pedro Aguirre Cerda",
+  "Peñalolén",
+  "Providencia",
+  "Pudahuel",
+  "Puente Alto",
+  "Quilicura",
+  "Quinta Normal",
+  "Recoleta",
+  "Renca",
+  "San Bernardo",
+  "San Joaquín",
+  "San Miguel",
+  "San Ramón",
+  "Santiago Centro",
+  "Vitacura",
+] as const;
+
+export const TERMINACIONES = [
+  { id: "cemento", nombre: "Cemento Natural", hex: "#b8b2a7" },
+  { id: "negro", nombre: "Negro", hex: "#2e2c2a" },
+  { id: "grafito", nombre: "Grafito", hex: "#55524e" },
+  { id: "cantera", nombre: "Cantera Café", hex: "#8a6f5c" },
+] as const;
+
+// Swatch colours for option values whose name matches a finish.
+export const HEXES: Record<string, string> = {
+  cemento: "#b8b2a7",
+  negro: "#2e2c2a",
+  grafito: "#55524e",
+  cantera: "#8a6f5c",
+  blanco: "#f2f0ec",
+  gris: "#9a968f",
+};
+
+export interface HeroSlide {
+  titulo: string;
+  sub: string;
+  cta: string;
+  href: string;
+}
+
+export const HERO_SLIDES: HeroSlide[] = [
+  {
+    titulo: "¿Cuál es el macetero ideal para tu planta?",
+    sub: "Te lo decimos nosotros.",
+    cta: "¡Quiero que me asesoren!",
+    href: "/asesoramiento",
+  },
+  {
+    titulo: "¿Quieres ver tu espacio con un macetero nuestro?",
+    sub: "Mándanos una foto. Te lo devolvemos transformado.",
+    cta: "¡Envíanos tu foto!",
+    href: "/tu-espacio",
+  },
+  {
+    titulo: "Maceteros que transforman tus espacios",
+    sub: "Bienvenido a Mundo Macetero.",
+    cta: "Ver Maceteros",
+    href: "/tienda",
+  },
+  {
+    titulo: "Encuentra la jardinera que más te guste",
+    sub: "Distintas medidas, colores y terminaciones.",
+    cta: "Ver Jardineras",
+    href: "/tienda/jardinera",
+  },
+];
+
+// Descriptions for the collection tiles, keyed by the category slug that the
+// Shopify import actually created. Categories without an entry simply render
+// without a description.
+export const COLECCION_DESC: Record<string, string> = {
+  jardinera: "Para plantas, flores o árboles. Distintas medidas.",
+  bowl: "Maceteros tipo bowl.",
+  cubo: "Maceteros tipo cubo.",
+  conico: "Silueta cónica clásica.",
+  colonial: "Estilo tradicional chileno.",
+  copon: "Gran formato tipo copa.",
+  gema: "Facetados geométricos.",
+  gotar: "Maceteros con forma gotar.",
+  marroc: "Inspiración mediterránea.",
+  milan: "Minimalismo italiano.",
+  "plato-de-agua": "Bajos y anchos, tipo espejo de agua.",
+  "plato-invertido": "Volumen invertido, boca ancha.",
+  redondos: "Cilíndricos clásicos.",
+  vaso: "Proporción alta y esbelta.",
+  piedras: "Piedras decorativas para terminar la composición.",
+  rp: "Presencia escultórica de gran altura.",
+  macetero: "Nuestra línea principal de maceteros.",
+};
+
+// The design flagged featured products and trending collections by hand. The
+// database has no such flag, so the editorial choice lives here, expressed with
+// real catalog slugs. Missing slugs are skipped and the row is topped up with
+// other products, so this never breaks if the catalog is re-imported.
+export const DESTACADOS_SLUGS = [
+  "jardineras",
+  "macetero-bowl-cantera-cafe",
+  "macetero-cubo-cu40",
+  "macetero-conico-c2",
+  "macetero-redondo",
+  "macetero-piramidal",
+  "macetero-plato-de-agua",
+  "macetero-bowl-copia",
+];
+
+export const TENDENCIAS_SLUGS = ["gema", "milan", "marroc"];
+
+export interface BlogPost {
+  slug: string;
+  titulo: string;
+  fecha: string;
+  extracto: string;
+  cuerpo: string[];
+}
+
+export const BLOG: BlogPost[] = [
+  {
+    slug: "expo-jardines-2024",
+    titulo: "Nuestro éxito en la EXPO JARDINES 2024",
+    fecha: "Octubre 2024",
+    extracto:
+      "La feria nos permitió conectar con fanáticos de los jardines y expertos del rubro, y presentar nuestra nueva colección.",
+    cuerpo: [
+      "Participamos en la Expo Jardines 2024 con un stand donde exhibimos la línea clásica y adelantamos la nueva colección. Fue una gran oportunidad para conversar con paisajistas, arquitectos y aficionados, recoger ideas y mostrar en persona lo livianos que son nuestros maceteros.",
+      "Gracias a todos los que nos visitaron. Varias de las novedades que mostramos en la feria ya están disponibles en la tienda.",
+    ],
+  },
+  {
+    slug: "feria-jardineria-2022",
+    titulo: "Feria de Jardinería 2022 en Parque Araucano",
+    fecha: "Octubre 2022",
+    extracto:
+      "Estuvimos en la Feria de Jardinería de octubre 2022 mostrando nuestros maceteros ultra livianos.",
+    cuerpo: [
+      "En octubre de 2022 participamos en la Feria de Jardinería del Parque Araucano. Montamos un espacio con maceteros de distintos formatos y terminaciones, y muchos visitantes comprobaron en persona que un macetero de gran formato puede levantarse con una sola mano.",
+      "Fue nuestra primera feria masiva y la recepción del público nos confirmó el camino: diseño, calidad y ligereza.",
+    ],
+  },
+  {
+    slug: "macetero-de-autor-plumas-al-viento",
+    titulo: 'Macetero de Autor: "Plumas al Viento"',
+    fecha: "Mayo 2024",
+    extracto: "Una colaboración única con la artista Marcela Nicolás Oddó.",
+    cuerpo: [
+      'Junto a la artista Marcela Nicolás Oddó desarrollamos "Plumas al Viento", un macetero de autor intervenido a mano en edición limitada. Cada pieza es única: la artista trabaja sobre la superficie del macetero convirtiéndolo en un objeto de arte utilitario.',
+      "Si te interesa una pieza de esta serie o una colaboración personalizada, escríbenos.",
+    ],
+  },
+];
+
+export const CONFIANZA = [
+  "Inmobiliaria",
+  "Constructora",
+  "Paisajismo",
+  "Hotelería",
+  "Municipalidad",
+  "Retail",
+];

@@ -1,47 +1,174 @@
 import Link from "next/link";
+import { TIENDA } from "../../content/site";
+import { ScrollTopButton } from "./ScrollTopButton";
 
-interface Category {
-  id: number;
-  slug: string;
-  name: string;
-}
+const SECTION_LABEL: React.CSSProperties = {
+  fontSize: "12px",
+  fontWeight: 700,
+  letterSpacing: ".08em",
+  textTransform: "uppercase",
+  color: "#8b877f",
+  marginBottom: "14px",
+};
 
-export function Footer({ categories }: { categories: Category[] }) {
+const LINK: React.CSSProperties = { color: "#cfccc5" };
+
+const PILL: React.CSSProperties = {
+  border: "1px solid #44413c",
+  borderRadius: "999px",
+  padding: "9px 18px",
+  fontSize: "12.5px",
+  fontWeight: 600,
+  color: "#cfccc5",
+  transition: "border-color .2s,color .2s",
+};
+
+export function Footer() {
   return (
-    <footer className="mt-24 bg-ink text-white">
-      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:grid-cols-2 md:grid-cols-4">
-        <div>
-          <span className="font-display text-xl font-bold">MM</span>
-          <p className="mt-3 max-w-xs text-sm text-white/70">
-            Maceteros, jardineras y molduras fabricados en Chile. Diseño para tu espacio.
-          </p>
-        </div>
-        <div>
-          <h3 className="mb-3 text-sm font-semibold uppercase tracking-widest text-white/60">Tienda</h3>
-          <ul className="space-y-2 text-sm text-white/80">
-            {categories.slice(0, 6).map((c) => (
-              <li key={c.id}>
-                <Link href={`/${c.slug}`} className="hover:text-white">
-                  {c.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <h3 className="mb-3 text-sm font-semibold uppercase tracking-widest text-white/60">Ayuda</h3>
-          <ul className="space-y-2 text-sm text-white/80">
-            <li><Link href="/tienda" className="hover:text-white">Ver todo</Link></li>
-            <li><a href="https://wa.me/56900000000" className="hover:text-white">WhatsApp</a></li>
-          </ul>
-        </div>
-        <div>
-          <h3 className="mb-3 text-sm font-semibold uppercase tracking-widest text-white/60">Síguenos</h3>
-          <p className="text-sm text-white/80">Instagram · @mundomacetero</p>
+    <footer style={{ background: "#23221f", color: "#cfccc5", marginTop: "auto", overflow: "hidden" }}>
+      <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "60px 24px 0" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-end",
+            gap: "28px",
+            flexWrap: "wrap",
+            paddingBottom: "38px",
+            borderBottom: "1px solid #38352f",
+          }}
+        >
+          <div style={{ minWidth: 0 }}>
+            <div
+              className="font-display"
+              style={{
+                fontWeight: 700,
+                fontSize: "clamp(34px,6vw,68px)",
+                lineHeight: 1.05,
+                letterSpacing: "-.02em",
+                color: "#f4f3f1",
+              }}
+            >
+              mundo macetero<span style={{ color: "#d99e77" }}>.</span>
+            </div>
+            <p style={{ fontSize: "13.5px", lineHeight: 1.65, margin: "14px 0 0", color: "#a29d94", maxWidth: "420px" }}>
+              Maceteros ultra livianos tipo cemento para interior y exterior, fabricados en Chile.
+            </p>
+          </div>
+          <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+            <a href={TIENDA.facebook} target="_blank" rel="noopener noreferrer" className="mm-footer-link" style={PILL}>
+              Facebook
+            </a>
+            <a href={TIENDA.instagram} target="_blank" rel="noopener noreferrer" className="mm-footer-link" style={PILL}>
+              Instagram
+            </a>
+            <ScrollTopButton />
+          </div>
         </div>
       </div>
-      <div className="border-t border-white/10 py-5 text-center text-xs text-white/50">
-        © {new Date().getFullYear()} Mundo Macetero. Hecho en Chile.
+
+      <div
+        style={{
+          maxWidth: "1280px",
+          margin: "0 auto",
+          padding: "38px 24px 44px",
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+          gap: "34px",
+        }}
+      >
+        <div>
+          <div style={SECTION_LABEL}>Contáctanos</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "9px", fontSize: "13px", lineHeight: 1.5 }}>
+            <a
+              href="https://goo.gl/maps/x5Kixi1EfCGNdQpL9"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mm-footer-link"
+              style={LINK}
+            >
+              {TIENDA.direccion}
+            </a>
+            <span>Horarios {TIENDA.horario}</span>
+            {TIENDA.telefonos.map((t) => (
+              <a key={t} href={`tel:${t.replace(/\s/g, "")}`} className="mm-footer-link" style={LINK}>
+                {t}
+              </a>
+            ))}
+            <a href={`mailto:${TIENDA.email}`} className="mm-footer-link" style={LINK}>
+              {TIENDA.email}
+            </a>
+          </div>
+        </div>
+
+        <div>
+          <div style={SECTION_LABEL}>Tienda</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "9px", fontSize: "13px" }}>
+            {[
+              ["/tienda", "Todos los maceteros"],
+              ["/paleta", "Paleta de colores"],
+              ["/asesoramiento", "Te asesoramos"],
+              ["/quienes-somos", "Quiénes somos"],
+              ["/blog", "Noticias"],
+            ].map(([href, label]) => (
+              <Link key={href} href={href} className="mm-footer-link" style={LINK}>
+                {label}
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <div style={SECTION_LABEL}>Legal y pagos</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "9px", fontSize: "13px" }}>
+            {[
+              "Política de reembolso",
+              "Política de privacidad",
+              "Términos del servicio",
+              "Política de envío",
+            ].map((label) => (
+              <Link key={label} href="/politicas" className="mm-footer-link" style={LINK}>
+                {label}
+              </Link>
+            ))}
+          </div>
+          <div style={{ display: "flex", gap: "8px", marginTop: "16px", flexWrap: "wrap" }}>
+            {["Webpay", "Transferencia", "Crédito / Débito"].map((m) => (
+              <span
+                key={m}
+                style={{
+                  border: "1px solid #44413c",
+                  borderRadius: "6px",
+                  padding: "5px 10px",
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  color: "#a29d94",
+                }}
+              >
+                {m}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ borderTop: "1px solid #38352f" }}>
+        <div
+          style={{
+            maxWidth: "1280px",
+            margin: "0 auto",
+            padding: "16px 24px",
+            fontSize: "12px",
+            color: "#8b877f",
+            display: "flex",
+            justifyContent: "space-between",
+            gap: "12px",
+            flexWrap: "wrap",
+          }}
+        >
+          <span>© {new Date().getFullYear()} Mundo Macetero</span>
+          <span>Pago seguro procesado por Flow</span>
+        </div>
       </div>
     </footer>
   );

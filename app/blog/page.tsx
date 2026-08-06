@@ -1,0 +1,55 @@
+import Link from "next/link";
+import type { Metadata } from "next";
+import { BLOG } from "../../content/site";
+
+export const metadata: Metadata = {
+  title: "Noticias",
+  description: "Novedades, ferias y colaboraciones de Mundo Macetero.",
+};
+
+export default function BlogPage() {
+  return (
+    <div style={{ maxWidth: "1080px", margin: "0 auto", padding: "48px 24px 80px" }}>
+      <h1 className="font-display" style={{ fontSize: "clamp(26px,3.4vw,38px)", fontWeight: 700, margin: "0 0 26px" }}>
+        Noticias
+      </h1>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: "18px" }}>
+        {BLOG.map((b) => (
+          <Link
+            key={b.slug}
+            href={`/blog/${b.slug}`}
+            className="mm-tile"
+            style={{
+              display: "block",
+              background: "#fff",
+              border: "1px solid #e9e6e1",
+              borderRadius: "12px",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                aspectRatio: "16/10",
+                position: "relative",
+                background: "linear-gradient(135deg,#e7e4df,#d8d5cf)",
+              }}
+            />
+            <div style={{ padding: "16px 18px 18px" }}>
+              <div style={{ fontSize: "11.5px", color: "#9b978f", marginBottom: "6px" }}>{b.fecha}</div>
+              <div
+                className="font-display"
+                style={{ fontSize: "16px", fontWeight: 600, lineHeight: 1.35, textWrap: "pretty" }}
+              >
+                {b.titulo}
+              </div>
+              <p style={{ fontSize: "13.5px", color: "#6f6c66", lineHeight: 1.55, margin: "8px 0 10px" }}>
+                {b.extracto}
+              </p>
+              <span style={{ fontSize: "13px", fontWeight: 600, color: "#a5613f" }}>Leer →</span>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}

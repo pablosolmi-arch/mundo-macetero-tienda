@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { esCodigoValido } from "../../lib/pricing";
 
 export interface CartItem {
   productSlug: string;
@@ -17,14 +18,21 @@ export interface CartItem {
 interface CartState {
   items: CartItem[];
   isOpen: boolean;
+  // True right after an add, so the drawer can show its confirmation banner.
+  justAdded: boolean;
   add: (item: Omit<CartItem, "qty">, qty?: number) => void;
   remove: (productSlug: string, variantName: string | null) => void;
   setQty: (productSlug: string, variantName: string | null, qty: number) => void;
+  changeQty: (productSlug: string, variantName: string | null, delta: number) => void;
   clear: () => void;
   open: () => void;
   close: () => void;
   count: number;
   subtotal: number;
+  // Applied discount code, or null. Validated here and again on the server.
+  codigo: string | null;
+  aplicarCodigo: (codigo: string) => boolean;
+  quitarCodigo: () => void;
 }
 
 const CartCtx = createContext<CartState | null>(null);
@@ -36,14 +44,25 @@ function sameLine(a: CartItem, slug: string, variant: string | null) {
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [codigo, setCodigo] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [justAdded, setJustAdded] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
-  // Load persisted cart once on mount.
+  // Load persisted cart once on mount. Carts saved before the discount code
+  // existed were a bare array, so both shapes are accepted.
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setItems(JSON.parse(raw));
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          setItems(parsed);
+        } else if (parsed && Array.isArray(parsed.items)) {
+          setItems(parsed.items);
+          setCodigo(typeof parsed.codigo === "string" ? parsed.codigo : null);
+        }
+      }
     } catch {
       // ignore malformed storage
     }
@@ -54,11 +73,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!hydrated) return;
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ items, codigo }));
     } catch {
       // ignore quota errors
     }
-  }, [items, hydrated]);
+  }, [items, codigo, hydrated]);
 
   const api = useMemo<CartState>(() => {
     const count = items.reduce((n, i) => n + i.qty, 0);
@@ -66,31 +85,59 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return {
       items,
       isOpen,
+      justAdded,
       count,
       subtotal,
-      add: (item, qty = 1) =>
+      codigo,
+      add: (item, qty = 1) => {
         setItems((prev) => {
-          const idx = prev.findIndex((p) => sameLine(p, item.productSlug, item.variantName ?? null));
+          const idx = prev.findIndex((p) =>
+            sameLine(p, item.productSlug, item.variantName ?? null),
+          );
           if (idx >= 0) {
             const next = [...prev];
             next[idx] = { ...next[idx], qty: next[idx].qty + qty };
             return next;
           }
           return [...prev, { ...item, variantName: item.variantName ?? null, qty }];
-        }),
+        });
+        setIsOpen(true);
+        setJustAdded(true);
+      },
       remove: (slug, variant) =>
         setItems((prev) => prev.filter((p) => !sameLine(p, slug, variant))),
       setQty: (slug, variant, qty) =>
         setItems((prev) =>
           prev
             .map((p) => (sameLine(p, slug, variant) ? { ...p, qty: Math.max(0, qty) } : p))
-            .filter((p) => p.qty > 0)
+            .filter((p) => p.qty > 0),
         ),
-      clear: () => setItems([]),
-      open: () => setIsOpen(true),
-      close: () => setIsOpen(false),
+      changeQty: (slug, variant, delta) =>
+        setItems((prev) =>
+          prev.map((p) =>
+            sameLine(p, slug, variant) ? { ...p, qty: Math.max(1, p.qty + delta) } : p,
+          ),
+        ),
+      clear: () => {
+        setItems([]);
+        setCodigo(null);
+      },
+      open: () => {
+        setIsOpen(true);
+        setJustAdded(false);
+      },
+      close: () => {
+        setIsOpen(false);
+        setJustAdded(false);
+      },
+      aplicarCodigo: (value: string) => {
+        if (!esCodigoValido(value)) return false;
+        setCodigo(value.trim().toUpperCase());
+        return true;
+      },
+      quitarCodigo: () => setCodigo(null),
     };
-  }, [items, isOpen]);
+  }, [items, isOpen, justAdded, codigo]);
 
   return <CartCtx.Provider value={api}>{children}</CartCtx.Provider>;
 }

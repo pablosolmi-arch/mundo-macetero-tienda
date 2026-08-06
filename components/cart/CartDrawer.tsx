@@ -4,87 +4,254 @@ import Link from "next/link";
 import { useCart } from "./CartContext";
 import { formatCLP } from "../../lib/format";
 
+// Slide-over cart, ported from the design. The design used striped placeholders
+// for thumbnails; here the real catalog image is used instead.
 export function CartDrawer() {
-  const { items, isOpen, close, setQty, remove, subtotal, count } = useCart();
+  const { isOpen, close, justAdded, items, subtotal, changeQty, remove } = useCart();
+
+  if (!isOpen) return null;
 
   return (
-    <>
-      {/* Backdrop */}
+    <div style={{ position: "fixed", inset: 0, zIndex: 100 }}>
       <div
         onClick={close}
-        aria-hidden
-        className={`fixed inset-0 z-50 bg-black/40 transition-opacity ${
-          isOpen ? "opacity-100" : "pointer-events-none opacity-0"
-        }`}
+        style={{ position: "absolute", inset: 0, background: "rgba(30,28,24,.5)", animation: "mmFade .2s" }}
       />
-      {/* Panel */}
-      <aside
-        role="dialog"
-        aria-label="Carrito de compra"
-        className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-white shadow-xl transition-transform duration-300 ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          bottom: 0,
+          width: "min(430px,100vw)",
+          background: "#fff",
+          display: "flex",
+          flexDirection: "column",
+          animation: "mmSlide .25s ease",
+        }}
       >
-        <div className="flex items-center justify-between border-b border-line px-5 py-4">
-          <h2 className="font-display text-lg font-semibold">Tu carrito ({count})</h2>
-          <button type="button" onClick={close} aria-label="Cerrar" className="text-2xl leading-none text-muted hover:text-ink">
-            &times;
+        <div
+          style={{
+            padding: "18px 22px",
+            borderBottom: "1px solid #e9e6e1",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <div>
+            {justAdded && (
+              <div style={{ fontSize: "12.5px", fontWeight: 600, color: "#4c7a4c", marginBottom: "2px" }}>
+                ✓ Artículo agregado a tu carrito
+              </div>
+            )}
+            <div className="font-display" style={{ fontWeight: 600, fontSize: "17px" }}>
+              Tu carrito
+            </div>
+          </div>
+          <button
+            onClick={close}
+            aria-label="Cerrar carrito"
+            style={{ background: "none", border: "none", fontSize: "19px", cursor: "pointer", color: "#6f6c66" }}
+          >
+            ✕
           </button>
         </div>
 
-        {items.length === 0 ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
-            <p className="text-muted">Tu carrito está vacío.</p>
-            <Link href="/tienda" onClick={close} className="rounded-md bg-ink px-5 py-2 text-sm text-white">
-              Ver la tienda
-            </Link>
-          </div>
-        ) : (
-          <>
-            <ul className="flex-1 divide-y divide-line overflow-y-auto px-5">
-              {items.map((it) => (
-                <li key={`${it.productSlug}-${it.variantName ?? ""}`} className="flex gap-3 py-4">
-                  {it.image && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={it.image} alt={it.name} className="h-20 w-20 shrink-0 rounded-md object-cover" />
-                  )}
-                  <div className="flex flex-1 flex-col">
-                    <span className="font-medium">{it.name}</span>
-                    {it.variantName && it.variantName !== "Default Title" && (
-                      <span className="text-sm text-muted">{it.variantName}</span>
-                    )}
-                    <span className="mt-1 text-sm">{formatCLP(it.unitPrice)}</span>
-                    <div className="mt-2 flex items-center gap-2">
-                      <div className="inline-flex items-center rounded-md border border-line">
-                        <button className="px-2 py-1 text-muted hover:text-ink" onClick={() => setQty(it.productSlug, it.variantName, it.qty - 1)} aria-label="Restar">−</button>
-                        <span className="min-w-6 text-center text-sm">{it.qty}</span>
-                        <button className="px-2 py-1 text-muted hover:text-ink" onClick={() => setQty(it.productSlug, it.variantName, it.qty + 1)} aria-label="Sumar">+</button>
-                      </div>
-                      <button className="text-xs text-muted underline hover:text-ink" onClick={() => remove(it.productSlug, it.variantName)}>
-                        Quitar
-                      </button>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <div className="border-t border-line px-5 py-4">
-              <div className="mb-3 flex items-center justify-between">
-                <span className="text-muted">Subtotal</span>
-                <span className="font-display text-lg font-semibold">{formatCLP(subtotal)}</span>
-              </div>
-              <p className="mb-3 text-xs text-muted">El envío se calcula en el pago.</p>
-              <Link
-                href="/checkout"
-                onClick={close}
-                className="block w-full rounded-md bg-ink py-3 text-center text-sm font-medium text-white transition-opacity hover:opacity-90"
+        <div style={{ flex: 1, overflow: "auto", padding: "14px 22px" }}>
+          {items.length === 0 && (
+            <div style={{ textAlign: "center", padding: "46px 10px", color: "#6f6c66" }}>
+              <div
+                className="font-display"
+                style={{ fontSize: "16px", fontWeight: 600, color: "#2a2925", marginBottom: "8px" }}
               >
-                Ir a pagar
+                Tu carrito está vacío
+              </div>
+              <Link
+                href="/tienda"
+                onClick={close}
+                className="mm-btn-dark"
+                style={{
+                  display: "inline-block",
+                  marginTop: "8px",
+                  padding: "12px 22px",
+                  borderRadius: "8px",
+                  fontSize: "13.5px",
+                  fontWeight: 600,
+                }}
+              >
+                Seguir comprando
               </Link>
             </div>
-          </>
+          )}
+
+          {items.map((it) => (
+            <div
+              key={`${it.productSlug}-${it.variantName ?? ""}`}
+              style={{ display: "flex", gap: "14px", padding: "13px 0", borderBottom: "1px solid #efede9" }}
+            >
+              <Link
+                href={`/producto/${it.productSlug}`}
+                onClick={close}
+                style={{
+                  width: "64px",
+                  height: "64px",
+                  flex: "none",
+                  borderRadius: "8px",
+                  overflow: "hidden",
+                  background: "#eceae6",
+                  display: "block",
+                }}
+              >
+                {it.image && (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={it.image}
+                    alt=""
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                  />
+                )}
+              </Link>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <Link
+                  href={`/producto/${it.productSlug}`}
+                  onClick={close}
+                  style={{ fontSize: "14px", fontWeight: 600, display: "block" }}
+                >
+                  {it.name}
+                </Link>
+                {it.variantName && it.variantName !== "Default Title" && (
+                  <div style={{ fontSize: "12px", color: "#6f6c66", marginTop: "2px" }}>{it.variantName}</div>
+                )}
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "8px" }}>
+                  <div
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      border: "1px solid #d8d5cf",
+                      borderRadius: "7px",
+                    }}
+                  >
+                    <button
+                      onClick={() => changeQty(it.productSlug, it.variantName, -1)}
+                      aria-label="Quitar una unidad"
+                      style={{
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: "4px 10px",
+                        fontSize: "14px",
+                        color: "#2a2925",
+                      }}
+                    >
+                      −
+                    </button>
+                    <span style={{ fontSize: "13px", minWidth: "18px", textAlign: "center" }}>{it.qty}</span>
+                    <button
+                      onClick={() => changeQty(it.productSlug, it.variantName, 1)}
+                      aria-label="Agregar una unidad"
+                      style={{
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: "4px 10px",
+                        fontSize: "14px",
+                        color: "#2a2925",
+                      }}
+                    >
+                      +
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => remove(it.productSlug, it.variantName)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: "12px",
+                      color: "#9b978f",
+                      textDecoration: "underline",
+                    }}
+                  >
+                    Quitar
+                  </button>
+                </div>
+              </div>
+              <div style={{ fontSize: "14px", fontWeight: 600, whiteSpace: "nowrap" }}>
+                {formatCLP(it.unitPrice * it.qty)}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {items.length > 0 && (
+          <div style={{ padding: "16px 22px 20px", borderTop: "1px solid #e9e6e1", background: "#faf9f7" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                fontSize: "15px",
+                fontWeight: 600,
+                marginBottom: "4px",
+              }}
+            >
+              <span>Subtotal</span>
+              <span>{formatCLP(subtotal)}</span>
+            </div>
+            <div style={{ fontSize: "12px", color: "#6f6c66", marginBottom: "14px" }}>
+              Envío y descuentos se calculan en la pantalla de pago.
+            </div>
+            <Link
+              href="/checkout"
+              onClick={close}
+              className="mm-btn-dark"
+              style={{
+                display: "block",
+                textAlign: "center",
+                padding: "14px",
+                borderRadius: "9px",
+                fontSize: "14px",
+                fontWeight: 700,
+              }}
+            >
+              Pagar pedido
+            </Link>
+            <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+              <Link
+                href="/carrito"
+                onClick={close}
+                className="mm-btn-outline"
+                style={{
+                  flex: 1,
+                  textAlign: "center",
+                  padding: "11px",
+                  borderRadius: "9px",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                }}
+              >
+                Ver carrito
+              </Link>
+              <button
+                onClick={close}
+                style={{
+                  flex: 1,
+                  background: "none",
+                  border: "1px solid #d8d5cf",
+                  padding: "11px",
+                  borderRadius: "9px",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  color: "#6f6c66",
+                }}
+              >
+                Seguir comprando
+              </button>
+            </div>
+          </div>
         )}
-      </aside>
-    </>
+      </div>
+    </div>
   );
 }

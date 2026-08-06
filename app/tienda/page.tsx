@@ -1,26 +1,33 @@
 import type { Metadata } from "next";
-import { getAllActiveProducts } from "../../queries/catalog";
-import { ProductCard } from "../../components/ProductCard";
+import { getActiveProductsWithVariants } from "../../queries/catalog";
+import { toCard } from "../../lib/catalog";
+import { Catalogo } from "../../components/catalog/Catalogo";
 
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Tienda",
-  description: "Todos los maceteros, jardineras y molduras de Mundo Macetero.",
+  description:
+    "Todos los maceteros, jardineras y accesorios de Mundo Macetero. Ultra livianos, fabricados en Chile.",
 };
 
 export default async function TiendaPage() {
-  const products = await getAllActiveProducts();
+  const productos = await getActiveProductsWithVariants();
+
+  const colecciones = [
+    ...new Map(
+      productos
+        .filter((p) => p.colSlug)
+        .map((p) => [p.colSlug as string, { slug: p.colSlug as string, nombre: p.colNombre }]),
+    ).values(),
+  ].sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 
   return (
-    <main className="mx-auto max-w-7xl px-5 py-12">
-      <h1 className="font-display text-3xl font-bold sm:text-4xl">Tienda</h1>
-      <p className="mt-2 text-muted">{products.length} productos</p>
-      <div className="mt-10 grid grid-cols-2 gap-x-5 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
-        {products.map((p) => (
-          <ProductCard key={p.id} product={p} />
-        ))}
-      </div>
-    </main>
+    <Catalogo
+      titulo="Todos los productos"
+      productos={productos.map(toCard)}
+      colecciones={colecciones}
+      coleccionActual={null}
+    />
   );
 }

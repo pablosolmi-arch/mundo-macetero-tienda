@@ -1,35 +1,268 @@
 @import "tailwindcss";
 
+/* Design tokens from the Claude Design source ("Mundo Macetero.dc.html"):
+   cement/terracotta palette, Sora headings over Public Sans body. */
 :root {
-  --background: #ffffff;
-  --foreground: #1a1a1a;
-  --ink: #1b202a;        /* dark navy used for header / hero / feature bands */
-  --ink-soft: #262c38;
-  --muted: #6b7280;
-  --line: #e6e6e6;
-  --wa: #25d366;         /* whatsapp green */
+  --background: #f4f3f1;
+  --foreground: #2a2925;
+  --ink: #23221f;        /* dark bands: announcement bar, dark sections, footer */
+  --accent: #a5613f;     /* terracotta: links on hover, prices, accents */
+  --accent-soft: #d99e77;
+  --muted: #6f6c66;
+  --muted-soft: #9b978f;
+  --line: #d8d5cf;
+  --line-soft: #e3e1dc;
+  --card: #ffffff;
+  --cream: #efe6de;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-ink: var(--ink);
-  --color-ink-soft: var(--ink-soft);
+  --color-accent: var(--accent);
   --color-muted: var(--muted);
   --color-line: var(--line);
-  --font-sans: var(--font-jost);       /* body: Jost */
-  --font-display: var(--font-dm-sans); /* headings: DM Sans */
+  --font-sans: var(--font-public-sans);
+  --font-display: var(--font-sora);
 }
 
+html,
 body {
+  margin: 0;
+  padding: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-jost), "Jost", sans-serif;
-  letter-spacing: 0.01em;
+  font-family: var(--font-public-sans), "Public Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, .font-display {
-  font-family: var(--font-dm-sans), "DM Sans", sans-serif;
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--accent);
+}
+
+input,
+select,
+textarea,
+button {
+  font-family: var(--font-public-sans), "Public Sans", sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-sora), "Sora", sans-serif;
+}
+
+/* Animations used across the design. mmReveal is driven by animation-timeline:
+   view(), so sections fade in as they scroll into view where supported. */
+@keyframes mmFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes mmSlide {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@keyframes mmUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes mmReveal {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes mmKen {
+  from { transform: scale(1); }
+  to { transform: scale(1.09); }
+}
+@keyframes mmMarquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes mmPop {
+  0% { transform: scale(.3); }
+  70% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+/* The design switches to its mobile layout at 1180px (its `esMovil` media query).
+   These classes replace that JS breakpoint with real CSS so the header renders
+   correctly on the server, with no hydration flash. */
+.mm-burger { display: none; }
+.mm-desktop-nav { display: flex; }
+.mm-desktop-only { display: flex; }
+.mm-desktop-only-block { display: block; }
+.mm-mobile-only { display: none; }
+
+@media (max-width: 1180px) {
+  .mm-burger { display: flex; }
+  .mm-desktop-nav { display: none; }
+  .mm-desktop-only { display: none; }
+  .mm-desktop-only-block { display: none; }
+  .mm-mobile-only { display: inline-flex; }
+}
+
+/* The design source expresses hover states with a `style-hover` attribute, which
+   has no React equivalent. These classes carry those same states. */
+.mm-nav-link {
+  background: linear-gradient(var(--accent), var(--accent)) left bottom / 0% 2px no-repeat;
+  padding-bottom: 5px;
+  white-space: nowrap;
+  transition: background-size .25s ease, color .2s;
+}
+.mm-nav-link:hover {
+  background-size: 100% 2px;
+  color: var(--accent);
+}
+
+.mm-icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--foreground);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+.mm-icon-btn:hover {
+  background: #ebe8e3;
+  color: var(--accent);
+}
+
+.mm-search-btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: rgba(255, 255, 255, .7);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 16px 8px 13px;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 13px;
+  transition: border-color .2s, color .2s;
+}
+.mm-search-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.mm-link:hover {
+  color: var(--accent);
+}
+
+.mm-btn-dark {
+  background: var(--foreground);
+  color: #fff;
+  transition: background .2s;
+}
+.mm-btn-dark:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.mm-btn-outline {
+  border: 1px solid var(--foreground);
+  transition: border-color .2s, color .2s;
+}
+.mm-btn-outline:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.mm-row:hover {
+  background: var(--background);
+}
+
+.mm-product-card:hover {
+  border-color: #cfcbc4;
+  box-shadow: 0 14px 30px rgba(30, 28, 24, .1);
+  transform: translateY(-5px);
+}
+
+.mm-btn-select:hover {
+  background: var(--foreground);
+  color: #fff;
+}
+
+.mm-tile {
+  transition: transform .3s, box-shadow .3s, border-color .3s;
+}
+.mm-tile:hover {
+  border-color: #cfcbc4;
+  box-shadow: 0 14px 30px rgba(30, 28, 24, .1);
+  transform: translateY(-5px);
+}
+
+.mm-tile-photo {
+  transition: transform .3s, box-shadow .3s;
+}
+.mm-tile-photo:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 34px rgba(30, 28, 24, .18);
+}
+
+.mm-btn-white {
+  background: #fff;
+  color: var(--foreground);
+  transition: background .2s, color .2s;
+}
+.mm-btn-white:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.mm-round-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: #fff;
+  cursor: pointer;
+  color: var(--foreground);
+  transition: border-color .2s, color .2s;
+}
+.mm-round-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.mm-reveal {
+  animation-name: mmReveal;
+  animation-duration: 1ms;
+  animation-fill-mode: both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 32%;
+}
+
+.mm-footer-link:hover {
+  border-color: #d99e77;
+  color: #d99e77;
+}
+
+.mm-footer-top:hover {
+  border-color: #d99e77;
+  color: #d99e77;
+  transform: translateY(-3px);
+}
+
+.mm-card-img {
+  transition: transform .5s ease;
+}
+.mm-card:hover .mm-card-img {
+  transform: scale(1.05);
 }
 
 /* Sanitized Shopify description formatting */

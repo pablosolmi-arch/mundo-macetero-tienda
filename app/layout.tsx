@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
-import { Jost, DM_Sans } from "next/font/google";
+import { Sora, Public_Sans } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "../components/cart/CartContext";
 import { CartDrawer } from "../components/cart/CartDrawer";
 import { Header } from "../components/site/Header";
 import { Footer } from "../components/site/Footer";
-import { WhatsAppButton } from "../components/site/WhatsAppButton";
-import { getAllCategories } from "../queries/catalog";
+import { getNavData } from "../queries/catalog";
 
-const jost = Jost({ variable: "--font-jost", subsets: ["latin"], display: "swap" });
-const dmSans = DM_Sans({ variable: "--font-dm-sans", subsets: ["latin"], display: "swap" });
+// Typefaces from the design source: Sora for headings, Public Sans for body.
+const sora = Sora({ variable: "--font-sora", subsets: ["latin"], display: "swap" });
+const publicSans = Public_Sans({ variable: "--font-public-sans", subsets: ["latin"], display: "swap" });
 
 // `||` (not `??`) so a blank SITE_URL="" (as documented in .env.example) also
 // falls back — new URL("") would throw at module load and crash every route.
@@ -21,7 +21,8 @@ export const metadata: Metadata = {
     default: "Mundo Macetero",
     template: "%s | Mundo Macetero",
   },
-  description: "Maceteros, jardineras y molduras fabricados en Chile. Compra online en Mundo Macetero.",
+  description:
+    "Maceteros ultra livianos tipo cemento para interior y exterior, fabricados en Chile. Compra online en Mundo Macetero.",
 };
 
 export default async function RootLayout({
@@ -29,17 +30,16 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const categories = await getAllCategories();
+  const { productos, colecciones, otros } = await getNavData();
 
   return (
-    <html lang="es" className={`${jost.variable} ${dmSans.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col bg-background text-foreground">
+    <html lang="es" className={`${sora.variable} ${publicSans.variable} h-full`}>
+      <body style={{ display: "flex", minHeight: "100vh", flexDirection: "column" }}>
         <CartProvider>
-          <Header categories={categories} />
-          <div className="flex-1">{children}</div>
-          <Footer categories={categories} />
+          <Header productos={productos} colecciones={colecciones} otros={otros} />
+          <main style={{ flex: 1 }}>{children}</main>
+          <Footer />
           <CartDrawer />
-          <WhatsAppButton />
         </CartProvider>
       </body>
     </html>
