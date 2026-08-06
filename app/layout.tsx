@@ -15,6 +15,14 @@ const publicSans = Public_Sans({ variable: "--font-public-sans", subsets: ["lati
 // falls back — new URL("") would throw at module load and crash every route.
 const SITE_URL = process.env.SITE_URL || "https://fase1-storefront-catalogo.vercel.app";
 
+// Rendered per request instead of prerendered at build time. Every page needs the
+// catalog (the header's menu and search come from it), and prerendering ~20 pages
+// in parallel overwhelmed the free-tier Supabase instance: renders hit the 60s
+// prerender timeout and the build failed intermittently. Serving on demand keeps
+// the database access next to the function instead of inside the build, at the
+// cost of static caching — worth revisiting if the instance is upgraded.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
