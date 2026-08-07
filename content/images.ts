@@ -1,5 +1,7 @@
-// Fotografía propia del sitio, copiada desde la tienda actual a nuestro Blob
-// con scripts/import-site-images.ts. No editar a mano: volver a correr el script.
+// Fotografía propia del sitio, copiada desde la tienda actual a nuestro Blob con
+//   npx tsx scripts/import-site-images.ts scripts/site-images.json
+// El orden importa: EQUIPO_IMGS[0] es la foto del equipo, la que se muestra en
+// portada y en Quiénes somos. No editar a mano: volver a correr el script.
 
 export const HERO_IMGS: string[] = [
   "https://xykbidyppselezvr.public.blob.vercel-storage.com/sitio/1c62bad4-751a-4ea9-a330-54785942aa09-FJ7gmSKJI80BMyyiMzzp0d0pfr6f2T.jpg",
@@ -34,7 +36,7 @@ export const BLOG_IMGS: string[] = [
 ];
 
 export const EQUIPO_IMGS: string[] = [
+  "https://xykbidyppselezvr.public.blob.vercel-storage.com/sitio/AA2A3155-FC59-4523-A1F2-847783CDD1E7-PWZmH7Ad5N5c6oQU4XW5cfOFstn8I4.jpg",
   "https://xykbidyppselezvr.public.blob.vercel-storage.com/sitio/fotosnosotros1-aXRbGkGJdDRLc5BhSKc4ygfpG7LpkA.jpg",
   "https://xykbidyppselezvr.public.blob.vercel-storage.com/sitio/fotosnosotros2-UAXDfxdq8NZzNBhq0GYcmYFVwTt7Lv.jpg",
-  "https://xykbidyppselezvr.public.blob.vercel-storage.com/sitio/AA2A3155-FC59-4523-A1F2-847783CDD1E7-PWZmH7Ad5N5c6oQU4XW5cfOFstn8I4.jpg",
 ];

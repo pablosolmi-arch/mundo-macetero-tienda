@@ -42,7 +42,7 @@ export default async function OlivoPage() {
       >
         {hero && (
           /* eslint-disable-next-line @next/next/no-img-element */
-          <img src={hero} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+          <img src={hero} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}  loading="lazy" decoding="async" />
         )}
       </div>
       <div style={{ fontSize: "15px", lineHeight: 1.75, color: "#4c4944" }}>

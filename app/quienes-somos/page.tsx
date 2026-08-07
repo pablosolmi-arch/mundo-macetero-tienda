@@ -66,7 +66,7 @@ export default function QuienesSomosPage() {
             src={hero}
             alt="Alejandro de Solminihac y Karina Salinas con el equipo de Mundo Macetero"
             style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-          />
+           loading="lazy" decoding="async" />
         )}
       </div>
       <div

@@ -19,7 +19,7 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
               src={main}
               alt={alt}
               style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-            />
+             loading="lazy" decoding="async" />
           )}
         </div>
       </div>
@@ -41,7 +41,7 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
               }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}  loading="lazy" decoding="async" />
             </button>
           ))}
         </div>

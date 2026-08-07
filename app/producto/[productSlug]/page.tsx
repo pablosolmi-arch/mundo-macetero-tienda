@@ -175,7 +175,7 @@ export default async function ProductPage({ params }: Props) {
                       src={p.image}
                       alt={p.nombre}
                       style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-                    />
+                     loading="lazy" decoding="async" />
                   )}
                 </div>
                 <div style={{ padding: "12px 14px" }}>

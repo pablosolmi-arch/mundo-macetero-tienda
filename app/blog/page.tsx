@@ -35,7 +35,7 @@ export default function BlogPage() {
                   src={BLOG_IMGS[b.imagen]}
                   alt={b.titulo}
                   style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-                />
+                 loading="lazy" decoding="async" />
               )}
             </div>
             <div style={{ padding: "16px 18px 18px" }}>

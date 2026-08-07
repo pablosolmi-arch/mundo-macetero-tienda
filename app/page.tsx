@@ -92,7 +92,7 @@ export default async function HomePage() {
                     src={t.image}
                     alt={t.nombre}
                     style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-                  />
+                   loading="lazy" decoding="async" />
                 )}
                 <div
                   style={{
@@ -157,7 +157,7 @@ export default async function HomePage() {
                     src={c.image}
                     alt={c.nombre}
                     style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-                  />
+                   loading="lazy" decoding="async" />
                 )}
               </div>
               <div style={{ padding: "11px 14px" }}>
@@ -193,7 +193,7 @@ export default async function HomePage() {
                 }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}  loading="lazy" decoding="async" />
               </div>
             ))}
           </div>
@@ -216,7 +216,7 @@ export default async function HomePage() {
                 src={EQUIPO_IMGS[0]}
                 alt="Equipo de Mundo Macetero"
                 style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-              />
+               loading="lazy" decoding="async" />
             )}
           </div>
           <div>
@@ -283,7 +283,7 @@ export default async function HomePage() {
                     src={BLOG_IMGS[b.imagen]}
                     alt={b.titulo}
                     style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-                  />
+                   loading="lazy" decoding="async" />
                 )}
               </div>
               <div style={{ padding: "16px 18px 18px" }}>
@@ -335,7 +335,7 @@ export default async function HomePage() {
                   src={src}
                   alt=""
                   style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", display: "block" }}
-                />
+                 loading="lazy" decoding="async" />
               </div>
             ))}
           </div>

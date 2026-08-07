@@ -59,7 +59,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             src={BLOG_IMGS[post.imagen]}
             alt={post.titulo}
             style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-          />
+           loading="lazy" decoding="async" />
         )}
       </div>
       <div
