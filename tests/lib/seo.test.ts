@@ -11,6 +11,7 @@ const sampleProduct = {
   images: ["https://example.com/terracota-1.jpg"],
   stock: 20,
   status: "active" as const,
+  optionNames: [] as string[],
   createdAt: new Date(),
   variants: [],
 };

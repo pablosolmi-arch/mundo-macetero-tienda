@@ -17,15 +17,29 @@ export const products = pgTable("products", {
   images: text("images").array().notNull().default([]),
   stock: integer("stock").notNull().default(0),
   status: text("status").notNull().default("active"),
+  // Names of the option axes, in order: ["Tamaño", "Color", "Drenaje"]. A product
+  // sold in a single configuration has an empty array.
+  optionNames: text("option_names").array().notNull().default([]),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// One row per sellable COMBINATION of options, not per option value. Collapsing
+// these to a single axis (as the first CSV import did) silently removed colour and
+// drainage choices from 13 of 23 products, so combinations customers can buy on the
+// current store could not be bought here at all.
 export const productVariants = pgTable("product_variants", {
   id: serial("id").primaryKey(),
   productId: integer("product_id").notNull().references(() => products.id),
+  // Full combination label, e.g. "Diámetro 50cm x Alto 40cm / Negro / Con doble fondo".
   name: text("name").notNull(),
+  // The chosen value on each axis, aligned with products.optionNames.
+  option1: text("option1"),
+  option2: text("option2"),
+  option3: text("option3"),
   priceOverride: numeric("price_override", { precision: 12, scale: 2 }),
   stock: integer("stock").notNull().default(0),
+  // Whether this combination can currently be bought.
+  available: boolean("available").notNull().default(true),
 });
 
 // An order is created as 'pending' before the customer is sent to Flow, so the

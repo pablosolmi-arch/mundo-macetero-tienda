@@ -46,6 +46,10 @@ export default async function ProductPage({ params }: Props) {
     name: v.name,
     price: v.priceOverride != null ? Number(v.priceOverride) : basePrice,
     stock: v.stock,
+    option1: v.option1,
+    option2: v.option2,
+    option3: v.option3,
+    available: v.available,
   }));
 
   // Related: same collection first, then anything else, never the product itself.
@@ -110,7 +114,7 @@ export default async function ProductPage({ params }: Props) {
             basePrice={basePrice}
             image={product.images[0] ?? null}
             variants={variantOptions}
-            ejeNombre="Tamaño"
+            optionNames={product.optionNames}
           />
 
           {product.description && (
