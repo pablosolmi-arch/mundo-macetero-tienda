@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getActiveProductsWithVariants } from "../../queries/catalog";
+import { EQUIPO_IMGS } from "../../content/images";
 
 export const revalidate = 3600;
 
@@ -31,9 +31,8 @@ const VALORES = [
   },
 ];
 
-export default async function QuienesSomosPage() {
-  const productos = await getActiveProductsWithVariants();
-  const hero = productos.find((p) => (p.images?.length ?? 0) > 3)?.images?.[2] ?? null;
+export default function QuienesSomosPage() {
+  const hero = EQUIPO_IMGS[0] ?? null;
 
   return (
     <div style={{ maxWidth: "960px", margin: "0 auto", padding: "48px 24px 80px" }}>
@@ -63,7 +62,11 @@ export default async function QuienesSomosPage() {
       >
         {hero && (
           /* eslint-disable-next-line @next/next/no-img-element */
-          <img src={hero} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+          <img
+            src={hero}
+            alt="Alejandro de Solminihac y Karina Salinas con el equipo de Mundo Macetero"
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          />
         )}
       </div>
       <div

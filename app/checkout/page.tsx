@@ -240,7 +240,7 @@ export default function CheckoutPage() {
                   <span style={{ fontWeight: 700, fontSize: "14px" }}>Despacho a domicilio</span>
                   <br />
                   <span style={{ fontSize: "12.5px", color: "#6f6c66" }}>
-                    Gratis en sector oriente · RM tarifa fija · Regiones por pagar
+                    Gratis en el sector oriente de Santiago · El resto se cotiza con transportista externo
                   </span>
                 </span>
               </label>
@@ -319,8 +319,8 @@ export default function CheckoutPage() {
                   <span>{totales.envio.label}</span>
                   <span style={{ fontWeight: 700 }}>{totales.envio.txt}</span>
                 </div>
-                {!esRM && (
-                  <div style={{ fontSize: "12.5px", color: "#6f6c66" }}>{ENVIO.notaRegiones}</div>
+                {totales.envio.txt === "Se cotiza" && (
+                  <div style={{ fontSize: "12.5px", color: "#6f6c66" }}>{ENVIO.notaExterna}</div>
                 )}
               </div>
             )}

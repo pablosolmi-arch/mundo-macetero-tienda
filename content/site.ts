@@ -21,8 +21,11 @@ export const DESCUENTO = {
   porcentaje: 10,
 } as const;
 
+// Delivery rule, as the shop actually operates it: free only in Santiago's eastern
+// sector, and everything else is quoted with an external carrier and coordinated
+// after the purchase. No shipping amount is ever charged online, so the storefront
+// must not quote one.
 export const ENVIO = {
-  // Free delivery to Santiago's eastern sector.
   comunasOriente: [
     "Las Condes",
     "Vitacura",
@@ -32,11 +35,9 @@ export const ENVIO = {
     "Ñuñoa",
     "Peñalolén",
   ],
-  // Flat rate for the rest of the Metropolitan Region.
-  tarifaRM: 12990,
   regionRM: "Metropolitana de Santiago",
-  notaRegiones:
-    "Envío a regiones por pagar, con transporte externo. Coordinamos el despacho contigo tras la compra.",
+  notaExterna:
+    "El despacho se cotiza con un transportista externo y lo coordinamos contigo después de la compra.",
   retiro: "Retiro en tienda (Quilicura)",
 } as const;
 
@@ -196,11 +197,15 @@ export interface BlogPost {
   fecha: string;
   extracto: string;
   cuerpo: string[];
+  // Índice dentro de BLOG_IMGS (content/images.ts), en el mismo orden en que las
+  // notas aparecen en la tienda actual.
+  imagen: number;
 }
 
 export const BLOG: BlogPost[] = [
   {
     slug: "expo-jardines-2024",
+    imagen: 0,
     titulo: "Nuestro éxito en la EXPO JARDINES 2024",
     fecha: "Octubre 2024",
     extracto:
@@ -212,6 +217,7 @@ export const BLOG: BlogPost[] = [
   },
   {
     slug: "feria-jardineria-2022",
+    imagen: 1,
     titulo: "Feria de Jardinería 2022 en Parque Araucano",
     fecha: "Octubre 2022",
     extracto:
@@ -223,6 +229,7 @@ export const BLOG: BlogPost[] = [
   },
   {
     slug: "macetero-de-autor-plumas-al-viento",
+    imagen: 2,
     titulo: 'Macetero de Autor: "Plumas al Viento"',
     fecha: "Mayo 2024",
     extracto: "Una colaboración única con la artista Marcela Nicolás Oddó.",

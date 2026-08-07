@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { BLOG } from "../../../content/site";
+import { BLOG_IMGS } from "../../../content/images";
 
 export function generateStaticParams() {
   return BLOG.map((b) => ({ slug: b.slug }));
@@ -48,10 +49,19 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           borderRadius: "14px",
           overflow: "hidden",
           aspectRatio: "16/9",
-          background: "linear-gradient(135deg,#e7e4df,#d8d5cf)",
+          background: "#e7e4df",
           marginBottom: "26px",
         }}
-      />
+      >
+        {BLOG_IMGS[post.imagen] && (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={BLOG_IMGS[post.imagen]}
+            alt={post.titulo}
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          />
+        )}
+      </div>
       <div
         style={{
           fontSize: "15.5px",

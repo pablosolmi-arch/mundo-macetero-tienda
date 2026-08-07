@@ -19,10 +19,9 @@ export interface EnvioResultado {
   txt: string;
 }
 
-function fmt(n: number): string {
-  return "$" + Math.round(n).toLocaleString("es-CL");
-}
-
+// The only free delivery is the eastern sector of Santiago. Everywhere else is
+// quoted with an external carrier after the purchase, so `monto` is always 0:
+// the storefront never charges a shipping amount it cannot compute.
 export function calcEnvio({ entrega, region, comuna }: EnvioInput): EnvioResultado {
   if (entrega === "retiro") {
     return { label: ENVIO.retiro, monto: 0, txt: "Gratis" };
@@ -30,17 +29,15 @@ export function calcEnvio({ entrega, region, comuna }: EnvioInput): EnvioResulta
 
   if (region === ENVIO.regionRM) {
     if (!comuna) {
-      return { label: "Despacho RM — selecciona comuna", monto: 0, txt: "Por calcular" };
+      return { label: "Despacho RM — selecciona comuna", monto: 0, txt: "Por confirmar" };
     }
     if ((ENVIO.comunasOriente as readonly string[]).includes(comuna)) {
       return { label: `Despacho gratis — sector oriente (${comuna})`, monto: 0, txt: "Gratis" };
     }
-    return { label: `Despacho RM (${comuna})`, monto: ENVIO.tarifaRM, txt: fmt(ENVIO.tarifaRM) };
+    return { label: `Despacho a ${comuna} — transportista externo`, monto: 0, txt: "Se cotiza" };
   }
 
-  // Other regions travel with an external carrier the customer pays directly, so
-  // nothing is added to the charged amount.
-  return { label: "Envío a regiones — transporte externo", monto: 0, txt: "Por pagar" };
+  return { label: "Despacho a regiones — transportista externo", monto: 0, txt: "Se cotiza" };
 }
 
 // Returns the discount amount in pesos. An unrecognised code is worth nothing.

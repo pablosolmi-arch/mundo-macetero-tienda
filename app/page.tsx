@@ -4,10 +4,10 @@ import { toCard } from "../lib/catalog";
 import { HeroCarousel } from "../components/home/HeroCarousel";
 import { FeaturedRow } from "../components/home/FeaturedRow";
 import { Newsletter } from "../components/home/Newsletter";
+import { BLOG_IMGS, EQUIPO_IMGS, HERO_IMGS, LOGOS_IMGS, PROYECTOS_IMGS } from "../content/images";
 import {
   BLOG,
   COLECCION_DESC,
-  CONFIANZA,
   DESTACADOS_SLUGS,
   HERO_SLIDES,
   TENDENCIAS_SLUGS,
@@ -53,17 +53,12 @@ export default async function HomePage() {
 
   const categorias = [...colecciones.entries()].map(([slug, c]) => ({ slug, ...c }));
 
-  const heroImages = destacadosCards.map((c) => c.image);
-  const slides = HERO_SLIDES.map((s, i) => ({ ...s, image: heroImages[i] ?? heroImages[0] ?? null }));
+  // Los banners son los de la tienda actual. HERO_IMGS viene en el orden en que
+  // Shopify los sirve; este mapa los ordena según los slides del diseño.
+  const ORDEN_HERO = [1, 2, 3, 0];
+  const slides = HERO_SLIDES.map((s, i) => ({ ...s, image: HERO_IMGS[ORDEN_HERO[i]] ?? null }));
 
-  // "Últimos Proyectos" has no project photography in the database yet, so the
-  // strip shows real catalog photography rather than an invented placeholder.
-  const proyectos = productos
-    .flatMap((p) => (p.images ?? []).slice(0, 2))
-    .filter(Boolean)
-    .slice(0, 8);
-
-  const quienesImg = productos.find((p) => (p.images?.length ?? 0) > 2)?.images?.[1] ?? null;
+  const proyectos = PROYECTOS_IMGS;
 
   return (
     <div>
@@ -215,9 +210,13 @@ export default async function HomePage() {
           }}
         >
           <div style={{ borderRadius: "14px", overflow: "hidden", aspectRatio: "4/3", background: "#e7e4df" }}>
-            {quienesImg && (
+            {EQUIPO_IMGS[0] && (
               /* eslint-disable-next-line @next/next/no-img-element */
-              <img src={quienesImg} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              <img
+                src={EQUIPO_IMGS[0]}
+                alt="Equipo de Mundo Macetero"
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+              />
             )}
           </div>
           <div>
@@ -277,13 +276,16 @@ export default async function HomePage() {
                 overflow: "hidden",
               }}
             >
-              <div
-                style={{
-                  aspectRatio: "16/10",
-                  position: "relative",
-                  background: "linear-gradient(135deg,#e7e4df,#d8d5cf)",
-                }}
-              />
+              <div style={{ aspectRatio: "16/10", position: "relative", background: "#e7e4df" }}>
+                {BLOG_IMGS[b.imagen] && (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={BLOG_IMGS[b.imagen]}
+                    alt={b.titulo}
+                    style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                )}
+              </div>
               <div style={{ padding: "16px 18px 18px" }}>
                 <div style={{ fontSize: "11.5px", color: "#9b978f", marginBottom: "6px" }}>{b.fecha}</div>
                 <div
@@ -315,26 +317,25 @@ export default async function HomePage() {
           }}
         >
           <div style={{ display: "flex", gap: "14px", width: "max-content", animation: "mmMarquee 32s linear infinite" }}>
-            {[...CONFIANZA, ...CONFIANZA].map((label, i) => (
+            {[...LOGOS_IMGS, ...LOGOS_IMGS].map((src, i) => (
               <div
-                key={`${label}-${i}`}
+                key={`${src}-${i}`}
                 style={{
                   width: "150px",
                   height: "64px",
                   flex: "none",
-                  border: "1px dashed #cfcbc4",
-                  borderRadius: "10px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: "11.5px",
-                  color: "#8b877f",
-                  background: "#faf9f7",
-                  textAlign: "center",
                   padding: "6px",
                 }}
               >
-                {label}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={src}
+                  alt=""
+                  style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", display: "block" }}
+                />
               </div>
             ))}
           </div>

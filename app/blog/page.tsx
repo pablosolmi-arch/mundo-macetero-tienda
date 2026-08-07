@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { BLOG } from "../../content/site";
+import { BLOG_IMGS } from "../../content/images";
 
 export const metadata: Metadata = {
   title: "Noticias",
@@ -27,13 +28,16 @@ export default function BlogPage() {
               overflow: "hidden",
             }}
           >
-            <div
-              style={{
-                aspectRatio: "16/10",
-                position: "relative",
-                background: "linear-gradient(135deg,#e7e4df,#d8d5cf)",
-              }}
-            />
+            <div style={{ aspectRatio: "16/10", position: "relative", background: "#e7e4df" }}>
+              {BLOG_IMGS[b.imagen] && (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={BLOG_IMGS[b.imagen]}
+                  alt={b.titulo}
+                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              )}
+            </div>
             <div style={{ padding: "16px 18px 18px" }}>
               <div style={{ fontSize: "11.5px", color: "#9b978f", marginBottom: "6px" }}>{b.fecha}</div>
               <div

@@ -141,9 +141,9 @@ export default async function ProductPage({ params }: Props) {
           <details style={{ ...DETAILS, borderBottom: "1px solid #e3e1dc" }}>
             <summary style={SUMMARY}>Envío y retiro</summary>
             <p style={{ fontSize: "14px", lineHeight: 1.65, color: "#4c4944", margin: "10px 0 0" }}>
-              Retiro gratis en nuestra tienda de Quilicura (Lun a Vie, 8:30 a 18:00). Despacho gratis en comunas del
-              sector oriente; resto de la Región Metropolitana con tarifa fija, y regiones por pagar con transporte
-              externo.
+              Retiro gratis en nuestra tienda de Quilicura (Lun a Vie, 8:30 a 18:00). Despacho gratis en las comunas
+              del sector oriente de Santiago. Para el resto de la Región Metropolitana y otras regiones, el despacho se
+              cotiza con un transportista externo y lo coordinamos contigo después de la compra.
             </p>
           </details>
         </div>

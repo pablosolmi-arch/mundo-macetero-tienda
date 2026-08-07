@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { ENVIO, TIENDA } from "../../content/site";
+import { TIENDA } from "../../content/site";
+import { POLITICAS } from "../../content/policies";
 
 export const metadata: Metadata = {
   title: "Políticas de la tienda",
@@ -21,11 +22,6 @@ const BODY: React.CSSProperties = {
   margin: "12px 0 0",
 };
 
-// The delivery policy is stated in full because it is what the checkout charges.
-// The remaining three are legal texts the store still has to provide, so instead
-// of inventing them the page says plainly that they are pending and how to ask.
-const PENDIENTE = "Estamos finalizando la redacción de este documento.";
-
 export default function PoliticasPage() {
   return (
     <div style={{ maxWidth: "760px", margin: "0 auto", padding: "48px 24px 80px" }}>
@@ -33,37 +29,16 @@ export default function PoliticasPage() {
         Políticas de la tienda
       </h1>
       <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        <details style={CARD} open>
-          <summary style={SUMMARY}>Política de envío</summary>
-          <p style={BODY}>
-            Retiro gratis en nuestra tienda de Quilicura ({TIENDA.direccion}, {TIENDA.horario}). Despacho gratis en las
-            comunas del sector oriente de Santiago: {ENVIO.comunasOriente.join(", ")}. Resto de la Región Metropolitana
-            con tarifa fija de ${ENVIO.tarifaRM.toLocaleString("es-CL")}, informada en el checkout antes de pagar.{" "}
-            {ENVIO.notaRegiones}
-          </p>
-        </details>
-
-        <details style={CARD}>
-          <summary style={SUMMARY}>Política de reembolso</summary>
-          <p style={BODY}>
-            {PENDIENTE} Mientras tanto, si tienes un problema con tu compra escríbenos a {TIENDA.email} o llámanos al{" "}
-            {TIENDA.telefonos[0]} y lo resolvemos caso a caso, respetando tus derechos como consumidor.
-          </p>
-        </details>
-
-        <details style={CARD}>
-          <summary style={SUMMARY}>Política de privacidad</summary>
-          <p style={BODY}>
-            {PENDIENTE} Usamos tus datos únicamente para procesar y despachar tu pedido y para responder tus consultas.
-            El pago lo procesa Flow: no almacenamos datos de tarjetas en este sitio. Para consultar o eliminar tus datos,
-            escríbenos a {TIENDA.email}.
-          </p>
-        </details>
-
-        <details style={CARD}>
-          <summary style={SUMMARY}>Términos del servicio</summary>
-          <p style={BODY}>{PENDIENTE} Para cualquier duda contractual, escríbenos a {TIENDA.email}.</p>
-        </details>
+        {POLITICAS.map((politica, i) => (
+          <details key={politica.slug} id={politica.slug} style={CARD} open={i === 0}>
+            <summary style={SUMMARY}>{politica.titulo}</summary>
+            {politica.parrafos.map((parrafo, j) => (
+              <p key={j} style={BODY}>
+                {parrafo}
+              </p>
+            ))}
+          </details>
+        ))}
 
         <details style={CARD}>
           <summary style={SUMMARY}>Información de contacto</summary>

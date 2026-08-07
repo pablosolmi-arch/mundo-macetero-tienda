@@ -20,21 +20,34 @@ describe("calcEnvio", () => {
     }
   });
 
-  it("applies the flat rate elsewhere in the Metropolitan Region", () => {
+  it("quotes, never charges, for the rest of the Metropolitan Region", () => {
     const envio = calcEnvio({ entrega: "despacho", region: ENVIO.regionRM, comuna: "Maipú" });
-    expect(envio.monto).toBe(ENVIO.tarifaRM);
+    expect(envio.monto).toBe(0);
+    expect(envio.txt).toBe("Se cotiza");
   });
 
-  it("charges nothing for other regions: the carrier is paid on delivery", () => {
+  it("quotes, never charges, for other regions", () => {
     const envio = calcEnvio({ entrega: "despacho", region: "Biobío", comuna: "Concepción" });
     expect(envio.monto).toBe(0);
-    expect(envio.txt).toBe("Por pagar");
+    expect(envio.txt).toBe("Se cotiza");
   });
 
-  it("does not guess a price before a commune is chosen", () => {
+  it("never adds a shipping amount to any order", () => {
+    // The shop quotes delivery with an external carrier after the sale, so the
+    // storefront must not charge a figure it cannot compute.
+    const casos = [
+      { entrega: "retiro" as const, region: "", comuna: "" },
+      { entrega: "despacho" as const, region: ENVIO.regionRM, comuna: "Las Condes" },
+      { entrega: "despacho" as const, region: ENVIO.regionRM, comuna: "Maipú" },
+      { entrega: "despacho" as const, region: "Los Lagos", comuna: "Osorno" },
+    ];
+    for (const caso of casos) expect(calcEnvio(caso).monto).toBe(0);
+  });
+
+  it("does not guess before a commune is chosen", () => {
     const envio = calcEnvio({ entrega: "despacho", region: ENVIO.regionRM, comuna: "" });
     expect(envio.monto).toBe(0);
-    expect(envio.txt).toBe("Por calcular");
+    expect(envio.txt).toBe("Por confirmar");
   });
 });
 
@@ -60,7 +73,7 @@ describe("calcDescuento", () => {
 });
 
 describe("calcTotales", () => {
-  it("subtracts the discount before adding shipping", () => {
+  it("charges the subtotal minus the discount, with no shipping added", () => {
     const t = calcTotales({
       subtotal: 100000,
       codigo: DESCUENTO.codigo,
@@ -69,8 +82,8 @@ describe("calcTotales", () => {
       comuna: "Maipú",
     });
     expect(t.descuento).toBe(10000);
-    expect(t.envio.monto).toBe(ENVIO.tarifaRM);
-    expect(t.total).toBe(100000 - 10000 + ENVIO.tarifaRM);
+    expect(t.envio.monto).toBe(0);
+    expect(t.total).toBe(90000);
   });
 
   it("charges exactly the subtotal for a pickup with no code", () => {
