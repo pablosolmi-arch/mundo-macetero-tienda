@@ -39,6 +39,14 @@ export function Footer() {
           }}
         >
           <div style={{ minWidth: 0 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo-claro.webp"
+              alt="Mundo Macetero"
+              width={84}
+              height={57}
+              style={{ height: "57px", width: "auto", display: "block", marginBottom: "18px" }}
+            />
             <div
               className="font-display"
               style={{

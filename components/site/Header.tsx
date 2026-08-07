@@ -129,9 +129,28 @@ export function Header({ productos, colecciones, otros }: HeaderProps) {
           <Link
             href="/"
             className="font-display"
-            style={{ fontWeight: 700, fontSize: "19px", letterSpacing: "-.01em", whiteSpace: "nowrap" }}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "10px",
+              fontWeight: 700,
+              fontSize: "19px",
+              letterSpacing: "-.01em",
+              whiteSpace: "nowrap",
+            }}
           >
-            mundo macetero<span style={{ color: "#a5613f" }}>.</span>
+            {/* Monograma real de la marca. La versión oscura es para este header
+                claro; el footer usa la blanca. eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo-oscuro.webp"
+              alt="Mundo Macetero"
+              width={44}
+              height={30}
+              style={{ height: "30px", width: "auto", display: "block" }}
+            />
+            <span>
+              mundo macetero<span style={{ color: "#a5613f" }}>.</span>
+            </span>
           </Link>
 
           <nav
@@ -391,7 +410,18 @@ export function Header({ productos, colecciones, otros }: HeaderProps) {
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "18px" }}>
-              <span className="font-display" style={{ fontWeight: 700 }}>
+              <span
+                className="font-display"
+                style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontWeight: 700 }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/logo-oscuro.webp"
+                  alt=""
+                  width={38}
+                  height={26}
+                  style={{ height: "26px", width: "auto", display: "block" }}
+                />
                 mundo macetero<span style={{ color: "#a5613f" }}>.</span>
               </span>
               <button
