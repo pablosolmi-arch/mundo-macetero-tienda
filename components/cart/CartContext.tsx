@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { esCodigoValido } from "../../lib/pricing";
+import { track } from "../../lib/track";
 
 export interface CartItem {
   productSlug: string;
@@ -103,6 +104,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         });
         setIsOpen(true);
         setJustAdded(true);
+        track("agregar", { productSlug: item.productSlug });
       },
       remove: (slug, variant) =>
         setItems((prev) => prev.filter((p) => !sameLine(p, slug, variant))),

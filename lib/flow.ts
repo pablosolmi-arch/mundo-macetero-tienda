@@ -115,6 +115,55 @@ export async function createPayment(
   return { redirectUrl: `${data.url}?token=${data.token}`, token: data.token, flowOrder: data.flowOrder };
 }
 
+export interface RefundInput {
+  // Nuestro identificador del reembolso, distinto del del pedido.
+  refundCommerceOrder: string;
+  // Correo de quien recibe la devolución.
+  receiverEmail: string;
+  amount: number;
+  urlCallBack: string;
+  // Referencia a la transacción original (nuestro commerceOrder).
+  commerceTrxId?: string;
+}
+
+export interface FlowRefund {
+  token: string;
+  flowRefundOrder?: string | number;
+  status?: string;
+  amount?: string | number;
+  fee?: string | number;
+}
+
+// Crea un reembolso en Flow. Docs: https://developers.flow.cl/en/api (refund/create).
+// La respuesta trae `status` como texto ("created", …), no un código numérico: el
+// estado definitivo se consulta con refund/getStatus, así que acá no se asume que
+// el dinero ya volvió, solo que el reembolso quedó solicitado.
+export async function createRefund(
+  creds: FlowCredentials,
+  input: RefundInput,
+): Promise<FlowRefund> {
+  const params: Record<string, string> = {
+    apiKey: creds.apiKey,
+    refundCommerceOrder: input.refundCommerceOrder,
+    receiverEmail: input.receiverEmail,
+    amount: String(input.amount),
+    urlCallBack: input.urlCallBack,
+  };
+  if (input.commerceTrxId) params.commerceTrxId = input.commerceTrxId;
+  params.s = signParams(params, creds.secret);
+
+  const res = await fetch(`${creds.baseUrl}/refund/create`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams(params).toString(),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Flow refund/create respondió ${res.status}`);
+  }
+  return (await res.json()) as FlowRefund;
+}
+
 // Flow's confirmation callback only carries a token; the authoritative status
 // must be pulled from this endpoint. A callback body is never trusted to say
 // "paid" on its own.
