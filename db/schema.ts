@@ -136,6 +136,11 @@ export const adminUsers = pgTable("admin_users", {
   passwordHash: text("password_hash").notNull(),
   rol: text("rol").notNull().default("staff"),
   activo: boolean("activo").notNull().default(true),
+  // Freno a la fuerza bruta: tras varios fallos seguidos la cuenta queda
+  // bloqueada un rato. En serverless no sirve un contador en memoria, así que
+  // vive en la base.
+  intentosFallidos: integer("intentos_fallidos").notNull().default(0),
+  bloqueadoHasta: timestamp("bloqueado_hasta"),
   ultimoIngreso: timestamp("ultimo_ingreso"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

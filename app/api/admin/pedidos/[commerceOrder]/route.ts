@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import crypto from "node:crypto";
-import { eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "../../../../../db/client";
 import { orders } from "../../../../../db/schema";
 import { getSessionUser } from "../../../../../lib/admin/auth";
@@ -10,8 +10,9 @@ import { createRefund, getFlowCredentials } from "../../../../../lib/flow";
 // Acciones del panel sobre un pedido. Todas exigen sesión y quedan en la bitácora
 // con el usuario que las hizo.
 //
-// El reembolso es la única que mueve dinero: se pide a Flow y solo si Flow acepta
-// se anota en el pedido. Si no hay credenciales, responde 503 en vez de fingir.
+// El reembolso es la única que mueve dinero: primero se reserva el monto en el
+// pedido con una condición atómica, después se pide a Flow, y si Flow lo rechaza
+// se libera la reserva. Si no hay credenciales, responde 503 en vez de fingir.
 
 export const dynamic = "force-dynamic";
 
@@ -102,32 +103,61 @@ export async function POST(req: Request, { params }: { params: Promise<{ commerc
       );
     }
 
+    const importe = Math.round(monto);
     const referencia = `RF-${pedido.commerceOrder}-${crypto.randomBytes(3).toString("hex")}`;
+
+    // Se reserva el monto ANTES de llamar a Flow, con una condición en la misma
+    // sentencia. Si dos personas del equipo reembolsan a la vez, la segunda no
+    // pasa de acá: leer el saldo y después escribirlo dejaba una ventana para
+    // devolver dos veces el mismo dinero.
+    const reservado = await db
+      .update(orders)
+      .set({
+        refundedAmount: sql`${orders.refundedAmount} + ${importe}`,
+        refundedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(orders.id, pedido.id),
+          sql`${orders.refundedAmount} + ${importe} <= ${orders.amount}`,
+        ),
+      )
+      .returning({ id: orders.id });
+
+    if (reservado.length === 0) {
+      return NextResponse.json(
+        { message: "Otro reembolso dejó el pedido sin saldo disponible. Recarga la página." },
+        { status: 409 },
+      );
+    }
+
     try {
       const refund = await createRefund(creds, {
         refundCommerceOrder: referencia,
         receiverEmail: pedido.customerEmail,
-        amount: Math.round(monto),
+        amount: importe,
         urlCallBack: `${SITE_URL}/api/checkout/confirm`,
         commerceTrxId: pedido.commerceOrder,
       });
       await db
         .update(orders)
-        .set({
-          refundedAmount: String(yaDevuelto + Math.round(monto)),
-          refundedAt: new Date(),
-          refundReference: refund.token ?? referencia,
-          updatedAt: new Date(),
-        })
+        .set({ refundReference: refund.token ?? referencia, updatedAt: new Date() })
         .where(eq(orders.id, pedido.id));
       await registrarEvento(
         pedido.id,
         usuario.id,
         "reembolsado",
-        `${Math.round(monto)} solicitado a Flow (${refund.status ?? "sin estado"})${detalle ? ` · ${detalle}` : ""}`,
+        `${importe} solicitado a Flow (${refund.status ?? "sin estado"})${detalle ? ` · ${detalle}` : ""}`,
       );
       return NextResponse.json({ ok: true, estado: refund.status ?? null });
     } catch (error) {
+      // Flow no aceptó: se libera la reserva para que el saldo vuelva a estar
+      // disponible y el pedido quede como si nada hubiera pasado.
+      await db
+        .update(orders)
+        .set({ refundedAmount: sql`${orders.refundedAmount} - ${importe}`, updatedAt: new Date() })
+        .where(eq(orders.id, pedido.id));
       // Sin datos del cliente en el log.
       console.error(
         "flow refund/create falló:",

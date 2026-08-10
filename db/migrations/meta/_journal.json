@@ -43,6 +43,13 @@
       "when": 1786391108374,
       "tag": "0005_first_sphinx",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1786402862088,
+      "tag": "0006_motionless_shooting_star",
+      "breakpoints": true
     }
   ]
 }

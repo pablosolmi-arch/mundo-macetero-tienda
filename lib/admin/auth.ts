@@ -44,14 +44,47 @@ function hashToken(token: string): string {
   return crypto.createHash("sha256").update(token).digest("hex");
 }
 
+// Hash de descarte con el mismo costo que uno real. Se verifica contra él cuando
+// el correo no existe, para que responder tarde lo mismo con un correo válido que
+// con uno inventado: si no, el tiempo de respuesta delata qué correos tienen cuenta.
+const HASH_SEÑUELO = hashPassword(crypto.randomBytes(32).toString("hex"));
+
+const MAX_INTENTOS = 5;
+const MINUTOS_BLOQUEO = 15;
+
 // Verifica credenciales y abre sesión. Devuelve null sin decir si falló el correo
 // o la clave: distinguirlos permitiría enumerar cuentas.
 export async function login(email: string, password: string): Promise<string | null> {
   const usuario = await db.query.adminUsers.findFirst({
     where: eq(adminUsers.email, email.trim().toLowerCase()),
   });
-  if (!usuario || !usuario.activo) return null;
-  if (!verifyPassword(password, usuario.passwordHash)) return null;
+
+  if (!usuario || !usuario.activo) {
+    // Igual se paga el costo de un scrypt, para no filtrar por tiempo.
+    verifyPassword(password, HASH_SEÑUELO);
+    return null;
+  }
+
+  // Cuenta bloqueada por intentos fallidos: tampoco se dice por qué.
+  if (usuario.bloqueadoHasta && usuario.bloqueadoHasta > new Date()) {
+    verifyPassword(password, HASH_SEÑUELO);
+    return null;
+  }
+
+  if (!verifyPassword(password, usuario.passwordHash)) {
+    const intentos = usuario.intentosFallidos + 1;
+    await db
+      .update(adminUsers)
+      .set({
+        intentosFallidos: intentos,
+        bloqueadoHasta:
+          intentos >= MAX_INTENTOS
+            ? new Date(Date.now() + MINUTOS_BLOQUEO * 60 * 1000)
+            : usuario.bloqueadoHasta,
+      })
+      .where(eq(adminUsers.id, usuario.id));
+    return null;
+  }
 
   const token = crypto.randomBytes(32).toString("hex");
   const expiraEn = new Date(Date.now() + DIAS_SESION * 24 * 60 * 60 * 1000);
@@ -62,7 +95,7 @@ export async function login(email: string, password: string): Promise<string | n
   });
   await db
     .update(adminUsers)
-    .set({ ultimoIngreso: new Date() })
+    .set({ ultimoIngreso: new Date(), intentosFallidos: 0, bloqueadoHasta: null })
     .where(eq(adminUsers.id, usuario.id));
 
   const jar = await cookies();
