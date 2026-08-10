@@ -29,6 +29,20 @@
       "when": 1786068086584,
       "tag": "0003_long_oracle",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1786390861423,
+      "tag": "0004_round_cable",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1786391108374,
+      "tag": "0005_first_sphinx",
+      "breakpoints": true
     }
   ]
 }

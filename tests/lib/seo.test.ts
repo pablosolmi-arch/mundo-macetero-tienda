@@ -12,6 +12,7 @@ const sampleProduct = {
   stock: 20,
   status: "active" as const,
   optionNames: [] as string[],
+  thumbs: [] as string[],
   createdAt: new Date(),
   variants: [],
 };

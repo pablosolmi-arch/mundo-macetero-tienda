@@ -12,6 +12,7 @@ export interface ProductLike {
   name: string;
   basePrice: string;
   images: string[];
+  thumbs?: string[];
   colNombre?: string;
   colSlug?: string | null;
   variants?: VariantLike[];
@@ -25,6 +26,7 @@ export interface ProductCardData {
   precio: number;
   // True when variants cost different amounts, so the price reads "A partir de".
   desde: boolean;
+  // Miniatura de 600 px para tarjetas; `image` queda para usos a mayor tamaño.
   image: string | null;
 }
 
@@ -48,6 +50,6 @@ export function toCard(product: ProductLike): ProductCardData {
     colNombre: product.colNombre ?? "",
     precio: min,
     desde: max > min,
-    image: product.images?.[0] ?? null,
+    image: product.thumbs?.[0] ?? product.images?.[0] ?? null,
   };
 }

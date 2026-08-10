@@ -80,7 +80,7 @@ export default async function ProductPage({ params }: Props) {
           alignItems: "start",
         }}
       >
-        <ProductGallery images={product.images} alt={product.name} />
+        <ProductGallery images={product.images} thumbs={product.thumbs} alt={product.name} />
 
         <div>
           {colNombre && (
@@ -112,7 +112,7 @@ export default async function ProductPage({ params }: Props) {
             productSlug={product.slug}
             productName={product.name}
             basePrice={basePrice}
-            image={product.images[0] ?? null}
+            image={product.thumbs?.[0] ?? product.images[0] ?? null}
             variants={variantOptions}
             optionNames={product.optionNames}
           />

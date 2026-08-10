@@ -4,7 +4,8 @@ import { toCard } from "../lib/catalog";
 import { HeroCarousel } from "../components/home/HeroCarousel";
 import { FeaturedRow } from "../components/home/FeaturedRow";
 import { Newsletter } from "../components/home/Newsletter";
-import { BLOG_IMGS, EQUIPO_IMGS, HERO_IMGS, LOGOS_IMGS, PROYECTOS_IMGS } from "../content/images";
+import { HERO_IMGS } from "../content/images";
+import { BLOG_THUMBS, EQUIPO_THUMBS, LOGOS_THUMBS, PROYECTOS_THUMBS } from "../content/thumbs";
 import {
   BLOG,
   COLECCION_DESC,
@@ -40,9 +41,9 @@ export default async function HomePage() {
     if (!p.colSlug) continue;
     const current = colecciones.get(p.colSlug);
     if (!current) {
-      colecciones.set(p.colSlug, { nombre: p.colNombre, image: p.images?.[0] ?? null });
-    } else if (!current.image && p.images?.[0]) {
-      current.image = p.images[0];
+      colecciones.set(p.colSlug, { nombre: p.colNombre, image: p.thumbs?.[0] ?? p.images?.[0] ?? null });
+    } else if (!current.image && (p.thumbs?.[0] ?? p.images?.[0])) {
+      current.image = p.thumbs?.[0] ?? p.images[0];
     }
   }
 
@@ -58,7 +59,7 @@ export default async function HomePage() {
   const ORDEN_HERO = [1, 2, 3, 0];
   const slides = HERO_SLIDES.map((s, i) => ({ ...s, image: HERO_IMGS[ORDEN_HERO[i]] ?? null }));
 
-  const proyectos = PROYECTOS_IMGS;
+  const proyectos = PROYECTOS_THUMBS;
 
   return (
     <div>
@@ -210,10 +211,10 @@ export default async function HomePage() {
           }}
         >
           <div style={{ borderRadius: "14px", overflow: "hidden", aspectRatio: "4/3", background: "#e7e4df" }}>
-            {EQUIPO_IMGS[0] && (
+            {EQUIPO_THUMBS[0] && (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
-                src={EQUIPO_IMGS[0]}
+                src={EQUIPO_THUMBS[0]}
                 alt="Equipo de Mundo Macetero"
                 style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                loading="lazy" decoding="async" />
@@ -277,10 +278,10 @@ export default async function HomePage() {
               }}
             >
               <div style={{ aspectRatio: "16/10", position: "relative", background: "#e7e4df" }}>
-                {BLOG_IMGS[b.imagen] && (
+                {BLOG_THUMBS[b.imagen] && (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img
-                    src={BLOG_IMGS[b.imagen]}
+                    src={BLOG_THUMBS[b.imagen]}
                     alt={b.titulo}
                     style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
                    loading="lazy" decoding="async" />
@@ -317,7 +318,7 @@ export default async function HomePage() {
           }}
         >
           <div style={{ display: "flex", gap: "14px", width: "max-content", animation: "mmMarquee 32s linear infinite" }}>
-            {[...LOGOS_IMGS, ...LOGOS_IMGS].map((src, i) => (
+            {[...LOGOS_THUMBS, ...LOGOS_THUMBS].map((src, i) => (
               <div
                 key={`${src}-${i}`}
                 style={{

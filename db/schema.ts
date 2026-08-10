@@ -15,6 +15,10 @@ export const products = pgTable("products", {
   basePrice: numeric("base_price", { precision: 12, scale: 2 }).notNull(),
   categoryId: integer("category_id").references(() => categories.id),
   images: text("images").array().notNull().default([]),
+  // Versión de 600 px de cada imagen, en el mismo orden que `images`. Las tarjetas
+  // y los mosaicos se ven entre 190 y 340 px: servirles el archivo de 1200 px
+  // multiplicaba por cuatro el peso de la portada sin ganancia visible.
+  thumbs: text("thumbs").array().notNull().default([]),
   stock: integer("stock").notNull().default(0),
   status: text("status").notNull().default("active"),
   // Names of the option axes, in order: ["Tamaño", "Color", "Drenaje"]. A product
@@ -73,6 +77,15 @@ export const orders = pgTable("orders", {
   flowOrder: text("flow_order"),
   paymentMedia: text("payment_media"),
   paidAt: timestamp("paid_at"),
+  // Estado logístico, independiente del estado del pago: un pedido pagado puede
+  // estar por preparar, entregado o cancelado.
+  fulfillment: text("fulfillment").notNull().default("pendiente"),
+  deliveredAt: timestamp("delivered_at"),
+  cancelledAt: timestamp("cancelled_at"),
+  // Reembolsos: monto acumulado devuelto y referencia de Flow.
+  refundedAmount: numeric("refunded_amount", { precision: 12, scale: 2 }).notNull().default("0"),
+  refundedAt: timestamp("refunded_at"),
+  refundReference: text("refund_reference"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -107,6 +120,65 @@ export const leads = pgTable("leads", {
   // Free-form answers, kept as one text blob per field label.
   detalle: text("detalle").notNull().default(""),
   mensaje: text("mensaje").notNull().default(""),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// --- Administración ---
+
+// Cada persona del equipo con su cuenta, para que quede registro de quién marcó
+// un pedido como entregado o lo canceló, y se pueda revocar un acceso sin
+// cambiarle la clave a todos.
+export const adminUsers = pgTable("admin_users", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  nombre: text("nombre").notNull().default(""),
+  // scrypt: "salt:hash" en hexadecimal. Nunca la clave en texto plano.
+  passwordHash: text("password_hash").notNull(),
+  rol: text("rol").notNull().default("staff"),
+  activo: boolean("activo").notNull().default(true),
+  ultimoIngreso: timestamp("ultimo_ingreso"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Sesiones en tabla (no un JWT) para poder cerrarlas del lado del servidor.
+// `tokenHash` guarda el SHA-256 del token que viaja en la cookie: si alguien lee
+// la base, no obtiene sesiones utilizables.
+export const adminSessions = pgTable("admin_sessions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => adminUsers.id),
+  tokenHash: text("token_hash").notNull().unique(),
+  expiraEn: timestamp("expira_en").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Bitácora de lo que se hace sobre un pedido: quién, qué y cuándo.
+export const orderEvents = pgTable("order_events", {
+  id: serial("id").primaryKey(),
+  orderId: integer("order_id")
+    .notNull()
+    .references(() => orders.id),
+  userId: integer("user_id").references(() => adminUsers.id),
+  // 'entregado' | 'cancelado' | 'reembolsado' | 'nota' | 'pago'
+  tipo: text("tipo").notNull(),
+  detalle: text("detalle").notNull().default(""),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Eventos de la tienda para medir el embudo real: visita → ficha → carrito →
+// checkout → pago. Sin datos personales: solo un identificador de sesión anónimo.
+export const siteEvents = pgTable("site_events", {
+  id: serial("id").primaryKey(),
+  // 'visita' | 'producto' | 'agregar' | 'checkout' | 'pago'
+  tipo: text("tipo").notNull(),
+  path: text("path").notNull().default(""),
+  productSlug: text("product_slug"),
+  // Identificador aleatorio de la sesión del visitante, no ligado a una persona.
+  sessionId: text("session_id").notNull().default(""),
+  // Monto en los eventos de pago, para calcular ingresos por origen.
+  monto: numeric("monto", { precision: 12, scale: 2 }),
+  referrer: text("referrer").notNull().default(""),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

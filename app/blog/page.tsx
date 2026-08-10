@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { BLOG } from "../../content/site";
-import { BLOG_IMGS } from "../../content/images";
+import { BLOG_THUMBS } from "../../content/thumbs";
 
 export const metadata: Metadata = {
   title: "Noticias",
@@ -29,10 +29,10 @@ export default function BlogPage() {
             }}
           >
             <div style={{ aspectRatio: "16/10", position: "relative", background: "#e7e4df" }}>
-              {BLOG_IMGS[b.imagen] && (
+              {BLOG_THUMBS[b.imagen] && (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
-                  src={BLOG_IMGS[b.imagen]}
+                  src={BLOG_THUMBS[b.imagen]}
                   alt={b.titulo}
                   style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
                  loading="lazy" decoding="async" />

@@ -4,10 +4,19 @@ import { useState } from "react";
 
 // Main image plus a four-up thumbnail strip, as in the design. The main image
 // zooms slightly on hover.
-export function ProductGallery({ images, alt }: { images: string[]; alt: string }) {
+export function ProductGallery({
+  images,
+  thumbs,
+  alt,
+}: {
+  images: string[];
+  // Miniaturas de 600 px para la tira inferior; la imagen grande usa `images`.
+  thumbs?: string[];
+  alt: string;
+}) {
   const [active, setActive] = useState(0);
   const main = images[active] ?? images[0] ?? null;
-  const thumbs = images.slice(0, 8);
+  const tira = (thumbs?.length ? thumbs : images).slice(0, 8);
 
   return (
     <div>
@@ -23,9 +32,9 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
           )}
         </div>
       </div>
-      {thumbs.length > 1 && (
+      {tira.length > 1 && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "10px", marginTop: "10px" }}>
-          {thumbs.map((src, i) => (
+          {tira.map((src, i) => (
             <button
               key={`${src}-${i}`}
               onClick={() => setActive(i)}
