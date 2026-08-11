@@ -1,4 +1,4 @@
-import { DESCUENTO, ENVIO } from "../content/site";
+import { ENVIO } from "../content/site";
 
 // Shipping and discount rules live here so the checkout UI and the server-side
 // /api/checkout produce the SAME total from the same inputs. The browser's figure
@@ -40,20 +40,11 @@ export function calcEnvio({ entrega, region, comuna }: EnvioInput): EnvioResulta
   return { label: "Despacho a regiones — transportista externo", monto: 0, txt: "Se cotiza" };
 }
 
-// Returns the discount amount in pesos. An unrecognised code is worth nothing.
-export function calcDescuento(subtotal: number, codigo: string | null): number {
-  if (!codigo) return 0;
-  if (codigo.trim().toUpperCase() !== DESCUENTO.codigo) return 0;
-  return Math.round((subtotal * DESCUENTO.porcentaje) / 100);
-}
-
-export function esCodigoValido(codigo: string): boolean {
-  return codigo.trim().toUpperCase() === DESCUENTO.codigo;
-}
-
 export interface TotalesInput extends EnvioInput {
   subtotal: number;
-  codigo: string | null;
+  // Monto del descuento en pesos, ya resuelto contra la tabla de códigos
+  // (lib/descuentos.ts). Acá solo se aplica, nunca se calcula desde un código.
+  descuento: number;
 }
 
 export interface Totales {
@@ -63,13 +54,13 @@ export interface Totales {
   total: number;
 }
 
-export function calcTotales({ subtotal, codigo, ...envioInput }: TotalesInput): Totales {
-  const descuento = calcDescuento(subtotal, codigo);
+export function calcTotales({ subtotal, descuento, ...envioInput }: TotalesInput): Totales {
   const envio = calcEnvio(envioInput);
+  const aplicado = Math.min(Math.max(0, Math.round(descuento)), subtotal);
   return {
     subtotal,
-    descuento,
+    descuento: aplicado,
     envio,
-    total: subtotal - descuento + envio.monto,
+    total: subtotal - aplicado + envio.monto,
   };
 }

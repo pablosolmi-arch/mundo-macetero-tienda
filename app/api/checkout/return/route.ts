@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getFlowCredentials, getPaymentStatus, orderStatusFromFlow } from "../../../../lib/flow";
 import { settleOrder } from "../../../../queries/orders";
+import { alPagarse } from "../../../../lib/pedidos";
 
 // Where Flow sends the customer's BROWSER back after paying. Flow does this with
 // a POST carrying the token, so this cannot be a plain page (a page would answer
@@ -37,13 +38,17 @@ export async function POST(req: Request) {
     if (!payment?.commerceOrder) return redirectToThanks({ estado: "desconocido" });
 
     const status = orderStatusFromFlow(payment.status);
-    await settleOrder({
+    const settled = await settleOrder({
       commerceOrder: payment.commerceOrder,
       status,
       flowToken: token,
       flowOrder: payment.flowOrder != null ? String(payment.flowOrder) : null,
       paymentMedia: payment.paymentMedia ?? null,
     });
+
+    if (settled?.seVolvioPagado) {
+      await alPagarse(settled.order);
+    }
 
     return redirectToThanks({ pedido: payment.commerceOrder, estado: status });
   } catch (error) {

@@ -13,14 +13,6 @@ export const TIENDA = {
   whatsapp: "https://wa.me/56992891754",
 } as const;
 
-// Discount code and shipping rules. These drive what the customer is charged, so
-// the server re-derives them at checkout too (see lib/pricing.ts) instead of
-// trusting whatever the browser computed.
-export const DESCUENTO = {
-  codigo: "MACETERO10",
-  porcentaje: 10,
-} as const;
-
 // Delivery rule, as the shop actually operates it: free only in Santiago's eastern
 // sector, and everything else is quoted with an external carrier and coordinated
 // after the purchase. No shipping amount is ever charged online, so the storefront

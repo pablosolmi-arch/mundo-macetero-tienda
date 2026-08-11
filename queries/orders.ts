@@ -1,7 +1,7 @@
 // queries/orders.ts
 import { db } from "../db/client";
 import { orders, orderItems } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import type { OrderStatus } from "../lib/flow";
 import type { Entrega } from "../lib/pricing";
 
@@ -24,6 +24,9 @@ export interface NewOrderInput {
   shippingCost: number;
   amount: number;
   entrega: Entrega;
+  // 'web' es el checkout de la tienda; 'manual' son las ventas que el equipo
+  // toma por WhatsApp o teléfono y carga desde el panel.
+  origen?: "web" | "manual";
   customer: {
     name: string;
     email: string;
@@ -51,6 +54,7 @@ export async function createPendingOrder(input: NewOrderInput) {
       shippingCost: String(input.shippingCost),
       amount: String(input.amount),
       entrega: input.entrega,
+      origen: input.origen ?? "web",
       customerName: input.customer.name,
       customerEmail: input.customer.email,
       customerPhone: input.customer.phone,
@@ -102,10 +106,17 @@ export interface SettleOrderInput {
 // Applies Flow's authoritative status to an order. Idempotent: Flow may call the
 // confirmation URL more than once, and an order already marked 'paid' is never
 // downgraded by a later duplicate or out-of-order callback.
-export async function settleOrder(input: SettleOrderInput) {
+//
+// `seVolvioPagado` es true SOLO para el llamador cuya escritura movió el pedido a
+// 'paid'. La condición status <> 'paid' va en el propio UPDATE: los callbacks de
+// confirmación y de retorno llegan casi juntos, y sin esa condición ambos creerían
+// haber hecho la transición y los correos saldrían dos veces.
+export async function settleOrder(
+  input: SettleOrderInput,
+): Promise<{ order: typeof orders.$inferSelect; seVolvioPagado: boolean } | null> {
   const existing = await getOrderByCommerceOrder(input.commerceOrder);
   if (!existing) return null;
-  if (existing.status === "paid") return existing;
+  if (existing.status === "paid") return { order: existing, seVolvioPagado: false };
 
   const [updated] = await db
     .update(orders)
@@ -117,8 +128,13 @@ export async function settleOrder(input: SettleOrderInput) {
       paidAt: input.status === "paid" ? new Date() : existing.paidAt,
       updatedAt: new Date(),
     })
-    .where(eq(orders.commerceOrder, input.commerceOrder))
+    .where(and(eq(orders.commerceOrder, input.commerceOrder), ne(orders.status, "paid")))
     .returning();
 
-  return updated;
+  if (!updated) {
+    // Otro llamador ganó la carrera y ya lo dejó pagado.
+    const actual = await getOrderByCommerceOrder(input.commerceOrder);
+    return actual ? { order: actual, seVolvioPagado: false } : null;
+  }
+  return { order: updated, seVolvioPagado: updated.status === "paid" };
 }

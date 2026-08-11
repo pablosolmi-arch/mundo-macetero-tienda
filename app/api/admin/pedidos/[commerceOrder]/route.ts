@@ -5,7 +5,10 @@ import { db } from "../../../../../db/client";
 import { orders } from "../../../../../db/schema";
 import { getSessionUser } from "../../../../../lib/admin/auth";
 import { obtenerPedido, registrarEvento } from "../../../../../queries/admin";
+import { settleOrder } from "../../../../../queries/orders";
+import { alPagarse } from "../../../../../lib/pedidos";
 import { createRefund, getFlowCredentials } from "../../../../../lib/flow";
+import { correoReembolso } from "../../../../../lib/email";
 
 // Acciones del panel sobre un pedido. Todas exigen sesión y quedan en la bitácora
 // con el usuario que las hizo.
@@ -68,6 +71,36 @@ export async function POST(req: Request, { params }: { params: Promise<{ commerc
       .set({ fulfillment: "cancelado", cancelledAt: new Date(), updatedAt: new Date() })
       .where(eq(orders.id, pedido.id));
     await registrarEvento(pedido.id, usuario.id, "cancelado", detalle);
+    return NextResponse.json({ ok: true });
+  }
+
+  // Cobro fuera de Flow (transferencia): se usa en las ventas manuales que no se
+  // pagaron con el link. settleOrder hace la transición atómica, así que los
+  // efectos de "pagado" (correos, cupo del descuento, inventario) corren una sola
+  // vez aunque dos personas del equipo aprieten el botón a la vez.
+  if (accion === "pago-manual") {
+    if (pedido.status !== "pending") {
+      return NextResponse.json(
+        { message: "Solo se puede marcar pagado un pedido pendiente." },
+        { status: 400 },
+      );
+    }
+    const settled = await settleOrder({
+      commerceOrder: pedido.commerceOrder,
+      status: "paid",
+      paymentMedia: "transferencia",
+    });
+    if (!settled) return NextResponse.json({ message: "Pedido no encontrado." }, { status: 404 });
+
+    if (settled.seVolvioPagado) {
+      await alPagarse(settled.order);
+      await registrarEvento(
+        pedido.id,
+        usuario.id,
+        "pago",
+        "Marcado pagado manualmente (transferencia)",
+      );
+    }
     return NextResponse.json({ ok: true });
   }
 
@@ -150,6 +183,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ commerc
         "reembolsado",
         `${importe} solicitado a Flow (${refund.status ?? "sin estado"})${detalle ? ` · ${detalle}` : ""}`,
       );
+      // Avisar al cliente. Si el correo falla, el reembolso ya está hecho: solo
+      // queda constancia en la bitácora.
+      const correo = await correoReembolso({ ...pedido, items: pedido.items }, importe);
+      if (!correo.enviado) {
+        await registrarEvento(pedido.id, null, "correo", `reembolso: ${correo.detalle}`);
+      }
       return NextResponse.json({ ok: true, estado: refund.status ?? null });
     } catch (error) {
       // Flow no aceptó: se libera la reserva para que el saldo vuelva a estar

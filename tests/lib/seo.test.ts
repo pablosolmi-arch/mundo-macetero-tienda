@@ -13,6 +13,7 @@ const sampleProduct = {
   status: "active" as const,
   optionNames: [] as string[],
   thumbs: [] as string[],
+  trackStock: false,
   createdAt: new Date(),
   variants: [],
 };

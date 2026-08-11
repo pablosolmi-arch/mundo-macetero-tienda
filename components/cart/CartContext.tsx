@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { esCodigoValido } from "../../lib/pricing";
 import { track } from "../../lib/track";
 
 export interface CartItem {
@@ -30,9 +29,10 @@ interface CartState {
   close: () => void;
   count: number;
   subtotal: number;
-  // Applied discount code, or null. Validated here and again on the server.
-  codigo: string | null;
-  aplicarCodigo: (codigo: string) => boolean;
+  // Código aplicado con su tipo y valor, para pintar el descuento. El servidor
+  // lo vuelve a validar contra la tabla al cobrar; esto es solo visual.
+  codigo: { codigo: string; tipo: "porcentaje" | "monto"; valor: number } | null;
+  aplicarCodigo: (codigo: string) => Promise<boolean>;
   quitarCodigo: () => void;
 }
 
@@ -45,7 +45,7 @@ function sameLine(a: CartItem, slug: string, variant: string | null) {
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
-  const [codigo, setCodigo] = useState<string | null>(null);
+  const [codigo, setCodigo] = useState<{ codigo: string; tipo: "porcentaje" | "monto"; valor: number } | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
   const [hydrated, setHydrated] = useState(false);
@@ -61,7 +61,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           setItems(parsed);
         } else if (parsed && Array.isArray(parsed.items)) {
           setItems(parsed.items);
-          setCodigo(typeof parsed.codigo === "string" ? parsed.codigo : null);
+          // Carritos antiguos guardaban el código como string; se descarta y el
+          // cliente lo vuelve a aplicar (la validación vive en el servidor).
+          if (parsed.codigo && typeof parsed.codigo === "object" && parsed.codigo.codigo) {
+            setCodigo(parsed.codigo);
+          }
         }
       }
     } catch {
@@ -132,10 +136,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setIsOpen(false);
         setJustAdded(false);
       },
-      aplicarCodigo: (value: string) => {
-        if (!esCodigoValido(value)) return false;
-        setCodigo(value.trim().toUpperCase());
-        return true;
+      aplicarCodigo: async (value: string) => {
+        try {
+          const res = await fetch("/api/descuento", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ codigo: value }),
+          });
+          const data = await res.json();
+          if (!data.valido) return false;
+          setCodigo({ codigo: data.codigo, tipo: data.tipo, valor: data.valor });
+          return true;
+        } catch {
+          return false;
+        }
       },
       quitarCodigo: () => setCodigo(null),
     };

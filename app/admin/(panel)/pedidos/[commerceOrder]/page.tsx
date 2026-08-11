@@ -153,6 +153,7 @@ export default async function AdminPedidoDetalle({
         <AccionesPedido
           commerceOrder={pedido.commerceOrder}
           pagado={pedido.status === "paid"}
+          pendiente={pedido.status === "pending"}
           entregado={pedido.fulfillment === "entregado"}
           cancelado={pedido.fulfillment === "cancelado"}
           disponibleParaReembolso={disponible}

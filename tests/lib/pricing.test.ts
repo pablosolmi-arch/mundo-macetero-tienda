@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { calcEnvio, calcDescuento, calcTotales, esCodigoValido } from "../../lib/pricing";
-import { DESCUENTO, ENVIO } from "../../content/site";
+import { calcEnvio, calcTotales } from "../../lib/pricing";
+import { montoDescuento } from "../../lib/descuento-monto";
+import { ENVIO } from "../../content/site";
 
 // These rules decide what the customer is actually charged, and the same functions
 // run in the browser and inside /api/checkout. A drift here is a money bug.
@@ -51,24 +52,36 @@ describe("calcEnvio", () => {
   });
 });
 
-describe("calcDescuento", () => {
-  it("applies the published percentage to the valid code", () => {
-    expect(calcDescuento(100000, DESCUENTO.codigo)).toBe(10000);
+describe("montoDescuento", () => {
+  it("takes the percentage off the subtotal", () => {
+    expect(montoDescuento(100000, { codigo: "PRIMAVERA10", tipo: "porcentaje", valor: 10 })).toBe(
+      10000,
+    );
   });
 
-  it("accepts the code in any casing or with stray spaces", () => {
-    expect(calcDescuento(100000, ` ${DESCUENTO.codigo.toLowerCase()} `)).toBe(10000);
-    expect(esCodigoValido(DESCUENTO.codigo.toLowerCase())).toBe(true);
+  it("rounds a percentage to whole pesos", () => {
+    // 107999 * 10% = 10799.9, and the shop never charges fractions of a peso.
+    const monto = montoDescuento(107999, { codigo: "PRIMAVERA10", tipo: "porcentaje", valor: 10 });
+    expect(monto).toBe(10800);
+    expect(Number.isInteger(monto)).toBe(true);
   });
 
-  it("is worth nothing for an unknown or absent code", () => {
-    expect(calcDescuento(100000, "REGALAME10")).toBe(0);
-    expect(calcDescuento(100000, "")).toBe(0);
-    expect(calcDescuento(100000, null)).toBe(0);
+  it("takes a fixed amount off, but never more than the subtotal", () => {
+    expect(montoDescuento(100000, { codigo: "LUCA5", tipo: "monto", valor: 5000 })).toBe(5000);
+    expect(montoDescuento(3000, { codigo: "LUCA5", tipo: "monto", valor: 5000 })).toBe(3000);
   });
 
-  it("rounds to whole pesos", () => {
-    expect(Number.isInteger(calcDescuento(107999, DESCUENTO.codigo))).toBe(true);
+  it("rounds a fixed amount to whole pesos", () => {
+    expect(montoDescuento(100000, { codigo: "LUCA5", tipo: "monto", valor: 4999.6 })).toBe(5000);
+  });
+
+  it("is worth nothing without a discount", () => {
+    expect(montoDescuento(100000, null)).toBe(0);
+  });
+
+  it("is worth nothing on an empty cart", () => {
+    expect(montoDescuento(0, { codigo: "PRIMAVERA10", tipo: "porcentaje", valor: 10 })).toBe(0);
+    expect(montoDescuento(-500, { codigo: "LUCA5", tipo: "monto", valor: 5000 })).toBe(0);
   });
 });
 
@@ -76,7 +89,7 @@ describe("calcTotales", () => {
   it("charges the subtotal minus the discount, with no shipping added", () => {
     const t = calcTotales({
       subtotal: 100000,
-      codigo: DESCUENTO.codigo,
+      descuento: 10000,
       entrega: "despacho",
       region: ENVIO.regionRM,
       comuna: "Maipú",
@@ -86,25 +99,62 @@ describe("calcTotales", () => {
     expect(t.total).toBe(90000);
   });
 
-  it("charges exactly the subtotal for a pickup with no code", () => {
+  it("charges exactly the subtotal for a pickup with no discount", () => {
     const t = calcTotales({
       subtotal: 91158,
-      codigo: null,
+      descuento: 0,
       entrega: "retiro",
       region: "",
       comuna: "",
     });
+    expect(t.descuento).toBe(0);
     expect(t.total).toBe(91158);
   });
 
   it("never lets a discount push the total below zero", () => {
     const t = calcTotales({
       subtotal: 1,
-      codigo: DESCUENTO.codigo,
+      descuento: 10000,
       entrega: "retiro",
       region: "",
       comuna: "",
     });
     expect(t.total).toBeGreaterThanOrEqual(0);
+  });
+
+  it("clamps a discount larger than the subtotal down to the subtotal", () => {
+    const t = calcTotales({
+      subtotal: 24990,
+      descuento: 90000,
+      entrega: "retiro",
+      region: "",
+      comuna: "",
+    });
+    expect(t.descuento).toBe(24990);
+    expect(t.total).toBe(0);
+  });
+
+  it("ignores a negative discount instead of adding to the total", () => {
+    const t = calcTotales({
+      subtotal: 24990,
+      descuento: -5000,
+      entrega: "retiro",
+      region: "",
+      comuna: "",
+    });
+    expect(t.descuento).toBe(0);
+    expect(t.total).toBe(24990);
+  });
+
+  it("keeps the discount in whole pesos", () => {
+    const t = calcTotales({
+      subtotal: 100000,
+      descuento: 10799.9,
+      entrega: "retiro",
+      region: "",
+      comuna: "",
+    });
+    expect(t.descuento).toBe(10800);
+    expect(t.total).toBe(89200);
   });
 });

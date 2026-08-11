@@ -4,6 +4,7 @@ import { getProductBySlug } from "../../../queries/catalog";
 import { createPendingOrder, type NewOrderLine } from "../../../queries/orders";
 import { createPayment, getFlowCredentials } from "../../../lib/flow";
 import { calcTotales, type Entrega } from "../../../lib/pricing";
+import { montoDescuento, validarCodigo } from "../../../lib/descuentos";
 
 // Flow (Chile) payment creation. Requires the merchant's Flow credentials as
 // env vars: FLOW_API_KEY, FLOW_SECRET, and optionally FLOW_BASE_URL
@@ -103,6 +104,13 @@ export async function POST(req: Request) {
       }
       unitPrice = variant.priceOverride != null ? Number(variant.priceOverride) : unitPrice;
       variantName = variant.name;
+      // Con seguimiento de inventario activado, no se vende más de lo que hay.
+      if (product.trackStock && variant.stock < line.qty) {
+        return NextResponse.json(
+          { message: `Solo quedan ${variant.stock} unidades de "${product.name} — ${variant.name}".` },
+          { status: 400 },
+        );
+      }
     }
 
     subtotal += unitPrice * line.qty;
@@ -120,11 +128,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: "El monto del pedido no es válido." }, { status: 400 });
   }
 
-  // Shipping and discount from the same shared rules the checkout UI used, so the
-  // charged total matches the quoted one, but derived here from trusted inputs.
+  // El descuento se resuelve contra la tabla, no contra lo que diga el carrito:
+  // un código inventado, vencido o agotado vale cero.
+  const descuentoAplicable = body.codigo ? await validarCodigo(body.codigo) : null;
   const totales = calcTotales({
     subtotal,
-    codigo: body.codigo ?? null,
+    descuento: montoDescuento(subtotal, descuentoAplicable),
     entrega,
     region: body.customer.region ?? "",
     comuna: body.customer.city ?? "",
@@ -141,7 +150,7 @@ export async function POST(req: Request) {
   await createPendingOrder({
     commerceOrder,
     subtotal: totales.subtotal,
-    discountCode: totales.descuento > 0 ? (body.codigo ?? null) : null,
+    discountCode: totales.descuento > 0 ? (descuentoAplicable?.codigo ?? null) : null,
     discountAmount: totales.descuento,
     shippingLabel: totales.envio.label,
     shippingCost: totales.envio.monto,

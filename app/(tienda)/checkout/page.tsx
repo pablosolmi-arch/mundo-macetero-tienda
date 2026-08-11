@@ -5,7 +5,8 @@ import { useState } from "react";
 import { useCart } from "../../../components/cart/CartContext";
 import { formatCLP } from "../../../lib/format";
 import { calcTotales, type Entrega } from "../../../lib/pricing";
-import { COMUNAS_RM, DESCUENTO, ENVIO, REGIONES, TIENDA } from "../../../content/site";
+import { COMUNAS_RM, ENVIO, REGIONES, TIENDA } from "../../../content/site";
+import { montoDescuento } from "../../../lib/descuento-monto";
 import { track } from "../../../lib/track";
 
 const INPUT: React.CSSProperties = {
@@ -69,7 +70,7 @@ export default function CheckoutPage() {
   const esRM = form.region === ENVIO.regionRM;
   const totales = calcTotales({
     subtotal,
-    codigo,
+    descuento: montoDescuento(subtotal, codigo),
     entrega: form.entrega,
     region: form.region,
     comuna: form.comuna,
@@ -114,7 +115,7 @@ export default function CheckoutPage() {
             note: form.nota,
           },
           entrega: form.entrega,
-          codigo,
+          codigo: codigo?.codigo ?? null,
         }),
       });
       const data = await res.json();
@@ -432,7 +433,7 @@ export default function CheckoutPage() {
                 fontSize: "12.5px",
               }}
             >
-              <span style={{ fontWeight: 700, color: "#4c7a4c" }}>✓ {codigo}</span>
+              <span style={{ fontWeight: 700, color: "#4c7a4c" }}>✓ {codigo.codigo}</span>
               <button
                 onClick={quitarCodigo}
                 style={{
@@ -460,8 +461,8 @@ export default function CheckoutPage() {
                   style={{ ...INPUT, padding: "10px 12px", fontSize: "13px" }}
                 />
                 <button
-                  onClick={() => {
-                    if (!aplicarCodigo(codigoInput)) setCodigoMsg(`Código no válido. Prueba ${DESCUENTO.codigo}.`);
+                  onClick={async () => {
+                    if (!(await aplicarCodigo(codigoInput))) setCodigoMsg("Código no válido o vencido.");
                     else setCodigoMsg("");
                   }}
                   className="mm-btn-dark"
@@ -496,7 +497,7 @@ export default function CheckoutPage() {
                   color: "#4c7a4c",
                 }}
               >
-                <span>Descuento ({DESCUENTO.porcentaje}%)</span>
+                <span>Descuento{codigo?.tipo === "porcentaje" ? ` (${codigo.valor}%)` : ""}</span>
                 <span style={{ fontWeight: 600 }}>−{formatCLP(totales.descuento)}</span>
               </div>
             )}

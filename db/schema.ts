@@ -20,6 +20,11 @@ export const products = pgTable("products", {
   // multiplicaba por cuatro el peso de la portada sin ganancia visible.
   thumbs: text("thumbs").array().notNull().default([]),
   stock: integer("stock").notNull().default(0),
+  // El importador solo trae disponible/no disponible (stock 1/0), no cantidades.
+  // Descontar sobre esos valores agotaría todo tras la primera venta, así que el
+  // seguimiento de inventario se activa por producto cuando el equipo cargue
+  // cantidades reales; hasta entonces manda el flag `available` de la variante.
+  trackStock: boolean("track_stock").notNull().default(false),
   status: text("status").notNull().default("active"),
   // Names of the option axes, in order: ["Tamaño", "Color", "Drenaje"]. A product
   // sold in a single configuration has an empty array.
@@ -66,6 +71,8 @@ export const orders = pgTable("orders", {
   currency: text("currency").notNull().default("CLP"),
   // 'retiro' (store pickup) or 'despacho' (delivery).
   entrega: text("entrega").notNull().default("retiro"),
+  // 'web' (checkout de la tienda) o 'manual' (creado desde el panel).
+  origen: text("origen").notNull().default("web"),
   customerName: text("customer_name").notNull().default(""),
   customerEmail: text("customer_email").notNull(),
   customerPhone: text("customer_phone").notNull().default(""),
@@ -120,6 +127,23 @@ export const leads = pgTable("leads", {
   // Free-form answers, kept as one text blob per field label.
   detalle: text("detalle").notNull().default(""),
   mensaje: text("mensaje").notNull().default(""),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Códigos de descuento gestionables desde el panel (antes había uno solo fijo en
+// el código). El checkout los valida SIEMPRE contra esta tabla en el servidor;
+// `usos` se incrementa solo cuando el pedido queda pagado, para que un checkout
+// abandonado no queme un cupo.
+export const discounts = pgTable("discounts", {
+  id: serial("id").primaryKey(),
+  codigo: text("codigo").notNull().unique(),
+  // 'porcentaje' (valor = %) o 'monto' (valor = CLP fijos)
+  tipo: text("tipo").notNull().default("porcentaje"),
+  valor: numeric("valor", { precision: 12, scale: 2 }).notNull(),
+  activo: boolean("activo").notNull().default(true),
+  expiraEn: timestamp("expira_en"),
+  maxUsos: integer("max_usos"),
+  usos: integer("usos").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -187,6 +211,7 @@ export const siteEvents = pgTable("site_events", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export type Discount = typeof discounts.$inferSelect;
 export type Category = typeof categories.$inferSelect;
 export type Product = typeof products.$inferSelect;
 export type NewProduct = typeof products.$inferInsert;

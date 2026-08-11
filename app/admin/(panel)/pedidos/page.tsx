@@ -56,9 +56,32 @@ export default async function AdminPedidos({
 
   return (
     <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-      <h1 className="font-display" style={{ fontSize: "24px", fontWeight: 700, margin: "0 0 16px" }}>
-        Pedidos
-      </h1>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "14px",
+          flexWrap: "wrap",
+          margin: "0 0 16px",
+        }}
+      >
+        <h1 className="font-display" style={{ fontSize: "24px", fontWeight: 700, margin: 0 }}>
+          Pedidos
+        </h1>
+        <Link
+          href="/admin/pedidos/nuevo"
+          style={{
+            padding: "7px 14px",
+            borderRadius: "7px",
+            fontSize: "13px",
+            fontWeight: 600,
+            background: "#2a2925",
+            color: "#fff",
+          }}
+        >
+          + Nuevo pedido
+        </Link>
+      </div>
 
       <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center", marginBottom: "18px" }}>
         {filtros.map(([valor, label]) => (

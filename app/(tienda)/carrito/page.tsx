@@ -4,15 +4,14 @@ import Link from "next/link";
 import { useState } from "react";
 import { useCart } from "../../../components/cart/CartContext";
 import { formatCLP } from "../../../lib/format";
-import { calcDescuento } from "../../../lib/pricing";
-import { DESCUENTO } from "../../../content/site";
+import { montoDescuento } from "../../../lib/descuento-monto";
 
 export default function CarritoPage() {
   const { items, subtotal, changeQty, remove, codigo, aplicarCodigo, quitarCodigo } = useCart();
   const [input, setInput] = useState("");
   const [msg, setMsg] = useState("");
 
-  const descuento = calcDescuento(subtotal, codigo);
+  const descuento = montoDescuento(subtotal, codigo);
 
   return (
     <div style={{ maxWidth: "1080px", margin: "0 auto", padding: "40px 24px 70px" }}>
@@ -174,7 +173,7 @@ export default function CarritoPage() {
                   fontSize: "13px",
                 }}
               >
-                <span style={{ fontWeight: 700, color: "#4c7a4c" }}>✓ {codigo}</span>
+                <span style={{ fontWeight: 700, color: "#4c7a4c" }}>✓ {codigo.codigo}</span>
                 <button
                   onClick={quitarCodigo}
                   style={{
@@ -211,8 +210,8 @@ export default function CarritoPage() {
                     }}
                   />
                   <button
-                    onClick={() => {
-                      if (!aplicarCodigo(input)) setMsg(`Código no válido. Prueba ${DESCUENTO.codigo}.`);
+                    onClick={async () => {
+                      if (!(await aplicarCodigo(input))) setMsg("Código no válido o vencido.");
                       else setMsg("");
                     }}
                     className="mm-btn-dark"
@@ -246,7 +245,7 @@ export default function CarritoPage() {
                   color: "#4c7a4c",
                 }}
               >
-                <span>Descuento ({DESCUENTO.porcentaje}%)</span>
+                <span>Descuento{codigo?.tipo === "porcentaje" ? ` (${codigo.valor}%)` : ""}</span>
                 <span style={{ fontWeight: 600 }}>−{formatCLP(descuento)}</span>
               </div>
             )}

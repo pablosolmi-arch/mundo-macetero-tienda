@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getFlowCredentials, getPaymentStatus, orderStatusFromFlow } from "../../../../lib/flow";
 import { settleOrder } from "../../../../queries/orders";
+import { alPagarse } from "../../../../lib/pedidos";
 
 // Flow's server-to-server confirmation callback. Flow POSTs a single `token` as
 // application/x-www-form-urlencoded; the token is NOT a claim that the payment
@@ -62,6 +63,10 @@ export async function POST(req: Request) {
     paymentMedia: payment.paymentMedia ?? null,
   });
 
+  if (settled?.seVolvioPagado) {
+    await alPagarse(settled.order);
+  }
+
   if (!settled) {
     // Unknown commerceOrder: answering 200 would let Flow consider a payment we
     // have no record of as confirmed.
@@ -69,5 +74,5 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: "Pedido no encontrado." }, { status: 404 });
   }
 
-  return NextResponse.json({ ok: true, status: settled.status });
+  return NextResponse.json({ ok: true, status: settled.order.status });
 }

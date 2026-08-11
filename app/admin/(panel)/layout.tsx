@@ -14,6 +14,9 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   const enlaces = [
     ["/admin", "Resumen"],
     ["/admin/pedidos", "Pedidos"],
+    ["/admin/productos", "Productos"],
+    ["/admin/descuentos", "Descuentos"],
+    ["/admin/clientes", "Clientes"],
   ];
 
   return (

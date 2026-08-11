@@ -10,6 +10,7 @@ import { formatCLP } from "../../lib/format";
 interface Props {
   commerceOrder: string;
   pagado: boolean;
+  pendiente: boolean;
   entregado: boolean;
   cancelado: boolean;
   disponibleParaReembolso: number;
@@ -18,6 +19,7 @@ interface Props {
 export function AccionesPedido({
   commerceOrder,
   pagado,
+  pendiente,
   entregado,
   cancelado,
   disponibleParaReembolso,
@@ -29,6 +31,7 @@ export function AccionesPedido({
   const [nota, setNota] = useState("");
   const [montoRef, setMontoRef] = useState(String(Math.round(disponibleParaReembolso)));
   const [confirmandoRef, setConfirmandoRef] = useState(false);
+  const [confirmandoPago, setConfirmandoPago] = useState(false);
 
   async function ejecutar(accion: string, extra?: { detalle?: string; monto?: number }) {
     setCargando(accion);
@@ -45,6 +48,7 @@ export function AccionesPedido({
         setOk("Listo.");
         setNota("");
         setConfirmandoRef(false);
+        setConfirmandoPago(false);
         router.refresh();
       } else {
         setError(data.message ?? "No se pudo completar la acción.");
@@ -69,6 +73,15 @@ export function AccionesPedido({
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
       <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+        {pendiente && !confirmandoPago && (
+          <button
+            onClick={() => setConfirmandoPago(true)}
+            disabled={cargando !== null}
+            style={{ ...boton, background: "#2a2925", color: "#fff", border: "none" }}
+          >
+            Marcar pagado (transferencia)
+          </button>
+        )}
         {pagado && !entregado && !cancelado && (
           <button
             onClick={() => ejecutar("entregado")}
@@ -102,6 +115,37 @@ export function AccionesPedido({
           </button>
         )}
       </div>
+
+      {confirmandoPago && (
+        <div
+          style={{
+            background: "#f6efdf",
+            border: "1px solid #e3d4ae",
+            borderRadius: "10px",
+            padding: "14px 16px",
+          }}
+        >
+          <div style={{ fontSize: "13px", fontWeight: 700, color: "#8a6a2b", marginBottom: "8px" }}>
+            Confirmar pago por transferencia
+          </div>
+          <div style={{ fontSize: "12.5px", color: "#6f6c66", marginBottom: "10px" }}>
+            La venta queda registrada como cobrada fuera de Flow: confirma que el dinero ya está en
+            la cuenta. Se envían los correos de confirmación y se descuenta el inventario.
+          </div>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            <button
+              onClick={() => ejecutar("pago-manual")}
+              disabled={cargando !== null}
+              style={{ ...boton, background: "#2a2925", color: "#fff", border: "none" }}
+            >
+              {cargando === "pago-manual" ? "Guardando…" : "Sí, está pagado"}
+            </button>
+            <button onClick={() => setConfirmandoPago(false)} style={boton}>
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
 
       {confirmandoRef && (
         <div
