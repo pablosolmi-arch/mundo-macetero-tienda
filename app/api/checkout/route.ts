@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "node:crypto";
 import { getProductBySlug } from "../../../queries/catalog";
 import { createPendingOrder, type NewOrderLine } from "../../../queries/orders";
-import { createPayment, getFlowCredentials } from "../../../lib/flow";
+import { crearLinkPago, gatewayActiva } from "../../../lib/pagos";
 import { calcTotales, type Entrega } from "../../../lib/pricing";
 import { montoDescuento, validarCodigo } from "../../../lib/descuentos";
 
@@ -32,13 +32,13 @@ function newCommerceOrder(): string {
 }
 
 export async function POST(req: Request) {
-  const creds = getFlowCredentials();
+  const gateway = gatewayActiva();
 
-  if (!creds) {
+  if (!gateway) {
     return NextResponse.json(
       {
         message:
-          "El pago con Flow aún no está conectado. Falta configurar las credenciales del comercio (FLOW_API_KEY, FLOW_SECRET).",
+          "El pago online aún no está conectado. Falta configurar las credenciales de la pasarela (MP_ACCESS_TOKEN de Mercado Pago).",
       },
       { status: 503 },
     );
@@ -149,6 +149,7 @@ export async function POST(req: Request) {
   const commerceOrder = newCommerceOrder();
   await createPendingOrder({
     commerceOrder,
+    gateway,
     subtotal: totales.subtotal,
     discountCode: totales.descuento > 0 ? (descuentoAplicable?.codigo ?? null) : null,
     discountAmount: totales.descuento,
@@ -169,20 +170,17 @@ export async function POST(req: Request) {
   });
 
   try {
-    const { redirectUrl } = await createPayment(creds, {
+    const { redirectUrl } = await crearLinkPago({
       commerceOrder,
-      subject: `Compra Mundo Macetero (${lines.length} productos)`,
+      titulo: `Compra Mundo Macetero (${lines.length} productos)`,
       amount: totales.total,
       email: body.customer.email,
-      // Flow POSTs the token to both URLs, so neither can be a plain page.
-      urlConfirmation: `${SITE_URL}/api/checkout/confirm`,
-      urlReturn: `${SITE_URL}/api/checkout/return`,
     });
     return NextResponse.json({ redirectUrl });
   } catch {
     // The pending order stays in the database as evidence of the attempt.
     return NextResponse.json(
-      { message: "Flow rechazó la solicitud de pago. Revisa las credenciales del comercio." },
+      { message: "La pasarela rechazó la solicitud de pago. Revisa las credenciales del comercio." },
       { status: 502 },
     );
   }

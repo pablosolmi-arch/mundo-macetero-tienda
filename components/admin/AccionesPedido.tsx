@@ -129,7 +129,7 @@ export function AccionesPedido({
             Confirmar pago por transferencia
           </div>
           <div style={{ fontSize: "12.5px", color: "#6f6c66", marginBottom: "10px" }}>
-            La venta queda registrada como cobrada fuera de Flow: confirma que el dinero ya está en
+            La venta queda registrada como cobrada fuera de la pasarela: confirma que el dinero ya está en
             la cuenta. Se envían los correos de confirmación y se descuenta el inventario.
           </div>
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>

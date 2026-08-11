@@ -162,7 +162,7 @@ export default function CheckoutPage() {
         Finalizar compra
       </h1>
       <div style={{ fontSize: "13px", color: "#6f6c66", marginBottom: "28px" }}>
-        Compra segura · Pago procesado por Flow
+        Compra segura · Pago procesado por Mercado Pago
       </div>
 
       <div
@@ -334,15 +334,15 @@ export default function CheckoutPage() {
               3 · Pago
             </h2>
             <div style={{ fontSize: "12.5px", color: "#6f6c66", marginBottom: "14px" }}>
-              Al confirmar te llevamos a Flow para completar el pago.
+              Al confirmar te llevamos a Mercado Pago para completar el pago.
             </div>
             <div style={radioCard(true)}>
               <input type="radio" checked readOnly style={{ accentColor: "#a5613f" }} />
               <span style={{ flex: 1 }}>
-                <span style={{ fontWeight: 700, fontSize: "14px" }}>Flow</span>
+                <span style={{ fontWeight: 700, fontSize: "14px" }}>Mercado Pago</span>
                 <br />
                 <span style={{ fontSize: "12.5px", color: "#6f6c66" }}>
-                  Webpay, tarjetas de débito y crédito
+                  Tarjetas de crédito y débito, y saldo Mercado Pago
                 </span>
               </span>
             </div>

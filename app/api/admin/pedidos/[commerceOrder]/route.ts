@@ -8,6 +8,7 @@ import { obtenerPedido, registrarEvento } from "../../../../../queries/admin";
 import { settleOrder } from "../../../../../queries/orders";
 import { alPagarse } from "../../../../../lib/pedidos";
 import { createRefund, getFlowCredentials } from "../../../../../lib/flow";
+import { getMPCredentials, reembolsarPago } from "../../../../../lib/mercadopago";
 import { correoReembolso } from "../../../../../lib/email";
 
 // Acciones del panel sobre un pedido. Todas exigen sesión y quedan en la bitácora
@@ -125,13 +126,18 @@ export async function POST(req: Request, { params }: { params: Promise<{ commerc
       );
     }
 
-    const creds = getFlowCredentials();
-    if (!creds) {
+    // El reembolso va contra la pasarela que cobró ESTE pedido.
+    if (pedido.gateway === "manual") {
       return NextResponse.json(
-        {
-          message:
-            "No se puede reembolsar: faltan las credenciales de Flow (FLOW_API_KEY, FLOW_SECRET).",
-        },
+        { message: "Este pedido se cobró por transferencia: la devolución se hace por transferencia y se anota como nota." },
+        { status: 400 },
+      );
+    }
+    const credsMP = pedido.gateway === "mercadopago" ? getMPCredentials() : null;
+    const credsFlow = pedido.gateway === "flow" ? getFlowCredentials() : null;
+    if (!credsMP && !credsFlow) {
+      return NextResponse.json(
+        { message: `No se puede reembolsar: faltan las credenciales de ${pedido.gateway === "mercadopago" ? "Mercado Pago (MP_ACCESS_TOKEN)" : "Flow"}.` },
         { status: 503 },
       );
     }
@@ -166,16 +172,29 @@ export async function POST(req: Request, { params }: { params: Promise<{ commerc
     }
 
     try {
-      const refund = await createRefund(creds, {
-        refundCommerceOrder: referencia,
-        receiverEmail: pedido.customerEmail,
-        amount: importe,
-        urlCallBack: `${SITE_URL}/api/checkout/confirm`,
-        commerceTrxId: pedido.commerceOrder,
-      });
+      let refTexto = referencia;
+      let estadoRef: string | null = null;
+      if (credsMP) {
+        // El id del pago MP quedó guardado en flowOrder al asentarse.
+        if (!pedido.flowOrder) throw new Error("pedido sin id de pago de Mercado Pago");
+        const r = await reembolsarPago(credsMP, pedido.flowOrder, importe, referencia);
+        refTexto = String(r.id);
+        estadoRef = r.status ?? null;
+      } else if (credsFlow) {
+        const r = await createRefund(credsFlow, {
+          refundCommerceOrder: referencia,
+          receiverEmail: pedido.customerEmail,
+          amount: importe,
+          urlCallBack: `${SITE_URL}/api/checkout/confirm`,
+          commerceTrxId: pedido.commerceOrder,
+        });
+        refTexto = r.token ?? referencia;
+        estadoRef = r.status ?? null;
+      }
+      const refund = { status: estadoRef };
       await db
         .update(orders)
-        .set({ refundReference: refund.token ?? referencia, updatedAt: new Date() })
+        .set({ refundReference: refTexto, updatedAt: new Date() })
         .where(eq(orders.id, pedido.id));
       await registrarEvento(
         pedido.id,
@@ -199,11 +218,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ commerc
         .where(eq(orders.id, pedido.id));
       // Sin datos del cliente en el log.
       console.error(
-        "flow refund/create falló:",
+        "reembolso falló:",
         error instanceof Error ? error.message : "error desconocido",
       );
       return NextResponse.json(
-        { message: "Flow rechazó el reembolso. No se registró ninguna devolución." },
+        { message: "La pasarela rechazó el reembolso. No se registró ninguna devolución." },
         { status: 502 },
       );
     }

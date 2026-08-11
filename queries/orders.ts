@@ -27,6 +27,8 @@ export interface NewOrderInput {
   // 'web' es el checkout de la tienda; 'manual' son las ventas que el equipo
   // toma por WhatsApp o teléfono y carga desde el panel.
   origen?: "web" | "manual";
+  // Pasarela que va a cobrar este pedido (mercadopago | flow | manual).
+  gateway?: string;
   customer: {
     name: string;
     email: string;
@@ -55,6 +57,7 @@ export async function createPendingOrder(input: NewOrderInput) {
       amount: String(input.amount),
       entrega: input.entrega,
       origen: input.origen ?? "web",
+      gateway: input.gateway ?? "flow",
       customerName: input.customer.name,
       customerEmail: input.customer.email,
       customerPhone: input.customer.phone,

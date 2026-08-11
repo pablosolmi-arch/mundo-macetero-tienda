@@ -141,7 +141,7 @@ export function Footer() {
             ))}
           </div>
           <div style={{ display: "flex", gap: "8px", marginTop: "16px", flexWrap: "wrap" }}>
-            {["Webpay", "Transferencia", "Crédito / Débito"].map((m) => (
+            {["Mercado Pago", "Transferencia", "Crédito / Débito"].map((m) => (
               <span
                 key={m}
                 style={{
@@ -175,7 +175,7 @@ export function Footer() {
           }}
         >
           <span>© {new Date().getFullYear()} Mundo Macetero</span>
-          <span>Pago seguro procesado por Flow</span>
+          <span>Pago seguro procesado por Mercado Pago</span>
         </div>
       </div>
     </footer>

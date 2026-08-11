@@ -73,6 +73,9 @@ export const orders = pgTable("orders", {
   entrega: text("entrega").notNull().default("retiro"),
   // 'web' (checkout de la tienda) o 'manual' (creado desde el panel).
   origen: text("origen").notNull().default("web"),
+  // Pasarela que cobró: 'mercadopago' | 'flow' | 'manual' (transferencia). Decide
+  // contra quién se hace un reembolso.
+  gateway: text("gateway").notNull().default("flow"),
   customerName: text("customer_name").notNull().default(""),
   customerEmail: text("customer_email").notNull(),
   customerPhone: text("customer_phone").notNull().default(""),

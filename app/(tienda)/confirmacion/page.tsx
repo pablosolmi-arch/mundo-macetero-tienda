@@ -21,7 +21,7 @@ const COPY: Record<string, { title: string; body: string; icon: string; iconBg: 
   },
   pending: {
     title: "Tu pago está pendiente",
-    body: "Flow aún no confirma el pago. Si pagaste con transferencia o cupón puede tardar un momento; te avisaremos en cuanto se acredite.",
+    body: "El pago aún no se confirma. Si pagaste con un medio diferido puede tardar unos minutos; te avisaremos por correo en cuanto se acredite.",
     icon: "…",
     iconBg: "#a5613f",
   },
@@ -41,7 +41,7 @@ const COPY: Record<string, { title: string; body: string; icon: string; iconBg: 
 
 const FALLBACK = {
   title: "Recibimos tu pedido",
-  body: "Estamos confirmando el estado del pago con Flow. Te contactaremos por correo.",
+  body: "Estamos confirmando el estado del pago. Te contactaremos por correo.",
   icon: "…",
   iconBg: "#a5613f",
 };

@@ -57,6 +57,13 @@
       "when": 1786452653879,
       "tag": "0007_wild_patch",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1786465405776,
+      "tag": "0008_glamorous_pretty_boy",
+      "breakpoints": true
     }
   ]
 }

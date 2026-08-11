@@ -4,7 +4,7 @@ import { getSessionUser } from "../../../../../lib/admin/auth";
 import { getProductBySlug } from "../../../../../queries/catalog";
 import { createPendingOrder, type NewOrderLine } from "../../../../../queries/orders";
 import { registrarEvento } from "../../../../../queries/admin";
-import { createPayment, getFlowCredentials } from "../../../../../lib/flow";
+import { crearLinkPago, gatewayActiva } from "../../../../../lib/pagos";
 import { calcTotales, type Entrega } from "../../../../../lib/pricing";
 import { montoDescuento, validarCodigo } from "../../../../../lib/descuentos";
 
@@ -16,7 +16,7 @@ import { montoDescuento, validarCodigo } from "../../../../../lib/descuentos";
 // pedido manual nunca puede quedar con un total que no corresponde al catálogo,
 // sea por error de tipeo o por una petición manipulada.
 //
-// A diferencia del checkout de la tienda, la falta de credenciales de Flow NO es
+// A diferencia del checkout de la tienda, la falta de pasarela configurada NO es
 // un 503: el pedido se crea igual y queda pendiente, cobrable por transferencia
 // desde el detalle. El link de pago es un extra, no un requisito.
 
@@ -157,6 +157,7 @@ export async function POST(req: Request) {
     amount: totales.total,
     entrega,
     origen: "manual",
+    gateway: gatewayActiva() ?? "manual",
     customer: {
       name: body.customer?.name ?? "",
       email,
@@ -176,33 +177,30 @@ export async function POST(req: Request) {
     "Pedido creado manualmente desde el panel",
   );
 
-  const creds = getFlowCredentials();
-  if (!creds) {
+  if (!gatewayActiva()) {
     return NextResponse.json({ ok: true, commerceOrder, linkPago: null });
   }
 
   try {
-    const { redirectUrl } = await createPayment(creds, {
+    const { redirectUrl } = await crearLinkPago({
       commerceOrder,
-      subject: `Compra Mundo Macetero (${lines.length} productos)`,
+      titulo: `Compra Mundo Macetero (${lines.length} productos)`,
       amount: totales.total,
       email,
-      urlConfirmation: `${SITE_URL}/api/checkout/confirm`,
-      urlReturn: `${SITE_URL}/api/checkout/return`,
     });
     return NextResponse.json({ ok: true, commerceOrder, linkPago: redirectUrl });
   } catch (error) {
     // El pedido ya existe: se devuelve como creado y sin link, para cobrarlo por
     // transferencia o reintentar. Sin datos del cliente en el log.
     console.error(
-      "flow payment/create falló en venta manual:",
+      "creación de link de pago falló en venta manual:",
       error instanceof Error ? error.message : "error desconocido",
     );
     return NextResponse.json({
       ok: true,
       commerceOrder,
       linkPago: null,
-      aviso: "Flow rechazó la creación del link de pago. El pedido quedó pendiente y se puede cobrar por transferencia.",
+      aviso: "La pasarela rechazó la creación del link. El pedido quedó pendiente y se puede cobrar por transferencia.",
     });
   }
 }
