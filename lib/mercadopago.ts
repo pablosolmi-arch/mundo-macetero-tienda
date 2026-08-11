@@ -86,7 +86,10 @@ export async function crearPreferencia(
         pending: input.urlRetorno,
         failure: input.urlRetorno,
       },
-      auto_return: "approved",
+      // MP exige que back_urls.success sea una URL pública para auto_return;
+      // en pruebas locales (http://localhost) se omite y el cliente vuelve con
+      // el botón "Volver al sitio". En producción siempre va.
+      ...(input.urlRetorno.startsWith("https://") ? { auto_return: "approved" } : {}),
     }),
   });
 
