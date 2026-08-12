@@ -42,6 +42,8 @@ export function orderStatusFromMP(status: string): OrderStatus {
 export interface MPPago {
   id: number | string;
   status: string;
+  // Motivo del estado (cc_rejected_*, accredited, …); es lo único que explica un rechazo.
+  status_detail?: string;
   external_reference?: string;
   transaction_amount?: number;
   payment_method_id?: string;

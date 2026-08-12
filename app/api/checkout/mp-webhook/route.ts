@@ -40,6 +40,14 @@ export async function POST(req: Request) {
 
   if (!pago.external_reference) return NextResponse.json({ ok: true, ignorado: "sin referencia" });
 
+  // El motivo de un pago no aprobado solo viene en el objeto de pago (status_detail);
+  // sin este log, un rechazo en producción es indiagnosticable desde Vercel.
+  if (pago.status !== "approved") {
+    console.log(
+      `mp pago ${pago.id} pedido ${pago.external_reference}: ${pago.status} (${pago.status_detail ?? "sin detalle"})`,
+    );
+  }
+
   const settled = await settleOrder({
     commerceOrder: pago.external_reference,
     status: orderStatusFromMP(pago.status),
