@@ -16,8 +16,13 @@ export function buildProductJsonLd(product: Product & { variants: ProductVariant
       "@type": "Offer",
       price: product.basePrice,
       priceCurrency: "CLP",
+      // Los maceteros se fabrican a pedido: un producto sin seguimiento de
+      // inventario (`trackStock` en false) siempre se vende, así que solo los que
+      // sí lo controlan pueden anunciarse agotados a los buscadores.
       availability:
-        product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+        !product.trackStock || product.stock > 0
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
     },
   };
 }

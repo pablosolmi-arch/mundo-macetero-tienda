@@ -30,9 +30,16 @@ describe("buildProductJsonLd", () => {
     expect(jsonLd.offers.availability).toBe("https://schema.org/InStock");
   });
 
-  it("marks out-of-stock products correctly", () => {
-    const jsonLd = buildProductJsonLd({ ...sampleProduct, stock: 0 });
+  it("marks out-of-stock products correctly when the product tracks inventory", () => {
+    const jsonLd = buildProductJsonLd({ ...sampleProduct, trackStock: true, stock: 0 });
     expect(jsonLd.offers.availability).toBe("https://schema.org/OutOfStock");
+  });
+
+  it("keeps a made-to-order product in stock even with stock 0", () => {
+    // Los maceteros se fabrican a pedido: sin seguimiento de inventario el stock
+    // heredado del import de Shopify no debe anunciar el producto como agotado.
+    const jsonLd = buildProductJsonLd({ ...sampleProduct, trackStock: false, stock: 0 });
+    expect(jsonLd.offers.availability).toBe("https://schema.org/InStock");
   });
 
   it("strips HTML tags from description", () => {

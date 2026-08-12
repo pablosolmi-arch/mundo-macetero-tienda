@@ -9,7 +9,7 @@ import {
 } from "../../../../queries/catalog";
 import { buildProductJsonLd, buildProductMetadata, serializeJsonLd } from "../../../../lib/seo";
 import { sanitizeHtml } from "../../../../lib/sanitize";
-import { toCard } from "../../../../lib/catalog";
+import { toCard, toVariantOptions } from "../../../../lib/catalog";
 import { ProductGallery } from "../../../../components/product/ProductGallery";
 import { AddToCart, type VariantOption } from "../../../../components/product/AddToCart";
 import { formatCLP } from "../../../../lib/format";
@@ -41,16 +41,7 @@ export default async function ProductPage({ params }: Props) {
 
   const jsonLd = buildProductJsonLd(product);
   const basePrice = Number(product.basePrice);
-  const variantOptions: VariantOption[] = product.variants.map((v) => ({
-    id: v.id,
-    name: v.name,
-    price: v.priceOverride != null ? Number(v.priceOverride) : basePrice,
-    stock: v.stock,
-    option1: v.option1,
-    option2: v.option2,
-    option3: v.option3,
-    available: v.available,
-  }));
+  const variantOptions: VariantOption[] = toVariantOptions(product);
 
   // Related: same collection first, then anything else, never the product itself.
   const mismos = todos.filter((p) => p.slug !== product.slug && p.colSlug === (product.categoryId != null ? categories.find((c) => c.id === product.categoryId)?.slug : null));
