@@ -33,7 +33,7 @@ export default async function AdminNuevoPedido() {
         Nuevo pedido
       </h1>
       <div style={{ fontSize: "13.5px", color: "#6f6c66", marginBottom: "18px" }}>
-        Para ventas tomadas por WhatsApp o teléfono. Se crea pendiente de pago: con link de Flow o
+        Para ventas tomadas por WhatsApp o teléfono. Se crea pendiente de pago: con link de pago o
         cobrable por transferencia.
       </div>
 

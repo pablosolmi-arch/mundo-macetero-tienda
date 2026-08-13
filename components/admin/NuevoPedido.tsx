@@ -236,7 +236,7 @@ export function NuevoPedido({ productos }: { productos: ProductoLiviano[] }) {
             }}
           >
             {resultado.aviso ??
-              "No se generó link de pago (faltan las credenciales de Flow)."}{" "}
+              "No se generó link de pago (falta configurar la pasarela de pago)."}{" "}
             El pedido quedó pendiente: se puede marcar pagado por transferencia desde su detalle.
           </div>
         )}

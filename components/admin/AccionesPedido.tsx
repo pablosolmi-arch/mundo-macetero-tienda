@@ -185,7 +185,9 @@ export function AccionesPedido({
               disabled={cargando !== null || !Number(montoRef)}
               style={{ ...boton, background: "#8f4a2b", color: "#fff", border: "none" }}
             >
-              {cargando === "reembolso" ? "Enviando a Flow…" : `Confirmar ${formatCLP(Number(montoRef) || 0)}`}
+              {cargando === "reembolso"
+                ? `Enviando a ${nombrePasarela}…`
+                : `Confirmar ${formatCLP(Number(montoRef) || 0)}`}
             </button>
             <button onClick={() => setConfirmandoRef(false)} style={boton}>
               Cancelar
