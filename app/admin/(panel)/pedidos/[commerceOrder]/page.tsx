@@ -157,6 +157,13 @@ export default async function AdminPedidoDetalle({
           entregado={pedido.fulfillment === "entregado"}
           cancelado={pedido.fulfillment === "cancelado"}
           disponibleParaReembolso={disponible}
+          nombrePasarela={
+            pedido.gateway === "mercadopago"
+              ? "Mercado Pago"
+              : pedido.gateway === "flow"
+                ? "Flow"
+                : "pago manual"
+          }
         />
       </div>
 

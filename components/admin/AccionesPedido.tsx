@@ -14,6 +14,8 @@ interface Props {
   entregado: boolean;
   cancelado: boolean;
   disponibleParaReembolso: number;
+  // Nombre visible de la pasarela que cobró (orders.gateway ya resuelto).
+  nombrePasarela: string;
 }
 
 export function AccionesPedido({
@@ -23,6 +25,7 @@ export function AccionesPedido({
   entregado,
   cancelado,
   disponibleParaReembolso,
+  nombrePasarela,
 }: Props) {
   const router = useRouter();
   const [cargando, setCargando] = useState<string | null>(null);
@@ -157,7 +160,7 @@ export function AccionesPedido({
           }}
         >
           <div style={{ fontSize: "13px", fontWeight: 700, color: "#8f4a2b", marginBottom: "8px" }}>
-            Reembolso a través de Flow
+            Reembolso a través de {nombrePasarela}
           </div>
           <div style={{ fontSize: "12.5px", color: "#6f6c66", marginBottom: "10px" }}>
             Se le devuelve el dinero al cliente. Disponible: {formatCLP(disponibleParaReembolso)}.
