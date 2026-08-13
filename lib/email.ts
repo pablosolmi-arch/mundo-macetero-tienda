@@ -141,17 +141,19 @@ export async function correoAvisoEquipo(p: DatosPedido): Promise<ResultadoCorreo
   );
 }
 
-// Al cliente, cuando se le devuelve dinero.
+// Al cliente, cuando se le devuelve dinero. La pasarela es la que procesó el
+// pago original (orders.gateway): hoy Mercado Pago o Flow.
 export async function correoReembolso(
   p: DatosPedido,
   monto: number,
+  pasarela = "la pasarela de pago",
 ): Promise<ResultadoCorreo> {
   return enviar(
     p.customerEmail,
     `Reembolso de ${formatCLP(monto)} · Pedido ${p.commerceOrder}`,
     marco(
       "Procesamos tu reembolso",
-      `<p style="font-size:14px">Solicitamos a Flow la devolución de
+      `<p style="font-size:14px">Solicitamos a ${esc(pasarela)} la devolución de
        <strong>${formatCLP(monto)}</strong> del pedido ${esc(p.commerceOrder)}.
        El abono puede tardar algunos días hábiles según tu banco.</p>`,
     ),

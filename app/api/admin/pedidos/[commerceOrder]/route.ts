@@ -196,15 +196,16 @@ export async function POST(req: Request, { params }: { params: Promise<{ commerc
         .update(orders)
         .set({ refundReference: refTexto, updatedAt: new Date() })
         .where(eq(orders.id, pedido.id));
+      const nombrePasarela = pedido.gateway === "mercadopago" ? "Mercado Pago" : "Flow";
       await registrarEvento(
         pedido.id,
         usuario.id,
         "reembolsado",
-        `${importe} solicitado a Flow (${refund.status ?? "sin estado"})${detalle ? ` · ${detalle}` : ""}`,
+        `${importe} solicitado a ${nombrePasarela} (${refund.status ?? "sin estado"})${detalle ? ` · ${detalle}` : ""}`,
       );
       // Avisar al cliente. Si el correo falla, el reembolso ya está hecho: solo
       // queda constancia en la bitácora.
-      const correo = await correoReembolso({ ...pedido, items: pedido.items }, importe);
+      const correo = await correoReembolso({ ...pedido, items: pedido.items }, importe, nombrePasarela);
       if (!correo.enviado) {
         await registrarEvento(pedido.id, null, "correo", `reembolso: ${correo.detalle}`);
       }
