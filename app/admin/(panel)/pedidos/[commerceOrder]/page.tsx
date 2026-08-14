@@ -160,9 +160,11 @@ export default async function AdminPedidoDetalle({
           nombrePasarela={
             pedido.gateway === "mercadopago"
               ? "Mercado Pago"
-              : pedido.gateway === "flow"
-                ? "Flow"
-                : "pago manual"
+              : pedido.gateway === "transbank"
+                ? "Transbank"
+                : pedido.gateway === "flow"
+                  ? "Flow"
+                  : "pago manual"
           }
         />
       </div>

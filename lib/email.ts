@@ -97,8 +97,8 @@ function tablaItems(p: DatosPedido): string {
 
 function marco(titulo: string, cuerpo: string): string {
   return `<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:560px;margin:0 auto;color:#2a2925">
-    <div style="background:#23221f;color:#f4f3f1;padding:18px 24px;font-size:18px;font-weight:bold">
-      mundo macetero<span style="color:#d99e77">.</span></div>
+    <div style="background:#23221f;padding:18px 24px">
+      <img src="${SITE_URL}/logo-email.png" alt="Mundo Macetero" height="28" style="display:block"></div>
     <div style="padding:24px;background:#ffffff;border:1px solid #e9e6e1;border-top:none">
       <h1 style="font-size:20px;margin:0 0 12px">${titulo}</h1>${cuerpo}
       <p style="font-size:12px;color:#9b978f;margin-top:24px">${TIENDA.nombre} · ${TIENDA.direccion} · ${TIENDA.email}</p>

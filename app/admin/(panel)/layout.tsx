@@ -32,9 +32,10 @@ export default async function PanelLayout({ children }: { children: React.ReactN
           height: "56px",
         }}
       >
-        <span className="font-display" style={{ fontWeight: 700, fontSize: "15px" }}>
-          mundo macetero<span style={{ color: "#d99e77" }}>.</span>{" "}
-          <span style={{ color: "#a29d94", fontWeight: 500 }}>admin</span>
+        <span style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-claro.webp" alt="Mundo Macetero" style={{ height: "26px", width: "auto", display: "block" }} />
+          <span className="font-display" style={{ color: "#a29d94", fontWeight: 500, fontSize: "15px" }}>admin</span>
         </span>
         <nav style={{ display: "flex", gap: "18px", fontSize: "13.5px" }}>
           {enlaces.map(([href, label]) => (

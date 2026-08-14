@@ -9,6 +9,7 @@ import { settleOrder } from "../../../../../queries/orders";
 import { alPagarse } from "../../../../../lib/pedidos";
 import { createRefund, getFlowCredentials } from "../../../../../lib/flow";
 import { getMPCredentials, reembolsarPago } from "../../../../../lib/mercadopago";
+import { getTBKCredentials, reembolsarTransaccion } from "../../../../../lib/transbank";
 import { correoReembolso } from "../../../../../lib/email";
 
 // Acciones del panel sobre un pedido. Todas exigen sesión y quedan en la bitácora
@@ -134,10 +135,17 @@ export async function POST(req: Request, { params }: { params: Promise<{ commerc
       );
     }
     const credsMP = pedido.gateway === "mercadopago" ? getMPCredentials() : null;
+    const credsTBK = pedido.gateway === "transbank" ? getTBKCredentials() : null;
     const credsFlow = pedido.gateway === "flow" ? getFlowCredentials() : null;
-    if (!credsMP && !credsFlow) {
+    if (!credsMP && !credsTBK && !credsFlow) {
+      const faltante =
+        pedido.gateway === "mercadopago"
+          ? "Mercado Pago (MP_ACCESS_TOKEN)"
+          : pedido.gateway === "transbank"
+            ? "Transbank (TBK_COMMERCE_CODE y TBK_API_KEY)"
+            : "Flow";
       return NextResponse.json(
-        { message: `No se puede reembolsar: faltan las credenciales de ${pedido.gateway === "mercadopago" ? "Mercado Pago (MP_ACCESS_TOKEN)" : "Flow"}.` },
+        { message: `No se puede reembolsar: faltan las credenciales de ${faltante}.` },
         { status: 503 },
       );
     }
@@ -180,6 +188,17 @@ export async function POST(req: Request, { params }: { params: Promise<{ commerc
         const r = await reembolsarPago(credsMP, pedido.flowOrder, importe, referencia);
         refTexto = String(r.id);
         estadoRef = r.status ?? null;
+      } else if (credsTBK) {
+        // Webpay reembolsa contra el token de la transacción, que quedó guardado
+        // en flowToken al asentarse el pedido en el retorno.
+        if (!pedido.flowToken) throw new Error("pedido sin token de Webpay");
+        const r = await reembolsarTransaccion(credsTBK, pedido.flowToken, importe);
+        // REVERSED (reversa del día) y NULLIFIED (anulación) son los dos éxitos.
+        if (r.type !== "REVERSED" && r.type !== "NULLIFIED") {
+          throw new Error(`Webpay respondió type ${r.type ?? "sin type"}`);
+        }
+        refTexto = r.authorization_code ?? referencia;
+        estadoRef = r.type ?? null;
       } else if (credsFlow) {
         const r = await createRefund(credsFlow, {
           refundCommerceOrder: referencia,
@@ -196,7 +215,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ commerc
         .update(orders)
         .set({ refundReference: refTexto, updatedAt: new Date() })
         .where(eq(orders.id, pedido.id));
-      const nombrePasarela = pedido.gateway === "mercadopago" ? "Mercado Pago" : "Flow";
+      const nombrePasarela =
+        pedido.gateway === "mercadopago"
+          ? "Mercado Pago"
+          : pedido.gateway === "transbank"
+            ? "Transbank"
+            : "Flow";
       await registrarEvento(
         pedido.id,
         usuario.id,

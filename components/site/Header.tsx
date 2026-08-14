@@ -128,29 +128,24 @@ export function Header({ productos, colecciones, otros }: HeaderProps) {
 
           <Link
             href="/"
-            className="font-display"
+            aria-label="Mundo Macetero, ir al inicio"
             style={{
               display: "inline-flex",
               alignItems: "center",
-              gap: "10px",
-              fontWeight: 700,
-              fontSize: "19px",
-              letterSpacing: "-.01em",
-              whiteSpace: "nowrap",
+              flexShrink: 0,
             }}
           >
-            {/* Monograma real de la marca. La versión oscura es para este header
-                claro; el footer usa la blanca. eslint-disable-next-line @next/next/no-img-element */}
+            {/* El monograma es la única marca visible: sin texto al lado necesita
+                más cuerpo para leerse como ancla del home. La versión oscura es
+                para este header claro; el footer usa la blanca.
+                eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo-oscuro.webp"
               alt="Mundo Macetero"
-              width={44}
-              height={30}
-              style={{ height: "30px", width: "auto", display: "block" }}
+              width={59}
+              height={40}
+              style={{ height: "40px", width: "auto", display: "block" }}
             />
-            <span>
-              mundo macetero<span style={{ color: "#a5613f" }}>.</span>
-            </span>
           </Link>
 
           <nav
@@ -410,20 +405,14 @@ export function Header({ productos, colecciones, otros }: HeaderProps) {
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "18px" }}>
-              <span
-                className="font-display"
-                style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontWeight: 700 }}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/logo-oscuro.webp"
-                  alt=""
-                  width={38}
-                  height={26}
-                  style={{ height: "26px", width: "auto", display: "block" }}
-                />
-                mundo macetero<span style={{ color: "#a5613f" }}>.</span>
-              </span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo-oscuro.webp"
+                alt="Mundo Macetero"
+                width={50}
+                height={34}
+                style={{ height: "34px", width: "auto", display: "block" }}
+              />
               <button
                 onClick={() => setNavMovil(false)}
                 style={{ background: "none", border: "none", fontSize: "20px", cursor: "pointer", color: "#6f6c66" }}

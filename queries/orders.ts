@@ -27,7 +27,7 @@ export interface NewOrderInput {
   // 'web' es el checkout de la tienda; 'manual' son las ventas que el equipo
   // toma por WhatsApp o teléfono y carga desde el panel.
   origen?: "web" | "manual";
-  // Pasarela que va a cobrar este pedido (mercadopago | flow | manual).
+  // Pasarela que va a cobrar este pedido (mercadopago | transbank | flow | manual).
   gateway?: string;
   customer: {
     name: string;

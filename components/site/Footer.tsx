@@ -39,27 +39,16 @@ export function Footer() {
           }}
         >
           <div style={{ minWidth: 0 }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+            {/* El monograma reemplaza al wordmark, así que carga solo el peso de
+                marca de este bloque. eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo-claro.webp"
               alt="Mundo Macetero"
-              width={84}
-              height={57}
-              style={{ height: "57px", width: "auto", display: "block", marginBottom: "18px" }}
+              width={124}
+              height={84}
+              style={{ height: "84px", width: "auto", display: "block" }}
             />
-            <div
-              className="font-display"
-              style={{
-                fontWeight: 700,
-                fontSize: "clamp(34px,6vw,68px)",
-                lineHeight: 1.05,
-                letterSpacing: "-.02em",
-                color: "#f4f3f1",
-              }}
-            >
-              mundo macetero<span style={{ color: "#d99e77" }}>.</span>
-            </div>
-            <p style={{ fontSize: "13.5px", lineHeight: 1.65, margin: "14px 0 0", color: "#a29d94", maxWidth: "420px" }}>
+            <p style={{ fontSize: "13.5px", lineHeight: 1.65, margin: "22px 0 0", color: "#a29d94", maxWidth: "420px" }}>
               Maceteros ultra livianos tipo cemento para interior y exterior, fabricados en Chile.
             </p>
           </div>
