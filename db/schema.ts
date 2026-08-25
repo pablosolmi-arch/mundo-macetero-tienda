@@ -96,6 +96,18 @@ export const orders = pgTable("orders", {
   refundedAmount: numeric("refunded_amount", { precision: 12, scale: 2 }).notNull().default("0"),
   refundedAt: timestamp("refunded_at"),
   refundReference: text("refund_reference"),
+  // Correlativo humano del pedido (1, 2, 3…), independiente de commerceOrder. Se
+  // muestra como "#7-25/08" (correlativo + día/mes de creación). Lo asigna la
+  // secuencia `orders_numero_seq` al crear el pedido.
+  numero: integer("numero").unique(),
+  // Estado logístico intermedio: el pedido está armado y listo para entregar.
+  preparadoAt: timestamp("preparado_at"),
+  // Origen de la visita que terminó comprando: mismo sessionId anónimo que
+  // site_events, y el canal/fuente/campaña del primer contacto de esa sesión.
+  sessionId: text("session_id"),
+  origenCanal: text("origen_canal"),
+  origenFuente: text("origen_fuente"),
+  origenCampana: text("origen_campana"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -211,6 +223,14 @@ export const siteEvents = pgTable("site_events", {
   // Monto en los eventos de pago, para calcular ingresos por origen.
   monto: numeric("monto", { precision: 12, scale: 2 }),
   referrer: text("referrer").notNull().default(""),
+  // Atribución del primer contacto de la sesión, calculada en el navegador a
+  // partir de utm_* y del referrer: canal ('directo' | 'busqueda' | 'social' |
+  // 'pagado' | 'referido' | 'correo'), fuente (google, instagram, un dominio…),
+  // campaña (utm_campaign) y dispositivo ('movil' | 'escritorio' | 'tablet').
+  canal: text("canal"),
+  fuente: text("fuente"),
+  campana: text("campana"),
+  dispositivo: text("dispositivo"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
