@@ -24,14 +24,16 @@ const SUMMARY: React.CSSProperties = { fontSize: "14px", fontWeight: 700, cursor
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { productSlug } = await params;
   const product = await getProductBySlug(productSlug);
-  if (!product) return {};
+  if (!product || product.status !== "active") return {};
   return buildProductMetadata(product);
 }
 
 export default async function ProductPage({ params }: Props) {
   const { productSlug } = await params;
   const product = await getProductBySlug(productSlug);
-  if (!product) notFound();
+  // Un producto archivado no aparece en los listados, pero su URL seguía
+  // abriendo la ficha (e indexándose) aunque el checkout lo rechace.
+  if (!product || product.status !== "active") notFound();
 
   const [categories, todos] = await Promise.all([getAllCategories(), getActiveProductsWithVariants()]);
   const colNombre =
