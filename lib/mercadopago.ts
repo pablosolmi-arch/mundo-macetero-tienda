@@ -133,7 +133,21 @@ export async function reembolsarPago(
     body: JSON.stringify({ amount }),
   });
   if (!res.ok) {
-    throw new Error(`Mercado Pago refunds respondió ${res.status}`);
+    // MP explica el rechazo en el cuerpo (message + cause[]); sin eso el panel
+    // solo puede decir "la pasarela rechazó" y no hay cómo saber qué corregir.
+    let motivo = "";
+    try {
+      const err = (await res.json()) as {
+        message?: string;
+        cause?: { code?: string | number; description?: string }[];
+      };
+      motivo = [err.message, ...(err.cause ?? []).map((c) => c.description ?? String(c.code ?? ""))]
+        .filter(Boolean)
+        .join(" · ");
+    } catch {
+      // cuerpo no JSON: se informa solo el status
+    }
+    throw new Error(`Mercado Pago refunds respondió ${res.status}${motivo ? `: ${motivo}` : ""}`);
   }
   return (await res.json()) as { id: number | string; status?: string };
 }

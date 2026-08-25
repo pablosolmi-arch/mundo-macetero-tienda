@@ -241,13 +241,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ commerc
         .update(orders)
         .set({ refundedAmount: sql`${orders.refundedAmount} - ${importe}`, updatedAt: new Date() })
         .where(eq(orders.id, pedido.id));
-      // Sin datos del cliente en el log.
-      console.error(
-        "reembolso falló:",
-        error instanceof Error ? error.message : "error desconocido",
-      );
+      // Sin datos del cliente en el log; el motivo de la pasarela sí queda en la
+      // bitácora del pedido, que es donde el equipo lo va a buscar.
+      const motivo = error instanceof Error ? error.message : "error desconocido";
+      console.error("reembolso falló:", motivo);
+      await registrarEvento(pedido.id, usuario.id, "reembolso_fallido", `${importe} · ${motivo}`);
       return NextResponse.json(
-        { message: "La pasarela rechazó el reembolso. No se registró ninguna devolución." },
+        { message: `La pasarela rechazó el reembolso. No se registró ninguna devolución. Motivo: ${motivo}` },
         { status: 502 },
       );
     }
