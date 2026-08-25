@@ -3,6 +3,7 @@ import { desc, gte } from "drizzle-orm";
 import { db } from "../../../../db/client";
 import { orders } from "../../../../db/schema";
 import { getSessionUser } from "../../../../lib/admin/auth";
+import { codigoPedido } from "../../../../lib/pedido-codigo";
 
 // Descarga de los pedidos en CSV para contabilidad. Exige sesión: la planilla
 // lleva datos de contacto de los clientes, así que no puede quedar abierta.
@@ -10,7 +11,11 @@ import { getSessionUser } from "../../../../lib/admin/auth";
 export const dynamic = "force-dynamic";
 
 const CABECERAS = [
+  // "pedido" es el código humano (#7-25/08) y "referencia" el commerceOrder que
+  // viaja a la pasarela: contabilidad concilia por el primero y soporte por el
+  // segundo.
   "pedido",
+  "referencia",
   "fecha",
   "estado_pago",
   "estado_entrega",
@@ -62,6 +67,7 @@ export async function GET(req: Request) {
   for (const p of filas) {
     lineas.push(
       [
+        codigoPedido(p.numero, p.createdAt),
         p.commerceOrder,
         fecha(p.createdAt),
         p.status,

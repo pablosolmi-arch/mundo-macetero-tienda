@@ -11,6 +11,8 @@ interface Props {
   commerceOrder: string;
   pagado: boolean;
   pendiente: boolean;
+  // Estado logístico: el pedido ya está armado, pero todavía no se entregó.
+  preparado: boolean;
   entregado: boolean;
   cancelado: boolean;
   disponibleParaReembolso: number;
@@ -22,6 +24,7 @@ export function AccionesPedido({
   commerceOrder,
   pagado,
   pendiente,
+  preparado,
   entregado,
   cancelado,
   disponibleParaReembolso,
@@ -85,18 +88,32 @@ export function AccionesPedido({
             Marcar pagado (transferencia)
           </button>
         )}
+        {/* Flujo: por preparar → preparado → entregado. Cuando el pedido está por
+            preparar, la acción principal es prepararlo; entregarlo directo queda
+            como acción secundaria, porque un retiro se arma y se entrega junto. */}
+        {pagado && !preparado && !entregado && !cancelado && (
+          <button
+            onClick={() => ejecutar("preparado")}
+            disabled={cargando !== null}
+            style={{ ...boton, background: "#2a2925", color: "#fff", border: "none" }}
+          >
+            {cargando === "preparado" ? "Guardando…" : "Marcar preparado"}
+          </button>
+        )}
         {pagado && !entregado && !cancelado && (
           <button
             onClick={() => ejecutar("entregado")}
             disabled={cargando !== null}
-            style={{ ...boton, background: "#2a2925", color: "#fff", border: "none" }}
+            style={
+              preparado ? { ...boton, background: "#2a2925", color: "#fff", border: "none" } : boton
+            }
           >
             {cargando === "entregado" ? "Guardando…" : "Marcar entregado"}
           </button>
         )}
-        {entregado && (
+        {(entregado || preparado) && (
           <button onClick={() => ejecutar("pendiente")} disabled={cargando !== null} style={boton}>
-            Revertir entrega
+            {entregado ? "Revertir entrega" : "Volver a por preparar"}
           </button>
         )}
         {!cancelado && (

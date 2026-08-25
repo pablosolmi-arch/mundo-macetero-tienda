@@ -32,8 +32,25 @@ interface Linea {
 
 interface Resultado {
   commerceOrder: string;
+  // Código humano del pedido creado ("#7-25/08"), que es el que ve el equipo.
+  codigo: string;
   linkPago: string | null;
   aviso?: string;
+}
+
+// Valores con los que llega el formulario ya rellenado: al duplicar un pedido
+// (?desde=) o al crearle uno a un cliente conocido (?email=). Todo es opcional:
+// lo que no venga arranca vacío como siempre.
+export interface PrellenadoPedido {
+  items?: { slug: string; variantId: number | null; qty: number }[];
+  nombre?: string;
+  correo?: string;
+  telefono?: string;
+  entrega?: "retiro" | "despacho";
+  direccion?: string;
+  region?: string;
+  comuna?: string;
+  nota?: string;
 }
 
 const INPUT: React.CSSProperties = {
@@ -79,16 +96,29 @@ function nuevaLinea(): Linea {
   return { key: contador, slug: "", variantId: null, qty: 1 };
 }
 
-export function NuevoPedido({ productos }: { productos: ProductoLiviano[] }) {
-  const [lineas, setLineas] = useState<Linea[]>([nuevaLinea()]);
-  const [nombre, setNombre] = useState("");
-  const [correo, setCorreo] = useState("");
-  const [telefono, setTelefono] = useState("");
-  const [entrega, setEntrega] = useState<"retiro" | "despacho">("retiro");
-  const [direccion, setDireccion] = useState("");
-  const [region, setRegion] = useState<string>(ENVIO.regionRM);
-  const [comuna, setComuna] = useState("");
-  const [nota, setNota] = useState("");
+// Las líneas del pedido que se está duplicando, o una línea vacía si no hay.
+function lineasIniciales(prellenado?: PrellenadoPedido): Linea[] {
+  const items = prellenado?.items ?? [];
+  if (items.length === 0) return [nuevaLinea()];
+  return items.map((it) => ({ ...nuevaLinea(), ...it }));
+}
+
+export function NuevoPedido({
+  productos,
+  prellenado,
+}: {
+  productos: ProductoLiviano[];
+  prellenado?: PrellenadoPedido;
+}) {
+  const [lineas, setLineas] = useState<Linea[]>(() => lineasIniciales(prellenado));
+  const [nombre, setNombre] = useState(prellenado?.nombre ?? "");
+  const [correo, setCorreo] = useState(prellenado?.correo ?? "");
+  const [telefono, setTelefono] = useState(prellenado?.telefono ?? "");
+  const [entrega, setEntrega] = useState<"retiro" | "despacho">(prellenado?.entrega ?? "retiro");
+  const [direccion, setDireccion] = useState(prellenado?.direccion ?? "");
+  const [region, setRegion] = useState<string>(prellenado?.region || ENVIO.regionRM);
+  const [comuna, setComuna] = useState(prellenado?.comuna ?? "");
+  const [nota, setNota] = useState(prellenado?.nota ?? "");
   const [codigo, setCodigo] = useState("");
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState("");
@@ -164,6 +194,9 @@ export function NuevoPedido({ productos }: { productos: ProductoLiviano[] }) {
       if (res.ok && data.ok) {
         setResultado({
           commerceOrder: data.commerceOrder,
+          // El servidor devuelve el código ya armado; si faltara, se muestra la
+          // referencia técnica antes que nada.
+          codigo: data.codigo || data.commerceOrder,
           linkPago: data.linkPago ?? null,
           aviso: data.aviso,
         });
@@ -197,7 +230,7 @@ export function NuevoPedido({ productos }: { productos: ProductoLiviano[] }) {
             href={`/admin/pedidos/${resultado.commerceOrder}`}
             style={{ fontWeight: 700, color: "#a5613f" }}
           >
-            {resultado.commerceOrder}
+            {resultado.codigo}
           </Link>
           <span style={{ color: "#6f6c66" }}> · ver el detalle</span>
         </div>

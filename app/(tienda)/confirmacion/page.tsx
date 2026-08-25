@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getOrderWithItems } from "../../../queries/orders";
 import { formatCLP } from "../../../lib/format";
+import { codigoPedido } from "../../../lib/pedido-codigo";
 import { ClearCartOnPaid } from "../../../components/cart/ClearCartOnPaid";
 
 export const metadata: Metadata = { title: "Estado de tu pedido" };
@@ -92,7 +93,11 @@ export default async function ConfirmacionPage({
         </h1>
         {order && (
           <div style={{ fontSize: "14px", color: "#6f6c66", marginBottom: "22px" }}>
-            Pedido <span style={{ fontWeight: 700, color: "#2a2925" }}>{order.commerceOrder}</span> ·{" "}
+            Pedido{" "}
+            <span style={{ fontWeight: 700, color: "#2a2925" }}>
+              {codigoPedido(order.numero, order.createdAt)}
+            </span>{" "}
+            ·{" "}
             {order.createdAt.toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" })}
           </div>
         )}

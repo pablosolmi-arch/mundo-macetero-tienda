@@ -1,5 +1,13 @@
 import Link from "next/link";
 import { metricas } from "../../../queries/admin";
+import {
+  dispositivos,
+  paginasMasVistas,
+  sesionesPorDia,
+  topFuentes,
+  traficoPorCanal,
+} from "../../../queries/admin-trafico";
+import { SeccionTrafico } from "../../../components/admin/graficos-trafico";
 import { formatCLP } from "../../../lib/format";
 
 export const dynamic = "force-dynamic";
@@ -30,7 +38,16 @@ export default async function AdminResumen({
 }) {
   const params = await searchParams;
   const dias = Number(typeof params.dias === "string" ? params.dias : 30) || 30;
-  const m = await metricas(dias);
+  // Todas en paralelo: son consultas independientes y la página se abre en cada
+  // visita al panel.
+  const [m, sesiones, canales, fuentes, equipos, paginas] = await Promise.all([
+    metricas(dias),
+    sesionesPorDia(dias),
+    traficoPorCanal(dias),
+    topFuentes(dias),
+    dispositivos(dias),
+    paginasMasVistas(dias),
+  ]);
 
   const pasos = [
     { nombre: "Visitas", n: m.embudo.visitas },
@@ -179,6 +196,14 @@ export default async function AdminResumen({
           )}
         </div>
       </div>
+
+      <SeccionTrafico
+        sesiones={sesiones}
+        canales={canales}
+        fuentes={fuentes}
+        equipos={equipos}
+        paginas={paginas}
+      />
 
       <div style={{ marginTop: "22px" }}>
         <Link href="/admin/pedidos" style={{ fontSize: "13.5px", fontWeight: 600, color: "#a5613f" }}>

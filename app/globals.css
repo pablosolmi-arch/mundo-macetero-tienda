@@ -286,3 +286,18 @@ button {
 .rte a { text-decoration: underline; }
 .rte img { max-width: 100%; height: auto; border-radius: 6px; margin: 0.5rem 0; }
 .rte strong { font-weight: 600; }
+
+/* Impresión de la nota de entrega (/admin/pedidos/<pedido>/imprimir): la barra de
+   navegación del panel y los botones no van al papel, y el fondo queda blanco
+   para no gastar tinta en el color del panel. */
+@media print {
+  .mm-no-print {
+    display: none !important;
+  }
+  .mm-hoja {
+    padding: 0 !important;
+  }
+  body {
+    background: #fff !important;
+  }
+}

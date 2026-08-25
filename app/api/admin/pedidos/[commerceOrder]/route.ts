@@ -43,10 +43,41 @@ export async function POST(req: Request, { params }: { params: Promise<{ commerc
     return NextResponse.json({ message: "Solicitud inválida." }, { status: 400 });
   }
 
+  // El pedido está armado y listo para entregar. Paso intermedio entre "por
+  // preparar" y "entregado": el equipo prepara en el galpón y despacha después.
+  if (accion === "preparado") {
+    if (pedido.status !== "paid") {
+      return NextResponse.json(
+        { message: "Solo se puede marcar preparado un pedido pagado." },
+        { status: 400 },
+      );
+    }
+    if (pedido.fulfillment !== "pendiente") {
+      return NextResponse.json(
+        { message: "Este pedido ya salió de por preparar." },
+        { status: 400 },
+      );
+    }
+    await db
+      .update(orders)
+      .set({ fulfillment: "preparado", preparadoAt: new Date(), updatedAt: new Date() })
+      .where(eq(orders.id, pedido.id));
+    await registrarEvento(pedido.id, usuario.id, "preparado", detalle);
+    return NextResponse.json({ ok: true });
+  }
+
   if (accion === "entregado") {
     if (pedido.status !== "paid") {
       return NextResponse.json(
         { message: "Solo se puede marcar entregado un pedido pagado." },
+        { status: 400 },
+      );
+    }
+    // Se puede entregar desde por preparar o desde preparado: un retiro en
+    // tienda a veces se arma y se entrega en el mismo movimiento.
+    if (pedido.fulfillment !== "pendiente" && pedido.fulfillment !== "preparado") {
+      return NextResponse.json(
+        { message: "Este pedido no está en un estado que se pueda entregar." },
         { status: 400 },
       );
     }
@@ -61,9 +92,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ commerc
   if (accion === "pendiente") {
     await db
       .update(orders)
-      .set({ fulfillment: "pendiente", deliveredAt: null, updatedAt: new Date() })
+      .set({
+        fulfillment: "pendiente",
+        deliveredAt: null,
+        preparadoAt: null,
+        updatedAt: new Date(),
+      })
       .where(eq(orders.id, pedido.id));
-    await registrarEvento(pedido.id, usuario.id, "nota", "Se revirtió la entrega");
+    await registrarEvento(pedido.id, usuario.id, "nota", "Se volvió a dejar por preparar");
     return NextResponse.json({ ok: true });
   }
 
@@ -123,6 +159,19 @@ export async function POST(req: Request, { params }: { params: Promise<{ commerc
     if (!Number.isFinite(monto) || monto <= 0 || monto > disponible) {
       return NextResponse.json(
         { message: `El monto debe estar entre 1 y ${Math.round(disponible)}.` },
+        { status: 400 },
+      );
+    }
+
+    // Mercado Pago no permite devolver por API los pagos hechos por transferencia
+    // bancaria (Fintoc): responde 403 sin más explicación. Se avisa antes de
+    // intentar, con el camino manual, en vez de dejar un error críptico.
+    if (pedido.gateway === "mercadopago" && /fintoc|transfer|bank/i.test(pedido.paymentMedia ?? "")) {
+      return NextResponse.json(
+        {
+          message:
+            "Este pago se hizo por transferencia bancaria (Fintoc) y Mercado Pago no permite devolverlo desde acá. Devuélvelo desde el panel de Mercado Pago (Actividad → el pago → Devolver dinero) y deja una nota interna en el pedido.",
+        },
         { status: 400 },
       );
     }

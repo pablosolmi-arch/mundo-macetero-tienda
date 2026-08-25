@@ -5,6 +5,7 @@ import { createPendingOrder, type NewOrderLine } from "../../../queries/orders";
 import { crearLinkPago, gatewayActiva } from "../../../lib/pagos";
 import { calcTotales, type Entrega } from "../../../lib/pricing";
 import { montoDescuento, validarCodigo } from "../../../lib/descuentos";
+import { CANALES } from "../../../lib/origen";
 
 // Flow (Chile) payment creation. Requires the merchant's Flow credentials as
 // env vars: FLOW_API_KEY, FLOW_SECRET, and optionally FLOW_BASE_URL
@@ -24,6 +25,17 @@ interface CheckoutLineRequest {
 
 const SITE_URL = process.env.SITE_URL || "https://fase1-storefront-catalogo.vercel.app";
 const MAX_QTY_PER_LINE = 50;
+
+// El origen de la visita lo calcula el navegador, así que llega como cualquier
+// otro dato del cliente: se valida contra la lista blanca y se recorta. Un valor
+// raro no invalida la compra, simplemente queda sin atribución.
+const CANALES_VALIDOS = new Set<string>(CANALES);
+
+function textoOrigen(valor: unknown): string | null {
+  if (typeof valor !== "string") return null;
+  const v = valor.trim().toLowerCase().slice(0, 80);
+  return v || null;
+}
 
 // Date.now() alone can collide between two concurrent checkouts in the same
 // millisecond, and commerceOrder is a unique key.
@@ -57,6 +69,8 @@ export async function POST(req: Request) {
     };
     entrega?: Entrega;
     codigo?: string | null;
+    sessionId?: string;
+    origenVisita?: { canal?: string; fuente?: string; campana?: string };
   };
 
   if (!Array.isArray(body.items) || body.items.length === 0) {
@@ -147,9 +161,17 @@ export async function POST(req: Request) {
   // Flow's callback never lands, the requested order and shipping details still
   // exist instead of being lost with the browser session.
   const commerceOrder = newCommerceOrder();
+  const canalVisita = typeof body.origenVisita?.canal === "string"
+    ? body.origenVisita.canal.trim().toLowerCase()
+    : "";
+
   await createPendingOrder({
     commerceOrder,
     gateway,
+    sessionId: typeof body.sessionId === "string" ? body.sessionId.slice(0, 60) || null : null,
+    origenCanal: CANALES_VALIDOS.has(canalVisita) ? canalVisita : null,
+    origenFuente: textoOrigen(body.origenVisita?.fuente),
+    origenCampana: textoOrigen(body.origenVisita?.campana),
     subtotal: totales.subtotal,
     discountCode: totales.descuento > 0 ? (descuentoAplicable?.codigo ?? null) : null,
     discountAmount: totales.descuento,

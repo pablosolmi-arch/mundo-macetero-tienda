@@ -22,6 +22,8 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <header
+        // La barra no se imprime: la nota de entrega tiene que salir limpia.
+        className="mm-no-print"
         style={{
           background: "#23221f",
           color: "#efece6",
@@ -52,7 +54,9 @@ export default async function PanelLayout({ children }: { children: React.ReactN
           <SalirButton />
         </div>
       </header>
-      <main style={{ flex: 1, padding: "28px 24px 60px" }}>{children}</main>
+      <main className="mm-hoja" style={{ flex: 1, padding: "28px 24px 60px" }}>
+        {children}
+      </main>
     </div>
   );
 }

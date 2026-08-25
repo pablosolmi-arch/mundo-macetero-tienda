@@ -12,6 +12,7 @@
 
 import { TIENDA } from "../content/site";
 import { formatCLP } from "./format";
+import { codigoPedido } from "./pedido-codigo";
 
 // Todo dato que escribió el cliente (nombre, dirección, comuna) se escapa antes
 // de interpolarlo en el HTML del correo: si no, un nombre como
@@ -60,6 +61,10 @@ interface LineaPedido {
 
 interface DatosPedido {
   commerceOrder: string;
+  // Correlativo humano y fecha de creación: juntos forman el código "#7-25/08",
+  // que es el que el cliente y el equipo usan para hablar del pedido.
+  numero: number | null;
+  createdAt: Date;
   customerName: string;
   customerEmail: string;
   amount: string;
@@ -113,11 +118,11 @@ export async function correoConfirmacion(p: DatosPedido): Promise<ResultadoCorre
       : `Coordinaremos el despacho a ${esc(p.shippingAddress)}, ${esc(p.shippingCity)}. ${esc(p.shippingLabel)}.`;
   return enviar(
     p.customerEmail,
-    `Recibimos tu pago · Pedido ${p.commerceOrder}`,
+    `Recibimos tu pago · Pedido ${codigoPedido(p.numero, p.createdAt)}`,
     marco(
       "¡Gracias por tu compra!",
       `<p style="font-size:14px">Hola ${esc(p.customerName || "")}, tu pago del pedido
-       <strong>${esc(p.commerceOrder)}</strong> quedó confirmado.</p>
+       <strong>${esc(codigoPedido(p.numero, p.createdAt))}</strong> quedó confirmado.</p>
        ${tablaItems(p)}
        <p style="font-size:14px">${entrega}</p>
        <p style="font-size:14px">Cualquier duda, respóndenos a este correo o escríbenos al ${TIENDA.telefonos[0]}.</p>`,
@@ -129,7 +134,7 @@ export async function correoConfirmacion(p: DatosPedido): Promise<ResultadoCorre
 export async function correoAvisoEquipo(p: DatosPedido): Promise<ResultadoCorreo> {
   return enviar(
     EQUIPO,
-    `Nueva venta ${formatCLP(Number(p.amount))} · ${p.commerceOrder}`,
+    `Nueva venta ${formatCLP(Number(p.amount))} · Pedido ${codigoPedido(p.numero, p.createdAt)}`,
     marco(
       "Nuevo pedido pagado",
       `<p style="font-size:14px"><strong>${esc(p.customerName || "Cliente")}</strong> (${esc(p.customerEmail)})
@@ -150,11 +155,11 @@ export async function correoReembolso(
 ): Promise<ResultadoCorreo> {
   return enviar(
     p.customerEmail,
-    `Reembolso de ${formatCLP(monto)} · Pedido ${p.commerceOrder}`,
+    `Reembolso de ${formatCLP(monto)} · Pedido ${codigoPedido(p.numero, p.createdAt)}`,
     marco(
       "Procesamos tu reembolso",
       `<p style="font-size:14px">Solicitamos a ${esc(pasarela)} la devolución de
-       <strong>${formatCLP(monto)}</strong> del pedido ${esc(p.commerceOrder)}.
+       <strong>${formatCLP(monto)}</strong> del pedido ${esc(codigoPedido(p.numero, p.createdAt))}.
        El abono puede tardar algunos días hábiles según tu banco.</p>`,
     ),
   );

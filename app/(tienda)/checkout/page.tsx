@@ -7,7 +7,7 @@ import { formatCLP } from "../../../lib/format";
 import { calcTotales, type Entrega } from "../../../lib/pricing";
 import { COMUNAS_RM, ENVIO, REGIONES, TIENDA } from "../../../content/site";
 import { montoDescuento } from "../../../lib/descuento-monto";
-import { track } from "../../../lib/track";
+import { origenSesion, track } from "../../../lib/track";
 
 const INPUT: React.CSSProperties = {
   width: "100%",
@@ -93,6 +93,9 @@ export default function CheckoutPage() {
     setLoading(true);
     setError("");
     track("checkout");
+    // Identificador anónimo de la sesión y el origen de su primer contacto, para
+    // que el pedido quede atribuido al canal que realmente trajo la venta.
+    const visita = origenSesion();
     try {
       // Only identifiers and quantities travel to the server; it recomputes every
       // price, the shipping cost and the discount before charging.
@@ -116,6 +119,12 @@ export default function CheckoutPage() {
           },
           entrega: form.entrega,
           codigo: codigo?.codigo ?? null,
+          sessionId: visita.sessionId,
+          origenVisita: {
+            canal: visita.canal,
+            fuente: visita.fuente,
+            campana: visita.campana,
+          },
         }),
       });
       const data = await res.json();

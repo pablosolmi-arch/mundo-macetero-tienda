@@ -7,6 +7,7 @@ import { registrarEvento } from "../../../../../queries/admin";
 import { crearLinkPago, gatewayActiva } from "../../../../../lib/pagos";
 import { calcTotales, type Entrega } from "../../../../../lib/pricing";
 import { montoDescuento, validarCodigo } from "../../../../../lib/descuentos";
+import { codigoPedido } from "../../../../../lib/pedido-codigo";
 
 // Venta manual: pedidos que el equipo toma por WhatsApp o teléfono y carga desde
 // el panel. Queda como un pedido normal en estado 'pending' con origen 'manual'.
@@ -28,7 +29,6 @@ interface LineaRequest {
   qty: number;
 }
 
-const SITE_URL = process.env.SITE_URL || "https://fase1-storefront-catalogo.vercel.app";
 const MAX_QTY_PER_LINE = 50;
 
 function newCommerceOrder(): string {
@@ -177,8 +177,12 @@ export async function POST(req: Request) {
     "Pedido creado manualmente desde el panel",
   );
 
+  // El correlativo lo asigna la secuencia al insertar, así que el código humano
+  // recién se puede armar con la fila ya creada.
+  const codigo = codigoPedido(pedido.numero, pedido.createdAt);
+
   if (!gatewayActiva()) {
-    return NextResponse.json({ ok: true, commerceOrder, linkPago: null });
+    return NextResponse.json({ ok: true, commerceOrder, codigo, linkPago: null });
   }
 
   try {
@@ -188,7 +192,7 @@ export async function POST(req: Request) {
       amount: totales.total,
       email,
     });
-    return NextResponse.json({ ok: true, commerceOrder, linkPago: redirectUrl });
+    return NextResponse.json({ ok: true, commerceOrder, codigo, linkPago: redirectUrl });
   } catch (error) {
     // El pedido ya existe: se devuelve como creado y sin link, para cobrarlo por
     // transferencia o reintentar. Sin datos del cliente en el log.
@@ -199,6 +203,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       ok: true,
       commerceOrder,
+      codigo,
       linkPago: null,
       aviso: "La pasarela rechazó la creación del link. El pedido quedó pendiente y se puede cobrar por transferencia.",
     });

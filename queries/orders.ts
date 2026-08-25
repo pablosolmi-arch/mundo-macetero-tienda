@@ -29,6 +29,12 @@ export interface NewOrderInput {
   origen?: "web" | "manual";
   // Pasarela que va a cobrar este pedido (mercadopago | transbank | flow | manual).
   gateway?: string;
+  // Origen anónimo de la sesión que compró (ver lib/origen.ts). Los pedidos
+  // cargados a mano desde el panel no lo traen y quedan nulos.
+  sessionId?: string | null;
+  origenCanal?: string | null;
+  origenFuente?: string | null;
+  origenCampana?: string | null;
   customer: {
     name: string;
     email: string;
@@ -58,6 +64,10 @@ export async function createPendingOrder(input: NewOrderInput) {
       entrega: input.entrega,
       origen: input.origen ?? "web",
       gateway: input.gateway ?? "flow",
+      sessionId: input.sessionId ?? null,
+      origenCanal: input.origenCanal ?? null,
+      origenFuente: input.origenFuente ?? null,
+      origenCampana: input.origenCampana ?? null,
       customerName: input.customer.name,
       customerEmail: input.customer.email,
       customerPhone: input.customer.phone,
