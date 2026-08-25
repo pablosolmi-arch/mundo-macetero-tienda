@@ -37,7 +37,15 @@ async function main() {
   if (existente) {
     await db
       .update(adminUsers)
-      .set({ passwordHash, activo: true, nombre: nombre || existente.nombre })
+      // Fijar una clave nueva también destraba la cuenta: es la vía de
+      // "olvidé mi clave" mientras no haya correo transaccional verificado.
+      .set({
+        passwordHash,
+        activo: true,
+        nombre: nombre || existente.nombre,
+        intentosFallidos: 0,
+        bloqueadoHasta: null,
+      })
       .where(eq(adminUsers.id, existente.id));
     console.log(`Usuario actualizado: ${email}`);
   } else {
