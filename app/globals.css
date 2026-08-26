@@ -213,8 +213,10 @@ button {
 }
 
 /* Alturas del header y del logo: 96px en escritorio, 64px en móvil. */
-.mm-header-inner { height: 96px; }
-.mm-header-logo { height: 68px; }
+.mm-header-inner { height: 100px; }
+/* Proporción del sitio de referencia: el monograma ocupa poco más de la mitad
+   del alto del header, no lo llena. */
+.mm-header-logo { height: 54px; }
 
 /* Barra de anuncio: 34px en escritorio; en móvil el texto ocupa dos líneas. */
 .mm-anuncio { height: 34px; }

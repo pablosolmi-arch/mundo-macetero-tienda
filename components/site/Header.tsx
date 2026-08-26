@@ -183,7 +183,7 @@ export function Header({ productos, colecciones, otros }: HeaderProps) {
               className="mm-desktop-nav"
               style={{
                 alignItems: "center",
-                gap: "15px",
+                gap: "16px",
                 fontSize: "13px",
                 letterSpacing: ".01em",
               }}
@@ -239,21 +239,15 @@ export function Header({ productos, colecciones, otros }: HeaderProps) {
           </Link>
 
           <div style={{ display: "flex", alignItems: "center", gap: "10px", justifyContent: "flex-end" }}>
-            {/* Buscador compacto: al enfocarlo abre el overlay de búsqueda, que es
-                donde se ven los resultados. */}
-            <div className="mm-buscador-header mm-desktop-only">
-              <SearchIcon size={16} />
-              <input
-                value={q}
-                onChange={(e) => {
-                  setQ(e.target.value);
-                  setBuscador(true);
-                }}
-                onFocus={() => setBuscador(true)}
-                placeholder="Buscar"
-                aria-label="Buscar maceteros"
-              />
-            </div>
+            {/* Solo la lupa: abre el overlay de búsqueda, que es donde se escribe
+                y se ven los resultados. */}
+            <button
+              onClick={() => setBuscador(true)}
+              aria-label="Buscar maceteros"
+              className="mm-icon-btn-dark mm-desktop-only"
+            >
+              <SearchIcon size={19} />
+            </button>
 
             <button onClick={open} aria-label="Carrito" className="mm-icon-btn-dark" style={{ position: "relative" }}>
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinejoin="round">
