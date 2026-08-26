@@ -116,13 +116,9 @@ export interface HeroSlide {
   href: string;
 }
 
+// El primer slide del hero es el bloque de marca (components/home/HeroDestacado),
+// que tiene su propia composición. Estos son los que vienen después.
 export const HERO_SLIDES: HeroSlide[] = [
-  {
-    titulo: "¿Cuál es el macetero ideal para tu planta?",
-    sub: "Te lo decimos nosotros.",
-    cta: "¡Quiero que me asesoren!",
-    href: "/asesoramiento",
-  },
   {
     titulo: "¿Quieres ver tu espacio con un macetero nuestro?",
     sub: "Mándanos una foto. Te lo devolvemos transformado.",

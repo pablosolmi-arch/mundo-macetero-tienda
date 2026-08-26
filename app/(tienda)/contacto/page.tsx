@@ -54,7 +54,7 @@ export default function ContactoPage() {
             okBody="Te contactaremos dentro de 1 día hábil."
           />
         </div>
-        <div style={{ background: "#23221f", color: "#efece6", borderRadius: "14px", padding: "26px" }}>
+        <div style={{ background: "var(--ink)", color: "#efece6", borderRadius: "14px", padding: "26px" }}>
           <div className="font-display" style={{ fontWeight: 600, fontSize: "17px", marginBottom: "16px" }}>
             Contáctanos
           </div>

@@ -5,8 +5,10 @@ import { useEffect, useRef, useState } from "react";
 import { useCart } from "../cart/CartContext";
 import { formatCLP } from "../../lib/format";
 
-// Header ported from the Claude Design source: sticky translucent bar, growing
-// underline nav links, two hover mega-menus, full-screen search and cart badge.
+// Header con el patrón de color del sitio actual: barra de anuncio clara arriba y
+// header oscuro con la navegación a la izquierda, el monograma centrado y los
+// íconos a la derecha. Mantiene los dos mega-menús, la búsqueda a pantalla
+// completa y el badge del carrito.
 
 export interface NavProducto {
   slug: string;
@@ -34,10 +36,37 @@ const SearchIcon = ({ size = 15, stroke = "currentColor" }: { size?: number; str
   </svg>
 );
 
+// Chevron de los ítems con submenú, en el header y en el drawer.
+const Chevron = ({ size = 9, abierto = false }: { size?: number; abierto?: boolean }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 12 8"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.8}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    style={{ transform: abierto ? "rotate(180deg)" : undefined, transition: "transform .2s" }}
+  >
+    <path d="M1 1.5 6 6.5l5-5" />
+  </svg>
+);
+
+const HEADER_ALTO_ESCRITORIO = 96;
+
+const ITEM_MOVIL: React.CSSProperties = {
+  padding: "14px 4px",
+  color: "#fff",
+  borderBottom: "1px solid rgba(255,255,255,.14)",
+};
+
 export function Header({ productos, colecciones, otros }: HeaderProps) {
   const { count, open } = useCart();
   const [menu, setMenu] = useState<"tienda" | "ases" | null>(null);
   const [navMovil, setNavMovil] = useState(false);
+  const [grupoMovil, setGrupoMovil] = useState<"tienda" | "ases" | null>(null);
   const [buscador, setBuscador] = useState(false);
   const [q, setQ] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -71,16 +100,39 @@ export function Header({ productos, colecciones, otros }: HeaderProps) {
       : [];
   const sinResultados = term.length > 1 && resultados.length === 0;
 
+  const cerrarMovil = () => {
+    setNavMovil(false);
+    setGrupoMovil(null);
+  };
+
+  // Enlaces del drawer agrupados igual que los mega-menús de escritorio.
+  const tiendaMovil: [string, string][] = [
+    ["/tienda", "Ver todos los Maceteros"],
+    ...otros.map((p) => [`/producto/${p.slug}`, p.nombre] as [string, string]),
+    ["/paleta", "Paleta de Colores y Terminaciones"],
+    ...colecciones.slice(0, 6).map((c) => [`/tienda/${c.slug}`, c.nombre] as [string, string]),
+  ];
+  const asesMovil: [string, string][] = [
+    ["/asesoramiento", "Formulario Asesoramiento"],
+    ["/olivo", "Maceteros para tu Olivo"],
+    ["/olivo", "Cuidados para tu Olivo"],
+  ];
+
   return (
     <>
+      {/* La barra de anuncio va clara para que el patrón arranque claro → oscuro. */}
       <div
+        className="mm-anuncio"
         style={{
-          background: "#23221f",
-          color: "#efece6",
+          background: "var(--background)",
+          color: "var(--foreground)",
           fontSize: "12.5px",
           letterSpacing: ".03em",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           textAlign: "center",
-          padding: "9px 16px",
+          padding: "0 16px",
         }}
       >
         Despacho gratis en comunas del sector oriente de Santiago · Retiro en tienda en Quilicura
@@ -92,127 +144,118 @@ export function Header({ productos, colecciones, otros }: HeaderProps) {
           position: "sticky",
           top: 0,
           zIndex: 50,
-          background: "rgba(244,243,241,.94)",
-          backdropFilter: "blur(10px)",
-          borderBottom: "1px solid #e3e1dc",
+          background: "var(--ink-header)",
+          color: "#fff",
         }}
       >
         <div
+          className="mm-header-inner"
           style={{
             maxWidth: "1280px",
             margin: "0 auto",
             padding: "0 24px",
-            display: "flex",
+            display: "grid",
+            gridTemplateColumns: "1fr auto 1fr",
             alignItems: "center",
-            gap: "24px",
-            height: "64px",
+            gap: "16px",
           }}
         >
-          <button
-            onClick={() => setNavMovil(true)}
-            aria-label="Menú"
-            className="mm-burger"
-            style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              padding: "6px",
-              flexDirection: "column",
-              gap: "4px",
-            }}
-          >
-            <span style={{ display: "block", width: "20px", height: "2px", background: "#2a2925" }} />
-            <span style={{ display: "block", width: "20px", height: "2px", background: "#2a2925" }} />
-            <span style={{ display: "block", width: "20px", height: "2px", background: "#2a2925" }} />
-          </button>
+          <div style={{ display: "flex", alignItems: "center", minWidth: 0 }}>
+            <button
+              onClick={() => setNavMovil(true)}
+              aria-label="Menú"
+              className="mm-burger"
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: "6px",
+                flexDirection: "column",
+                gap: "4px",
+              }}
+            >
+              <span style={{ display: "block", width: "22px", height: "2px", background: "#fff" }} />
+              <span style={{ display: "block", width: "22px", height: "2px", background: "#fff" }} />
+              <span style={{ display: "block", width: "22px", height: "2px", background: "#fff" }} />
+            </button>
+
+            <nav
+              className="mm-desktop-nav"
+              style={{
+                alignItems: "center",
+                gap: "15px",
+                fontSize: "13px",
+                letterSpacing: ".01em",
+              }}
+            >
+              <Link href="/" className="mm-nav-link-dark" onMouseEnter={() => setMenu(null)}>
+                Inicio
+              </Link>
+              <div style={{ position: "relative" }} onMouseEnter={() => setMenu("tienda")}>
+                <Link
+                  href="/tienda"
+                  className="mm-nav-link-dark"
+                  style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}
+                >
+                  Tienda <Chevron abierto={menu === "tienda"} />
+                </Link>
+              </div>
+              <div style={{ position: "relative" }} onMouseEnter={() => setMenu("ases")}>
+                <Link
+                  href="/asesoramiento"
+                  className="mm-nav-link-dark"
+                  style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}
+                >
+                  Te asesoramos <Chevron abierto={menu === "ases"} />
+                </Link>
+              </div>
+              <Link href="/tu-espacio" className="mm-nav-link-dark" onMouseEnter={() => setMenu(null)}>
+                {/* Bajo 1280px la fila no cabe con la etiqueta larga. */}
+                <span className="mm-nav-largo">Tu espacio con un macetero</span>
+                <span className="mm-nav-corto">Tu espacio</span>
+              </Link>
+              <Link href="/contacto" className="mm-nav-link-dark" onMouseEnter={() => setMenu(null)}>
+                Proyecto Profesional
+              </Link>
+            </nav>
+          </div>
 
           <Link
             href="/"
             aria-label="Mundo Macetero, ir al inicio"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              flexShrink: 0,
-            }}
+            style={{ display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+            onMouseEnter={() => setMenu(null)}
           >
-            {/* El monograma es la única marca visible: sin texto al lado necesita
-                más cuerpo para leerse como ancla del home. La versión oscura es
-                para este header claro; el footer usa la blanca.
-                eslint-disable-next-line @next/next/no-img-element */}
+            {/* Sobre el header oscuro va el monograma blanco; el oscuro queda para
+                fondos claros. eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/logo-oscuro.webp"
+              src="/logo-claro.webp"
               alt="Mundo Macetero"
-              width={59}
-              height={40}
-              style={{ height: "40px", width: "auto", display: "block" }}
+              width={100}
+              height={68}
+              className="mm-header-logo"
+              style={{ width: "auto", display: "block" }}
             />
           </Link>
 
-          <nav
-            className="mm-desktop-nav"
-            style={{
-              alignItems: "center",
-              gap: "28px",
-              fontSize: "14px",
-              fontWeight: 500,
-              flex: 1,
-              marginLeft: "12px",
-            }}
-          >
-            <Link href="/" className="mm-nav-link" onMouseEnter={() => setMenu(null)}>
-              Inicio
-            </Link>
-            <div style={{ position: "relative" }} onMouseEnter={() => setMenu("tienda")}>
-              <Link
-                href="/tienda"
-                className="mm-nav-link"
-                style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}
-              >
-                Tienda <span style={{ fontSize: "9px", color: "#8b877f" }}>▼</span>
-              </Link>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", justifyContent: "flex-end" }}>
+            {/* Buscador compacto: al enfocarlo abre el overlay de búsqueda, que es
+                donde se ven los resultados. */}
+            <div className="mm-buscador-header mm-desktop-only">
+              <SearchIcon size={16} />
+              <input
+                value={q}
+                onChange={(e) => {
+                  setQ(e.target.value);
+                  setBuscador(true);
+                }}
+                onFocus={() => setBuscador(true)}
+                placeholder="Buscar"
+                aria-label="Buscar maceteros"
+              />
             </div>
-            <div style={{ position: "relative" }} onMouseEnter={() => setMenu("ases")}>
-              <Link
-                href="/asesoramiento"
-                className="mm-nav-link"
-                style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}
-              >
-                Te asesoramos <span style={{ fontSize: "9px", color: "#8b877f" }}>▼</span>
-              </Link>
-            </div>
-            <Link href="/tu-espacio" className="mm-nav-link" onMouseEnter={() => setMenu(null)}>
-              Tu espacio con un macetero
-            </Link>
-            <Link href="/contacto" className="mm-nav-link" onMouseEnter={() => setMenu(null)}>
-              Proyecto Profesional
-            </Link>
-          </nav>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginLeft: "auto" }}>
-            <button
-              onClick={() => setBuscador(true)}
-              aria-label="Búsqueda"
-              className="mm-search-btn mm-desktop-only"
-            >
-              <SearchIcon />
-              <span>Buscar</span>
-            </button>
-            <button
-              onClick={() => setBuscador(true)}
-              aria-label="Búsqueda"
-              className="mm-icon-btn mm-mobile-only"
-            >
-              <SearchIcon size={19} />
-            </button>
-
-            <Link href="/cuenta" aria-label="Iniciar sesión" className="mm-icon-btn">
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
-                <circle cx="12" cy="8" r="4" />
-                <path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" />
-              </svg>
-            </Link>
-
-            <button onClick={open} aria-label="Carrito" className="mm-icon-btn" style={{ position: "relative" }}>
+            <button onClick={open} aria-label="Carrito" className="mm-icon-btn-dark" style={{ position: "relative" }}>
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinejoin="round">
                 <path d="M5 8h14l-1.2 13H6.2L5 8z" />
                 <path d="M9 10V6a3 3 0 0 1 6 0v4" />
@@ -224,8 +267,8 @@ export function Header({ productos, colecciones, otros }: HeaderProps) {
                     position: "absolute",
                     top: "-1px",
                     right: "-2px",
-                    background: "#a5613f",
-                    color: "#fff",
+                    background: "var(--accent-soft)",
+                    color: "var(--ink-header)",
                     fontSize: "10.5px",
                     fontWeight: 700,
                     minWidth: "17px",
@@ -253,10 +296,10 @@ export function Header({ productos, colecciones, otros }: HeaderProps) {
               position: "absolute",
               left: 0,
               right: 0,
-              top: "64px",
+              top: `${HEADER_ALTO_ESCRITORIO}px`,
               background: "#fff",
-              borderBottom: "1px solid #e3e1dc",
-              boxShadow: "0 18px 40px rgba(30,28,24,.10)",
+              color: "var(--foreground)",
+              boxShadow: "0 18px 40px rgba(18,22,26,.22)",
               animation: "mmFade .15s ease",
             }}
           >
@@ -354,10 +397,10 @@ export function Header({ productos, colecciones, otros }: HeaderProps) {
               position: "absolute",
               left: 0,
               right: 0,
-              top: "64px",
+              top: `${HEADER_ALTO_ESCRITORIO}px`,
               background: "#fff",
-              borderBottom: "1px solid #e3e1dc",
-              boxShadow: "0 18px 40px rgba(30,28,24,.10)",
+              color: "var(--foreground)",
+              boxShadow: "0 18px 40px rgba(18,22,26,.22)",
               animation: "mmFade .15s ease",
             }}
           >
@@ -371,15 +414,11 @@ export function Header({ productos, colecciones, otros }: HeaderProps) {
                 fontSize: "13.5px",
               }}
             >
-              <Link href="/asesoramiento" className="mm-link">
-                Formulario Asesoramiento
-              </Link>
-              <Link href="/olivo" className="mm-link">
-                Maceteros para tu Olivo
-              </Link>
-              <Link href="/olivo" className="mm-link">
-                Cuidados para tu Olivo
-              </Link>
+              {asesMovil.map(([href, label]) => (
+                <Link key={label} href={href} className="mm-link">
+                  {label}
+                </Link>
+              ))}
             </div>
           </div>
         )}
@@ -388,8 +427,8 @@ export function Header({ productos, colecciones, otros }: HeaderProps) {
       {navMovil && (
         <div style={{ position: "fixed", inset: 0, zIndex: 80 }}>
           <div
-            onClick={() => setNavMovil(false)}
-            style={{ position: "absolute", inset: 0, background: "rgba(30,28,24,.45)", animation: "mmFade .2s" }}
+            onClick={cerrarMovil}
+            style={{ position: "absolute", inset: 0, background: "rgba(12,16,20,.55)", animation: "mmFade .2s" }}
           />
           <div
             style={{
@@ -397,9 +436,10 @@ export function Header({ productos, colecciones, otros }: HeaderProps) {
               top: 0,
               left: 0,
               bottom: 0,
-              width: "min(320px,85vw)",
-              background: "#fff",
-              padding: "22px",
+              width: "min(340px,88vw)",
+              background: "var(--ink-header)",
+              color: "#fff",
+              padding: "18px 20px 32px",
               overflow: "auto",
               animation: "mmUp .2s ease",
             }}
@@ -407,42 +447,117 @@ export function Header({ productos, colecciones, otros }: HeaderProps) {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "18px" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/logo-oscuro.webp"
+                src="/logo-claro.webp"
                 alt="Mundo Macetero"
-                width={50}
-                height={34}
-                style={{ height: "34px", width: "auto", display: "block" }}
+                width={62}
+                height={42}
+                style={{ height: "42px", width: "auto", display: "block" }}
               />
               <button
-                onClick={() => setNavMovil(false)}
-                style={{ background: "none", border: "none", fontSize: "20px", cursor: "pointer", color: "#6f6c66" }}
+                onClick={cerrarMovil}
+                style={{ background: "none", border: "none", fontSize: "22px", cursor: "pointer", color: "#fff" }}
                 aria-label="Cerrar menú"
               >
                 ✕
               </button>
             </div>
-            <nav style={{ display: "flex", flexDirection: "column", gap: "2px", fontSize: "15px" }}>
-              {[
-                ["/", "Inicio"],
-                ["/tienda", "Ver todos los Maceteros"],
-                ...otros.map((p) => [`/producto/${p.slug}`, p.nombre] as [string, string]),
-                ["/paleta", "Paleta de Colores"],
-                ["/asesoramiento", "Te asesoramos"],
-                ["/olivo", "Maceteros para tu Olivo"],
-                ["/tu-espacio", "Tu espacio con un macetero"],
-                ["/contacto", "Proyecto Profesional"],
-                ["/quienes-somos", "Quiénes somos"],
-                ["/blog", "Noticias"],
-                ["/cuenta", "Iniciar sesión"],
-              ].map(([href, label], i, arr) => (
+
+            <button
+              onClick={() => {
+                cerrarMovil();
+                setBuscador(true);
+              }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                width: "100%",
+                background: "rgba(255,255,255,.08)",
+                border: "1px solid rgba(255,255,255,.22)",
+                borderRadius: "10px",
+                padding: "12px 14px",
+                marginBottom: "16px",
+                color: "#fff",
+                fontSize: "14.5px",
+                cursor: "pointer",
+              }}
+            >
+              <SearchIcon size={17} />
+              Buscar un macetero
+            </button>
+
+            <nav style={{ display: "flex", flexDirection: "column", fontSize: "16px" }}>
+              <Link href="/" onClick={cerrarMovil} className="mm-drawer-link" style={ITEM_MOVIL}>
+                Inicio
+              </Link>
+
+              {(
+                [
+                  ["tienda", "Tienda", tiendaMovil],
+                  ["ases", "Te asesoramos", asesMovil],
+                ] as const
+              ).map(([clave, label, items]) => (
+                <div key={clave} style={{ borderBottom: "1px solid rgba(255,255,255,.14)" }}>
+                  <button
+                    onClick={() => setGrupoMovil(grupoMovil === clave ? null : clave)}
+                    aria-expanded={grupoMovil === clave}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      width: "100%",
+                      background: "none",
+                      border: "none",
+                      padding: "14px 4px",
+                      color: "#fff",
+                      fontSize: "16px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {label}
+                    <Chevron size={12} abierto={grupoMovil === clave} />
+                  </button>
+                  {grupoMovil === clave && (
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "10px",
+                        padding: "0 4px 14px 14px",
+                        fontSize: "14.5px",
+                        color: "var(--on-ink)",
+                      }}
+                    >
+                      {items.map(([href, sub]) => (
+                        <Link
+                          key={`${clave}-${sub}`}
+                          href={href}
+                          onClick={cerrarMovil}
+                          className="mm-drawer-link"
+                          style={{ color: "var(--on-ink)" }}
+                        >
+                          {sub}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {(
+                [
+                  ["/tu-espacio", "Tu espacio con un macetero"],
+                  ["/contacto", "Proyecto Profesional"],
+                  ["/quienes-somos", "Quiénes somos"],
+                  ["/blog", "Noticias"],
+                ] as [string, string][]
+              ).map(([href, label], i, arr) => (
                 <Link
-                  key={href + label}
+                  key={href}
                   href={href}
-                  onClick={() => setNavMovil(false)}
-                  style={{
-                    padding: "11px 8px",
-                    borderBottom: i === arr.length - 1 ? undefined : "1px solid #efede9",
-                  }}
+                  onClick={cerrarMovil}
+                  className="mm-drawer-link"
+                  style={i === arr.length - 1 ? { ...ITEM_MOVIL, borderBottom: "none" } : ITEM_MOVIL}
                 >
                   {label}
                 </Link>
@@ -456,14 +571,14 @@ export function Header({ productos, colecciones, otros }: HeaderProps) {
         <div style={{ position: "fixed", inset: 0, zIndex: 90 }}>
           <div
             onClick={() => setBuscador(false)}
-            style={{ position: "absolute", inset: 0, background: "rgba(30,28,24,.45)", animation: "mmFade .15s" }}
+            style={{ position: "absolute", inset: 0, background: "rgba(12,16,20,.5)", animation: "mmFade .15s" }}
           />
           <div
             style={{
               position: "relative",
               background: "#fff",
               padding: "20px 24px 8px",
-              boxShadow: "0 20px 50px rgba(30,28,24,.18)",
+              boxShadow: "0 20px 50px rgba(18,22,26,.24)",
               animation: "mmUp .18s ease",
             }}
           >

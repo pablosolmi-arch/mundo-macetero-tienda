@@ -4,13 +4,14 @@ import { useRef } from "react";
 import { ProductCard } from "../ProductCard";
 import type { ProductCardData } from "../../lib/catalog";
 
-// Horizontally scrolling "Productos Destacados" row with arrow controls.
+// Horizontally scrolling "Productos Destacados" row with arrow controls. El fondo
+// y el ancho los pone la <Banda> que la envuelve en la home.
 export function FeaturedRow({ productos }: { productos: ProductCardData[] }) {
   const scroller = useRef<HTMLDivElement>(null);
   const scroll = (dir: number) => scroller.current?.scrollBy({ left: dir * 560, behavior: "smooth" });
 
   return (
-    <section className="mm-reveal" style={{ maxWidth: "1280px", margin: "0 auto", padding: "64px 24px 10px" }}>
+    <>
       <div
         style={{
           display: "flex",
@@ -50,6 +51,6 @@ export function FeaturedRow({ productos }: { productos: ProductCardData[] }) {
           <ProductCard key={p.slug} p={p} fixedWidth />
         ))}
       </div>
-    </section>
+    </>
   );
 }

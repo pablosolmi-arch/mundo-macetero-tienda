@@ -2,8 +2,10 @@ import Link from "next/link";
 import { getActiveProductsWithVariants } from "../../queries/catalog";
 import { toCard } from "../../lib/catalog";
 import { HeroCarousel } from "../../components/home/HeroCarousel";
+import { HeroDestacado } from "../../components/home/HeroDestacado";
 import { FeaturedRow } from "../../components/home/FeaturedRow";
 import { Newsletter } from "../../components/home/Newsletter";
+import { Banda } from "../../components/site/Banda";
 import { HERO_IMGS } from "../../content/images";
 import { BLOG_THUMBS, EQUIPO_THUMBS, LOGOS_THUMBS, PROYECTOS_THUMBS } from "../../content/thumbs";
 import {
@@ -22,6 +24,9 @@ const H2: React.CSSProperties = {
   fontWeight: 600,
   margin: 0,
 };
+
+// Títulos y textos secundarios sobre banda oscura.
+const H2_OSCURO: React.CSSProperties = { ...H2, color: "#fff" };
 
 export default async function HomePage() {
   const productos = await getActiveProductsWithVariants();
@@ -55,21 +60,26 @@ export default async function HomePage() {
   const categorias = [...colecciones.entries()].map(([slug, c]) => ({ slug, ...c }));
 
   // Los banners son los de la tienda actual. HERO_IMGS viene en el orden en que
-  // Shopify los sirve; este mapa los ordena según los slides del diseño.
-  const ORDEN_HERO = [1, 2, 3, 0];
+  // Shopify los sirve; este mapa los ordena según los slides del diseño. El
+  // primer slide ya no sale de aquí: es <HeroDestacado />.
+  const ORDEN_HERO = [2, 3, 0];
   const slides = HERO_SLIDES.map((s, i) => ({ ...s, image: HERO_IMGS[ORDEN_HERO[i]] ?? null }));
 
   const proyectos = PROYECTOS_THUMBS;
 
+  // Orden de las bandas después del hero: claro, oscuro, claro, oscuro… y cierra
+  // en claro para no pegar dos bandas oscuras con el footer.
   return (
     <div>
-      <HeroCarousel slides={slides} />
+      <HeroCarousel slides={slides} destacado={<HeroDestacado />} />
 
-      <FeaturedRow productos={destacadosCards} />
+      <Banda tono="claro">
+        <FeaturedRow productos={destacadosCards} />
+      </Banda>
 
       {tendencias.length > 0 && (
-        <section className="mm-reveal" style={{ maxWidth: "1280px", margin: "0 auto", padding: "54px 24px 0" }}>
-          <h2 className="font-display" style={{ ...H2, marginBottom: "22px" }}>
+        <Banda tono="oscuro">
+          <h2 className="font-display" style={{ ...H2_OSCURO, marginBottom: "22px" }}>
             Maceteros en tendencia
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: "18px" }}>
@@ -84,7 +94,7 @@ export default async function HomePage() {
                   borderRadius: "14px",
                   overflow: "hidden",
                   aspectRatio: "4/3",
-                  background: "#e7e4df",
+                  background: "var(--ink-card)",
                 }}
               >
                 {t.image && (
@@ -102,7 +112,7 @@ export default async function HomePage() {
                     right: 0,
                     bottom: 0,
                     padding: "38px 18px 14px",
-                    background: "linear-gradient(180deg,rgba(24,22,19,0),rgba(24,22,19,.62))",
+                    background: "linear-gradient(180deg,rgba(14,18,22,0),rgba(14,18,22,.72))",
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "baseline",
@@ -117,10 +127,10 @@ export default async function HomePage() {
               </Link>
             ))}
           </div>
-        </section>
+        </Banda>
       )}
 
-      <section className="mm-reveal" style={{ maxWidth: "1280px", margin: "0 auto", padding: "54px 24px 0" }}>
+      <Banda tono="claro">
         <div
           style={{
             display: "flex",
@@ -170,38 +180,36 @@ export default async function HomePage() {
             </Link>
           ))}
         </div>
-      </section>
+      </Banda>
 
-      <section className="mm-reveal" style={{ background: "#23221f", marginTop: "64px", padding: "58px 0" }}>
-        <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 24px" }}>
-          <h2 className="font-display" style={{ ...H2, margin: "0 0 6px", color: "#f4f3f1" }}>
-            Últimos Proyectos
-          </h2>
-          <div style={{ color: "#a29d94", fontSize: "13.5px", marginBottom: "22px" }}>
-            Calidad · Diseño de espacios · Experiencia
-          </div>
-          <div style={{ display: "flex", gap: "16px", overflowX: "auto", paddingBottom: "12px", scrollbarWidth: "thin" }}>
-            {proyectos.map((src, i) => (
-              <div
-                key={`${src}-${i}`}
-                style={{
-                  flex: "none",
-                  width: "340px",
-                  height: "230px",
-                  borderRadius: "12px",
-                  overflow: "hidden",
-                  background: "#33312c",
-                }}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}  loading="lazy" decoding="async" />
-              </div>
-            ))}
-          </div>
+      <Banda tono="oscuro">
+        <h2 className="font-display" style={{ ...H2_OSCURO, margin: "0 0 6px" }}>
+          Últimos Proyectos
+        </h2>
+        <div style={{ color: "var(--on-ink)", fontSize: "13.5px", marginBottom: "22px" }}>
+          Calidad · Diseño de espacios · Experiencia
         </div>
-      </section>
+        <div style={{ display: "flex", gap: "16px", overflowX: "auto", paddingBottom: "12px", scrollbarWidth: "thin" }}>
+          {proyectos.map((src, i) => (
+            <div
+              key={`${src}-${i}`}
+              style={{
+                flex: "none",
+                width: "340px",
+                height: "230px",
+                borderRadius: "12px",
+                overflow: "hidden",
+                background: "var(--ink-card)",
+              }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}  loading="lazy" decoding="async" />
+            </div>
+          ))}
+        </div>
+      </Banda>
 
-      <section className="mm-reveal" style={{ maxWidth: "1280px", margin: "0 auto", padding: "64px 24px 0" }}>
+      <Banda tono="claro">
         <div
           style={{
             display: "grid",
@@ -257,10 +265,10 @@ export default async function HomePage() {
             </Link>
           </div>
         </div>
-      </section>
+      </Banda>
 
-      <section className="mm-reveal" style={{ maxWidth: "1280px", margin: "0 auto", padding: "64px 24px 0" }}>
-        <h2 className="font-display" style={{ ...H2, marginBottom: "22px" }}>
+      <Banda tono="oscuro">
+        <h2 className="font-display" style={{ ...H2_OSCURO, marginBottom: "22px" }}>
           Mira lo que hemos estado haciendo
         </h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(270px,1fr))", gap: "18px" }}>
@@ -268,16 +276,17 @@ export default async function HomePage() {
             <Link
               key={b.slug}
               href={`/blog/${b.slug}`}
-              className="mm-tile"
+              className="mm-tile-dark"
               style={{
                 display: "block",
-                background: "#fff",
-                border: "1px solid #e9e6e1",
+                background: "var(--ink-card)",
+                border: "1px solid #394148",
                 borderRadius: "12px",
                 overflow: "hidden",
+                color: "var(--on-ink)",
               }}
             >
-              <div style={{ aspectRatio: "16/10", position: "relative", background: "#e7e4df" }}>
+              <div style={{ aspectRatio: "16/10", position: "relative", background: "#394148" }}>
                 {BLOG_THUMBS[b.imagen] && (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img
@@ -288,24 +297,24 @@ export default async function HomePage() {
                 )}
               </div>
               <div style={{ padding: "16px 18px 18px" }}>
-                <div style={{ fontSize: "11.5px", color: "#9b978f", marginBottom: "6px" }}>{b.fecha}</div>
+                <div style={{ fontSize: "11.5px", color: "#a3a8ad", marginBottom: "6px" }}>{b.fecha}</div>
                 <div
                   className="font-display"
-                  style={{ fontSize: "16px", fontWeight: 600, lineHeight: 1.35, textWrap: "pretty" }}
+                  style={{ fontSize: "16px", fontWeight: 600, lineHeight: 1.35, textWrap: "pretty", color: "#fff" }}
                 >
                   {b.titulo}
                 </div>
-                <p style={{ fontSize: "13.5px", color: "#6f6c66", lineHeight: 1.55, margin: "8px 0 10px" }}>
+                <p style={{ fontSize: "13.5px", color: "var(--on-ink)", lineHeight: 1.55, margin: "8px 0 10px" }}>
                   {b.extracto}
                 </p>
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "#a5613f" }}>Leer →</span>
+                <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--accent-soft)" }}>Leer →</span>
               </div>
             </Link>
           ))}
         </div>
-      </section>
+      </Banda>
 
-      <section className="mm-reveal" style={{ maxWidth: "1280px", margin: "0 auto", padding: "64px 24px 0" }}>
+      <Banda tono="claro">
         <h2 className="font-display" style={{ ...H2, margin: "0 0 22px", textAlign: "center" }}>
           Confían en nuestros Maceteros
         </h2>
@@ -352,9 +361,11 @@ export default async function HomePage() {
             Síguenos en Instagram @mundomacetero →
           </a>
         </div>
-      </section>
+      </Banda>
 
-      <Newsletter />
+      <Banda tono="claro" fondo="var(--cream)">
+        <Newsletter />
+      </Banda>
     </div>
   );
 }

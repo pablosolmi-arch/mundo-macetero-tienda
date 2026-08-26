@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useCart } from "../cart/CartContext";
 import { formatCLP } from "../../lib/format";
@@ -61,6 +62,10 @@ export function AddToCart({
 }: AddToCartProps) {
   const { add } = useCart();
   const [qty, setQty] = useState(1);
+  // El feed de Google Merchant Center enlaza cada variante como
+  // /producto/<slug>?variante=<id>, así que la ficha abre con esa combinación ya
+  // elegida en vez de la primera disponible.
+  const variantePedida = useSearchParams().get("variante");
 
   // Distinct values per axis, in the order the catalog lists them.
   const axes = useMemo(
@@ -72,11 +77,15 @@ export function AddToCart({
     [optionNames, variants],
   );
 
-  // Default to the first combination that can actually be bought.
+  // Default to the variant asked for in the URL, otherwise the first combination
+  // that can actually be bought.
   const initial = useMemo(() => {
-    const first = variants.find((v) => v.available) ?? variants[0];
+    const pedida = variantePedida
+      ? variants.find((v) => String(v.id) === variantePedida)
+      : undefined;
+    const first = pedida ?? variants.find((v) => v.available) ?? variants[0];
     return axes.map((_, i) => (first ? (valueOf(first, i) ?? "") : ""));
-  }, [axes, variants]);
+  }, [axes, variants, variantePedida]);
 
   const [seleccion, setSeleccion] = useState<string[]>(initial);
 

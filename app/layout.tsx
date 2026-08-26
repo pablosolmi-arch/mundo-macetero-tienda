@@ -19,6 +19,12 @@ export const metadata: Metadata = {
   },
   description:
     "Maceteros ultra livianos tipo cemento para interior y exterior, fabricados en Chile. Compra online en Mundo Macetero.",
+  // Meta tag con el que Google Search Console y Merchant Center verifican el
+  // dominio. Solo se emite si la variable existe: un `content` vacío hace que
+  // Google marque la verificación como fallida.
+  ...(process.env.GOOGLE_SITE_VERIFICATION
+    ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } }
+    : {}),
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

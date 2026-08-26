@@ -2,45 +2,59 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import type { HeroSlide } from "../../content/site";
 
 // Auto-advancing hero from the design: cross-fading slides with a slow Ken Burns
 // zoom, prev/next arrows and pill indicators. Images come from the catalog.
-export function HeroCarousel({ slides }: { slides: (HeroSlide & { image: string | null })[] }) {
+// `destacado` es un primer slide con su propia composición (el hero de marca);
+// los slides de `slides` siguen con la estructura imagen + título + botón.
+export function HeroCarousel({
+  slides,
+  destacado,
+}: {
+  slides: (HeroSlide & { image: string | null })[];
+  destacado?: ReactNode;
+}) {
   const [idx, setIdx] = useState(0);
+  const total = slides.length + (destacado ? 1 : 0);
 
   useEffect(() => {
-    if (slides.length < 2) return;
+    if (total < 2) return;
     const timer = setInterval(() => {
-      if (!document.hidden) setIdx((i) => (i + 1) % slides.length);
+      if (!document.hidden) setIdx((i) => (i + 1) % total);
     }, 6000);
     return () => clearInterval(timer);
-  }, [slides.length]);
+  }, [total]);
 
-  const prev = () => setIdx((i) => (i + slides.length - 1) % slides.length);
-  const next = () => setIdx((i) => (i + 1) % slides.length);
+  const prev = () => setIdx((i) => (i + total - 1) % total);
+  const next = () => setIdx((i) => (i + 1) % total);
+
+  // Capa común de cada slide: el cruzado de opacidad no depende del contenido.
+  const capa = (i: number): React.CSSProperties => ({
+    position: "absolute",
+    inset: 0,
+    transition: "opacity .7s",
+    opacity: i === idx ? 1 : 0,
+    zIndex: i === idx ? 2 : 1,
+    pointerEvents: i === idx ? "auto" : "none",
+  });
+
+  const desfase = destacado ? 1 : 0;
 
   return (
     <section
+      className="mm-hero"
       style={{
         position: "relative",
-        height: "clamp(420px,54vw,560px)",
         overflow: "hidden",
         background: "#e7e4df",
       }}
     >
+      {destacado && <div style={capa(0)}>{destacado}</div>}
+
       {slides.map((s, i) => (
-        <div
-          key={s.titulo}
-          style={{
-            position: "absolute",
-            inset: 0,
-            transition: "opacity .7s",
-            opacity: i === idx ? 1 : 0,
-            zIndex: i === idx ? 2 : 1,
-            pointerEvents: i === idx ? "auto" : "none",
-          }}
-        >
+        <div key={s.titulo} style={capa(i + desfase)}>
           <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
             <div style={{ position: "absolute", inset: 0, animation: "mmKen 16s ease-in-out infinite alternate" }}>
               {s.image && (
@@ -48,6 +62,8 @@ export function HeroCarousel({ slides }: { slides: (HeroSlide & { image: string 
                 <img
                   src={s.image}
                   alt=""
+                  loading="lazy"
+                  decoding="async"
                   style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                 />
               )}
@@ -111,6 +127,7 @@ export function HeroCarousel({ slides }: { slides: (HeroSlide & { image: string 
       <button
         onClick={prev}
         aria-label="Anterior"
+        className="mm-hero-flecha"
         style={{
           position: "absolute",
           left: "14px",
@@ -132,6 +149,7 @@ export function HeroCarousel({ slides }: { slides: (HeroSlide & { image: string 
       <button
         onClick={next}
         aria-label="Siguiente"
+        className="mm-hero-flecha"
         style={{
           position: "absolute",
           right: "14px",
@@ -162,9 +180,9 @@ export function HeroCarousel({ slides }: { slides: (HeroSlide & { image: string 
           gap: "8px",
         }}
       >
-        {slides.map((s, i) => (
+        {Array.from({ length: total }, (_, i) => (
           <button
-            key={s.titulo}
+            key={i}
             onClick={() => setIdx(i)}
             aria-label={`Ir al slide ${i + 1}`}
             style={{

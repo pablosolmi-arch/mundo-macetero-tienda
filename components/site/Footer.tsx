@@ -14,7 +14,7 @@ const SECTION_LABEL: React.CSSProperties = {
 const LINK: React.CSSProperties = { color: "#cfccc5" };
 
 const PILL: React.CSSProperties = {
-  border: "1px solid #44413c",
+  border: "1px solid #3d454c",
   borderRadius: "999px",
   padding: "9px 18px",
   fontSize: "12.5px",
@@ -25,7 +25,7 @@ const PILL: React.CSSProperties = {
 
 export function Footer() {
   return (
-    <footer style={{ background: "#23221f", color: "#cfccc5", marginTop: "auto", overflow: "hidden" }}>
+    <footer style={{ background: "var(--ink)", color: "#cfccc5", marginTop: "auto", overflow: "hidden" }}>
       <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "60px 24px 0" }}>
         <div
           style={{
@@ -35,7 +35,7 @@ export function Footer() {
             gap: "28px",
             flexWrap: "wrap",
             paddingBottom: "38px",
-            borderBottom: "1px solid #38352f",
+            borderBottom: "1px solid #333a41",
           }}
         >
           <div style={{ minWidth: 0 }}>
@@ -134,7 +134,7 @@ export function Footer() {
               <span
                 key={m}
                 style={{
-                  border: "1px solid #44413c",
+                  border: "1px solid #3d454c",
                   borderRadius: "6px",
                   padding: "5px 10px",
                   fontSize: "11px",
@@ -149,7 +149,7 @@ export function Footer() {
         </div>
       </div>
 
-      <div style={{ borderTop: "1px solid #38352f" }}>
+      <div style={{ borderTop: "1px solid #333a41" }}>
         <div
           style={{
             maxWidth: "1280px",

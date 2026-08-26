@@ -5,8 +5,11 @@
 :root {
   --background: #f4f3f1;
   --foreground: #2a2925;
-  --ink: #23221f;        /* dark bands: announcement bar, dark sections, footer */
-  --accent: #a5613f;     /* terracotta: links on hover, prices, accents */
+  --ink: #1c2228;        /* bandas oscuras: secciones alternas y footer */
+  --ink-header: #1c2228; /* header y drawer, mismo tono que las bandas oscuras */
+  --ink-card: #2a3138;   /* tarjetas sobre banda oscura */
+  --on-ink: #d9d6d0;     /* texto secundario sobre oscuro (AA sobre --ink) */
+  --accent: #a5613f;     /* terracota: links en hover, precios, acentos */
   --accent-soft: #d99e77;
   --muted: #6f6c66;
   --muted-soft: #9b978f;
@@ -20,6 +23,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-ink: var(--ink);
+  --color-ink-header: var(--ink-header);
   --color-accent: var(--accent);
   --color-muted: var(--muted);
   --color-line: var(--line);
@@ -93,21 +97,154 @@ button {
   100% { transform: scale(1); }
 }
 
-/* The design switches to its mobile layout at 1180px (its `esMovil` media query).
-   These classes replace that JS breakpoint with real CSS so the header renders
-   correctly on the server, with no hydration flash. */
+/* El header cambia a su versión móvil bajo 1024px. Estas clases reemplazan el
+   breakpoint en JS del diseño original por CSS real, así el header se renderiza
+   igual en el servidor y no hay salto de hidratación. */
 .mm-burger { display: none; }
 .mm-desktop-nav { display: flex; }
 .mm-desktop-only { display: flex; }
 .mm-desktop-only-block { display: block; }
 .mm-mobile-only { display: none; }
+.mm-mobile-only-block { display: none; }
 
-@media (max-width: 1180px) {
+@media (max-width: 1023px) {
   .mm-burger { display: flex; }
   .mm-desktop-nav { display: none; }
   .mm-desktop-only { display: none; }
   .mm-desktop-only-block { display: none; }
   .mm-mobile-only { display: inline-flex; }
+  .mm-mobile-only-block { display: block; }
+}
+
+/* Hero: alto del carrusel y primer slide del diseño "Opción 1B". */
+.mm-hero {
+  height: min(78vh, 760px);
+}
+
+.mm-hero-img {
+  object-position: center;
+}
+
+.mm-hero-contenido {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 40px;
+  padding: 0 24px 0 110px;
+  max-width: 860px;
+}
+
+.mm-hero-sobretitulo {
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: #c9c3b4;
+}
+
+.mm-hero-titular {
+  font-size: clamp(40px, 5.2vw, 76px);
+  line-height: 1.06;
+  font-weight: 400;
+  margin: 0;
+  color: #f6f3ec;
+  text-wrap: pretty;
+}
+
+.mm-hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.mm-hero-chip {
+  border: 1px solid rgba(246, 243, 236, .45);
+  color: #f6f3ec;
+  font-size: 21px;
+  padding: 12px 26px;
+  border-radius: 100px;
+  backdrop-filter: blur(4px);
+}
+
+.mm-hero-cta {
+  display: inline-block;
+  background: #f6f3ec;
+  color: #2e2b26;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  padding: 16px 40px;
+  border-radius: 2px;
+  transition: background .2s, color .2s;
+}
+.mm-hero-cta:hover {
+  background: #fff;
+  color: var(--accent);
+}
+
+@media (max-width: 1023px) {
+  .mm-hero {
+    height: 560px;
+  }
+  .mm-hero-img {
+    object-position: 72% center;
+  }
+  .mm-hero-contenido {
+    justify-content: flex-end;
+    gap: 24px;
+    padding: 0 24px 84px;
+    max-width: none;
+  }
+  .mm-hero-sobretitulo {
+    font-size: 12px;
+    letter-spacing: 3.5px;
+  }
+  .mm-hero-chip {
+    font-size: 16px;
+    padding: 9px 16px;
+  }
+  .mm-hero-cta {
+    font-size: 16px;
+    padding: 14px 30px;
+  }
+}
+
+/* Alturas del header y del logo: 96px en escritorio, 64px en móvil. */
+.mm-header-inner { height: 96px; }
+.mm-header-logo { height: 68px; }
+
+/* Barra de anuncio: 34px en escritorio; en móvil el texto ocupa dos líneas. */
+.mm-anuncio { height: 34px; }
+
+/* Las flechas del carrusel se pisan con los chips del hero en pantallas chicas;
+   ahí navega con los puntos. */
+.mm-hero-flecha { display: block; }
+
+@media (max-width: 1023px) {
+  .mm-header-inner { height: 64px; }
+  .mm-header-logo { height: 40px; }
+  .mm-anuncio {
+    height: auto;
+    min-height: 34px;
+    padding: 6px 16px;
+    font-size: 11.5px;
+    line-height: 1.35;
+  }
+  .mm-hero-flecha { display: none; }
+}
+
+/* Entre 1024 y 1279 la fila de navegación no cabe completa junto al logo
+   centrado, así que ahí se aprieta el espaciado y el ítem más largo usa su
+   etiqueta corta. */
+.mm-nav-corto { display: none; }
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .mm-desktop-nav { gap: 10px !important; font-size: 12.5px !important; }
+  .mm-nav-largo { display: none; }
+  .mm-nav-corto { display: inline; }
 }
 
 /* The design source expresses hover states with a `style-hover` attribute, which
@@ -141,22 +278,87 @@ button {
   color: var(--accent);
 }
 
-.mm-search-btn {
+/* Versiones sobre fondo oscuro: header, drawer y bandas oscuras. */
+.mm-nav-link-dark {
+  background: linear-gradient(#fff, #fff) left bottom / 0% 1px no-repeat;
+  padding-bottom: 5px;
+  white-space: nowrap;
+  color: #fff;
+  transition: background-size .25s ease, color .2s;
+}
+.mm-nav-link-dark:hover {
+  background-size: 100% 1px;
+  color: #fff;
+}
+
+.mm-icon-btn-dark {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background .2s;
+}
+.mm-icon-btn-dark:hover {
+  background: rgba(255, 255, 255, .14);
+  color: #fff;
+}
+
+/* Buscador compacto del header oscuro. */
+.mm-buscador-header {
   display: flex;
   align-items: center;
   gap: 9px;
-  background: rgba(255, 255, 255, .7);
-  border: 1px solid var(--line);
+  width: 200px;
+  background: rgba(255, 255, 255, .1);
+  border: 1px solid rgba(255, 255, 255, .25);
   border-radius: 999px;
-  padding: 8px 16px 8px 13px;
-  cursor: pointer;
-  color: var(--muted);
-  font-size: 13px;
-  transition: border-color .2s, color .2s;
+  padding: 8px 14px;
+  color: #fff;
+  transition: background .2s, border-color .2s;
 }
-.mm-search-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
+.mm-buscador-header:hover,
+.mm-buscador-header:focus-within {
+  background: rgba(255, 255, 255, .16);
+  border-color: rgba(255, 255, 255, .45);
+}
+.mm-buscador-header input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 13px;
+}
+.mm-buscador-header input::placeholder {
+  color: rgba(255, 255, 255, .72);
+}
+/* Declarado después del bloque de breakpoints, así que necesita su propia regla
+   para desaparecer en móvil (ahí la búsqueda vive dentro del drawer). */
+@media (max-width: 1023px) {
+  .mm-buscador-header { display: none; }
+}
+
+.mm-tile-dark {
+  transition: transform .3s, box-shadow .3s, border-color .3s;
+}
+.mm-tile-dark:hover {
+  border-color: #4a5158;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, .38);
+  transform: translateY(-5px);
+}
+
+.mm-drawer-link {
+  transition: color .2s;
+}
+.mm-drawer-link:hover {
+  color: var(--accent-soft);
 }
 
 .mm-link:hover {
