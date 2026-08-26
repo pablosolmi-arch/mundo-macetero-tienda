@@ -27,7 +27,11 @@ function esc(valor: unknown): string {
 }
 
 const FROM = process.env.MAIL_FROM || "Mundo Macetero <onboarding@resend.dev>";
-const EQUIPO = process.env.MAIL_EQUIPO || TIENDA.email;
+// Varios destinatarios separados por coma: cada venta avisa a todo el equipo.
+const EQUIPO = (process.env.MAIL_EQUIPO || TIENDA.email)
+  .split(",")
+  .map((c) => c.trim())
+  .filter(Boolean);
 const SITE_URL = process.env.SITE_URL || "https://fase1-storefront-catalogo.vercel.app";
 
 export interface ResultadoCorreo {
@@ -35,7 +39,7 @@ export interface ResultadoCorreo {
   detalle: string;
 }
 
-async function enviar(to: string, subject: string, html: string): Promise<ResultadoCorreo> {
+async function enviar(to: string | string[], subject: string, html: string): Promise<ResultadoCorreo> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return { enviado: false, detalle: "omitido: falta RESEND_API_KEY" };
 
@@ -43,7 +47,7 @@ async function enviar(to: string, subject: string, html: string): Promise<Result
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: FROM, to: [to], subject, html }),
+      body: JSON.stringify({ from: FROM, to: Array.isArray(to) ? to : [to], subject, html }),
     });
     if (!res.ok) return { enviado: false, detalle: `Resend respondió ${res.status}` };
     return { enviado: true, detalle: subject };
@@ -161,6 +165,33 @@ export async function correoReembolso(
       `<p style="font-size:14px">Solicitamos a ${esc(pasarela)} la devolución de
        <strong>${formatCLP(monto)}</strong> del pedido ${esc(codigoPedido(p.numero, p.createdAt))}.
        El abono puede tardar algunos días hábiles según tu banco.</p>`,
+    ),
+  );
+}
+
+// A quien pidió recuperar su clave del panel. El enlace lleva un token de un
+// solo uso que vence en 30 minutos, así que no se guarda ni se registra en
+// ninguna parte fuera de este correo.
+export async function correoRecuperarClave(
+  destino: string,
+  nombre: string,
+  enlace: string,
+): Promise<ResultadoCorreo> {
+  return enviar(
+    destino,
+    "Recupera tu clave del panel · Mundo Macetero",
+    marco(
+      "Crea una clave nueva",
+      `<p style="font-size:14px">Hola ${esc(nombre || "")}, alguien pidió recuperar la clave
+       de la cuenta <strong>${esc(destino)}</strong> en el panel de Mundo Macetero.
+       Si fuiste tú, entra por aquí y elige una clave nueva:</p>
+       <p style="margin:20px 0"><a href="${esc(enlace)}"
+       style="background:#2a2925;color:#fff;padding:12px 22px;border-radius:8px;
+       text-decoration:none;font-weight:bold;font-size:14px">Crear clave nueva</a></p>
+       <p style="font-size:13px;color:#6f6c66">El enlace vence en 30 minutos y sirve una sola vez.
+       Al usarlo se cerrarán todas las sesiones abiertas de tu cuenta.</p>
+       <p style="font-size:13px;color:#6f6c66">Si no lo pediste, ignora este correo:
+       tu clave actual sigue funcionando y nadie puede entrar sin este enlace.</p>`,
     ),
   );
 }

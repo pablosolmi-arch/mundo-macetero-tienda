@@ -71,6 +71,13 @@
       "when": 1787663059835,
       "tag": "0009_pedido_numero_origen",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1787767017392,
+      "tag": "0010_recuperar_clave",
+      "breakpoints": true
     }
   ]
 }

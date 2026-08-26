@@ -197,6 +197,21 @@ export const adminSessions = pgTable("admin_sessions", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Enlaces de "olvidé mi clave". Igual que las sesiones, se guarda solo el
+// SHA-256 del token que viaja en el correo: si alguien lee la base, no puede
+// armar el enlace. `usadoEn` deja el token de un solo uso y las filas viejas
+// sirven de freno: más de unas pocas solicitudes por hora no crean otra.
+export const adminPasswordResets = pgTable("admin_password_resets", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => adminUsers.id),
+  tokenHash: text("token_hash").notNull().unique(),
+  expiraEn: timestamp("expira_en").notNull(),
+  usadoEn: timestamp("usado_en"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 // Bitácora de lo que se hace sobre un pedido: quién, qué y cuándo.
 export const orderEvents = pgTable("order_events", {
   id: serial("id").primaryKey(),

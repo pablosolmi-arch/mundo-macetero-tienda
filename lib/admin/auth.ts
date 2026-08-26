@@ -1,8 +1,8 @@
 import crypto from "node:crypto";
 import { cookies } from "next/headers";
-import { and, eq, gt } from "drizzle-orm";
+import { and, count, eq, gt } from "drizzle-orm";
 import { db } from "../../db/client";
-import { adminSessions, adminUsers } from "../../db/schema";
+import { adminPasswordResets, adminSessions, adminUsers } from "../../db/schema";
 
 // Autenticación del administrador. Decisiones y por qué:
 //
@@ -138,4 +138,93 @@ export async function getSessionUser(): Promise<AdminUser | null> {
   if (!usuario || !usuario.activo) return null;
 
   return { id: usuario.id, email: usuario.email, nombre: usuario.nombre, rol: usuario.rol };
+}
+
+// --- Recuperar la clave ---
+
+const MINUTOS_TOKEN = 30;
+// Freno al abuso: con un solo correo se pueden pedir hasta tres enlaces por
+// hora. Más que eso solo sirve para inundar la bandeja de otra persona.
+const MAX_SOLICITUDES_HORA = 3;
+export const MIN_LARGO_CLAVE = 12;
+
+export interface SolicitudRecuperacion {
+  token: string;
+  usuario: AdminUser;
+}
+
+// Crea un enlace de recuperación. Devuelve null cuando no hay que enviar nada
+// (correo sin cuenta, cuenta desactivada o demasiadas solicitudes recientes).
+// Quien llama debe responder siempre lo mismo, pase lo que pase aquí: si el
+// mensaje o el tiempo de respuesta cambiaran, cualquiera podría averiguar qué
+// correos tienen cuenta en el panel.
+export async function solicitarRecuperacion(email: string): Promise<SolicitudRecuperacion | null> {
+  const usuario = await db.query.adminUsers.findFirst({
+    where: eq(adminUsers.email, email.trim().toLowerCase()),
+  });
+  if (!usuario || !usuario.activo) return null;
+
+  const desde = new Date(Date.now() - 60 * 60 * 1000);
+  const [reciente] = await db
+    .select({ total: count() })
+    .from(adminPasswordResets)
+    .where(
+      and(eq(adminPasswordResets.userId, usuario.id), gt(adminPasswordResets.createdAt, desde)),
+    );
+  if (Number(reciente?.total ?? 0) >= MAX_SOLICITUDES_HORA) return null;
+
+  // base64url para que el token viaje entero en la URL del correo sin escapar.
+  const token = crypto.randomBytes(32).toString("base64url");
+  await db.insert(adminPasswordResets).values({
+    userId: usuario.id,
+    tokenHash: hashToken(token),
+    expiraEn: new Date(Date.now() + MINUTOS_TOKEN * 60 * 1000),
+  });
+
+  return {
+    token,
+    usuario: { id: usuario.id, email: usuario.email, nombre: usuario.nombre, rol: usuario.rol },
+  };
+}
+
+export type MotivoRestablecer = "invalido" | "expirado" | "clave_corta";
+
+export type ResultadoRestablecer = { ok: true } | { ok: false; motivo: MotivoRestablecer };
+
+// Cambia la clave con un enlace de recuperación. El token es de un solo uso y el
+// largo de la clave se revisa antes de marcarlo usado, para que un intento con
+// una clave corta no queme el enlace. Al terminar se borran todas las sesiones
+// del usuario: si alguien entró con la clave vieja, queda afuera.
+export async function restablecerClave(
+  token: string,
+  claveNueva: string,
+): Promise<ResultadoRestablecer> {
+  if (!token) return { ok: false, motivo: "invalido" };
+
+  const solicitud = await db.query.adminPasswordResets.findFirst({
+    where: eq(adminPasswordResets.tokenHash, hashToken(token)),
+  });
+  if (!solicitud || solicitud.usadoEn) return { ok: false, motivo: "invalido" };
+  if (solicitud.expiraEn <= new Date()) return { ok: false, motivo: "expirado" };
+  if (claveNueva.length < MIN_LARGO_CLAVE) return { ok: false, motivo: "clave_corta" };
+
+  await db
+    .update(adminUsers)
+    .set({
+      passwordHash: hashPassword(claveNueva),
+      // El que recupera la clave no debe quedar bloqueado por los intentos
+      // fallidos que lo llevaron a recuperarla.
+      intentosFallidos: 0,
+      bloqueadoHasta: null,
+    })
+    .where(eq(adminUsers.id, solicitud.userId));
+
+  await db
+    .update(adminPasswordResets)
+    .set({ usadoEn: new Date() })
+    .where(eq(adminPasswordResets.id, solicitud.id));
+
+  await db.delete(adminSessions).where(eq(adminSessions.userId, solicitud.userId));
+
+  return { ok: true };
 }

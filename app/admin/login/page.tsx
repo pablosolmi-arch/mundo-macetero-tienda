@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function AdminLoginPage() {
@@ -115,6 +116,11 @@ export default function AdminLoginPage() {
             {cargando ? "Entrando…" : "Entrar"}
           </button>
         </form>
+        <p style={{ fontSize: "13px", margin: "16px 0 0", textAlign: "center" }}>
+          <Link href="/admin/recuperar" style={{ color: "#a5613f", fontWeight: 600 }}>
+            ¿Olvidaste tu clave?
+          </Link>
+        </p>
       </div>
     </div>
   );
