@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { HERO_IMGS } from "../../../../content/images";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumb } from "../../../../components/site/Breadcrumb";
@@ -45,6 +46,7 @@ export async function generateMetadata({
       description: guia.metaDescription,
       url: `${SITE_URL}/guias/${guia.slug}`,
       publishedTime: guia.fechaPublicacion,
+      images: [HERO_IMGS[2]],
     },
   };
 }

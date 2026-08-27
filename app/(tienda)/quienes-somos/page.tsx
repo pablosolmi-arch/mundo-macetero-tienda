@@ -4,7 +4,8 @@ import { EQUIPO_IMGS } from "../../../content/images";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Quiénes somos",
+  title: "Quiénes somos · Fabricantes de maceteros livianos en Chile",
+  alternates: { canonical: "/quienes-somos" },
   description:
     "Mundo Macetero: maceteros ultra livianos tipo cemento fabricados en Chile, en nuestro taller de Quilicura.",
 };

@@ -16,7 +16,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = BLOG.find((b) => b.slug === slug);
   if (!post) return { title: "Noticias" };
-  return { title: post.titulo, description: post.extracto };
+  return { title: post.titulo, description: post.extracto, alternates: { canonical: `/blog/${post.slug}` } };
 }
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {

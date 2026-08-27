@@ -122,9 +122,11 @@ export function buildProductMetadata(product: Product): Metadata {
     // adds the site-name suffix once. Do NOT pre-suffix here, or it double-suffixes.
     title: product.name,
     description: cleanDescription,
+    alternates: { canonical: `/producto/${product.slug}` },
     openGraph: {
       title: product.name,
       description: cleanDescription,
+      url: `${SITE_URL}/producto/${product.slug}`,
       images: product.images,
     },
   };

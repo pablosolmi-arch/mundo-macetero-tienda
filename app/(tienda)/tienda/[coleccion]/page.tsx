@@ -4,6 +4,7 @@ import { getActiveProductsWithVariants, getAllCategories } from "../../../../que
 import { toCard } from "../../../../lib/catalog";
 import { Catalogo } from "../../../../components/catalog/Catalogo";
 import { COLECCIONES, COLECCION_GENERICA } from "../../../../content/geo";
+import { HERO_IMGS } from "../../../../content/images";
 import { SITE_URL, WEBSITE_ID, buildBreadcrumbJsonLd, serializeJsonLd } from "../../../../lib/seo";
 
 export const revalidate = 3600;
@@ -31,6 +32,7 @@ export async function generateMetadata({
       title: `${h1} de fibrocemento liviano | Mundo Macetero`,
       description: copy.metaDescription,
       url: `${SITE_URL}/tienda/${cat.slug}`,
+      images: [HERO_IMGS[2]],
     },
   };
 }

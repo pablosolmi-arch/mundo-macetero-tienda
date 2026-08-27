@@ -4,8 +4,9 @@ import { BLOG } from "../../../content/site";
 import { BLOG_THUMBS } from "../../../content/thumbs";
 
 export const metadata: Metadata = {
-  title: "Noticias",
-  description: "Novedades, ferias y colaboraciones de Mundo Macetero.",
+  title: "Noticias · Ferias, colaboraciones y novedades",
+  description: "Novedades de Mundo Macetero: ferias de jardinería, maceteros de autor y colaboraciones con artistas y paisajistas en Chile.",
+  alternates: { canonical: "/blog" },
 };
 
 export default function BlogPage() {

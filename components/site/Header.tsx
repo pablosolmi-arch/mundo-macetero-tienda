@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "../cart/CartContext";
 import { formatCLP } from "../../lib/format";
+import { GRUPOS_MENU, rutaGrupo } from "../../content/menu";
 
 // Header con el patrón de color del sitio actual: barra de anuncio clara arriba y
 // header oscuro con la navegación a la izquierda, el monograma centrado y los
@@ -28,6 +29,11 @@ interface HeaderProps {
   // Slugs of the three "Otros" entries, resolved against real catalog data.
   otros: NavProducto[];
 }
+
+// El menú "Tienda" ya no lista los 17 modelos ni las colecciones de la base: el
+// cliente que llega no reconoce un "Gotar" ni un "Luxor RP", así que navega por
+// forma (content/menu.ts). `colecciones` y `otros` siguen llegando por props
+// porque el layout las pasa, pero el menú no las usa.
 
 const SearchIcon = ({ size = 15, stroke = "currentColor" }: { size?: number; stroke?: string }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={2} strokeLinecap="round">
@@ -62,7 +68,7 @@ const ITEM_MOVIL: React.CSSProperties = {
   borderBottom: "1px solid rgba(255,255,255,.14)",
 };
 
-export function Header({ productos, colecciones, otros }: HeaderProps) {
+export function Header({ productos }: HeaderProps) {
   const { count, open } = useCart();
   const [menu, setMenu] = useState<"tienda" | "ases" | null>(null);
   const [navMovil, setNavMovil] = useState(false);
@@ -106,12 +112,9 @@ export function Header({ productos, colecciones, otros }: HeaderProps) {
   };
 
   // Enlaces del drawer agrupados igual que los mega-menús de escritorio.
-  const tiendaMovil: [string, string][] = [
-    ["/tienda", "Ver todos los Maceteros"],
-    ...otros.map((p) => [`/producto/${p.slug}`, p.nombre] as [string, string]),
-    ["/paleta", "Paleta de Colores y Terminaciones"],
-    ...colecciones.slice(0, 6).map((c) => [`/tienda/${c.slug}`, c.nombre] as [string, string]),
-  ];
+  const tiendaMovil: [string, string][] = GRUPOS_MENU.map(
+    (g) => [rutaGrupo(g.slug), g.nombre] as [string, string],
+  );
   const asesMovil: [string, string][] = [
     ["/asesoramiento", "Formulario Asesoramiento"],
     ["/olivo", "Maceteros para tu Olivo"],
@@ -301,84 +304,29 @@ export function Header({ productos, colecciones, otros }: HeaderProps) {
               style={{
                 maxWidth: "1280px",
                 margin: "0 auto",
-                padding: "28px 24px 32px",
+                padding: "26px 24px 30px",
                 display: "grid",
-                gridTemplateColumns: "2fr 1fr 1fr",
-                gap: "40px",
+                gridTemplateColumns: "repeat(3,minmax(0,1fr))",
+                gap: "18px 40px",
               }}
             >
-              <div>
-                <Link
-                  href="/tienda"
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 700,
-                    letterSpacing: ".08em",
-                    textTransform: "uppercase",
-                    color: "#a5613f",
-                  }}
-                >
-                  Ver todos los Maceteros →
-                </Link>
-                <div
-                  style={{
-                    marginTop: "14px",
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr 1fr",
-                    gap: "8px 24px",
-                    fontSize: "13.5px",
-                  }}
-                >
-                  {productos.map((p) => (
-                    <Link key={p.slug} href={`/producto/${p.slug}`} className="mm-link">
-                      {p.nombre}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <div
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 700,
-                    letterSpacing: ".08em",
-                    textTransform: "uppercase",
-                    color: "#6f6c66",
-                  }}
-                >
-                  Otros
-                </div>
-                <div style={{ marginTop: "14px", display: "flex", flexDirection: "column", gap: "8px", fontSize: "13.5px" }}>
-                  {otros.map((p) => (
-                    <Link key={p.slug} href={`/producto/${p.slug}`} className="mm-link">
-                      {p.nombre}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <div
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 700,
-                    letterSpacing: ".08em",
-                    textTransform: "uppercase",
-                    color: "#6f6c66",
-                  }}
-                >
-                  Catálogo
-                </div>
-                <div style={{ marginTop: "14px", display: "flex", flexDirection: "column", gap: "8px", fontSize: "13.5px" }}>
-                  <Link href="/paleta" className="mm-link">
-                    Paleta de Colores y Terminaciones
+              {GRUPOS_MENU.map((g) => (
+                <div key={g.slug}>
+                  <Link
+                    href={rutaGrupo(g.slug)}
+                    className="mm-link"
+                    onClick={() => setMenu(null)}
+                    style={{ fontSize: "15px", fontWeight: 600 }}
+                  >
+                    {g.nombre}
                   </Link>
-                  {colecciones.slice(0, 6).map((c) => (
-                    <Link key={c.slug} href={`/tienda/${c.slug}`} className="mm-link">
-                      {c.nombre}
-                    </Link>
-                  ))}
+                  {g.slug === "bowls-y-platos" && (
+                    <div style={{ marginTop: "4px", fontSize: "12.5px", color: "#6f6c66" }}>
+                      Incluye el Plato de Agua, nuestro más vendido
+                    </div>
+                  )}
                 </div>
-              </div>
+              ))}
             </div>
           </div>
         )}
