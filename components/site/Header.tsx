@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useCart } from "../cart/CartContext";
 import { formatCLP } from "../../lib/format";
 import { GRUPOS_MENU, rutaGrupo } from "../../content/menu";
+import type { GrupoIntenciones } from "../../lib/intenciones";
 
 // Header con el patrón de color del sitio actual: barra de anuncio clara arriba y
 // header oscuro con la navegación a la izquierda, el monograma centrado y los
@@ -28,6 +29,9 @@ interface HeaderProps {
   colecciones: NavColeccion[];
   // Slugs of the three "Otros" entries, resolved against real catalog data.
   otros: NavProducto[];
+  // Colecciones por intención de búsqueda, agrupadas (Por uso, Por tamaño…).
+  // Llegan resueltas desde el layout: no salen de la base.
+  intenciones: GrupoIntenciones[];
 }
 
 // El menú "Tienda" ya no lista los 17 modelos ni las colecciones de la base: el
@@ -62,17 +66,19 @@ const Chevron = ({ size = 9, abierto = false }: { size?: number; abierto?: boole
 
 const HEADER_ALTO_ESCRITORIO = 96;
 
+type Menu = "tienda" | "intenciones" | "ases" | null;
+
 const ITEM_MOVIL: React.CSSProperties = {
   padding: "14px 4px",
   color: "#fff",
   borderBottom: "1px solid rgba(255,255,255,.14)",
 };
 
-export function Header({ productos }: HeaderProps) {
+export function Header({ productos, intenciones }: HeaderProps) {
   const { count, open } = useCart();
-  const [menu, setMenu] = useState<"tienda" | "ases" | null>(null);
+  const [menu, setMenu] = useState<Menu>(null);
   const [navMovil, setNavMovil] = useState(false);
-  const [grupoMovil, setGrupoMovil] = useState<"tienda" | "ases" | null>(null);
+  const [grupoMovil, setGrupoMovil] = useState<Menu>(null);
   const [buscador, setBuscador] = useState(false);
   const [q, setQ] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -115,6 +121,14 @@ export function Header({ productos }: HeaderProps) {
   const tiendaMovil: [string, string][] = GRUPOS_MENU.map(
     (g) => [rutaGrupo(g.slug), g.nombre] as [string, string],
   );
+  // En el drawer las intenciones van en una sola lista: los encabezados de grupo
+  // del escritorio no caben sin convertirlo en un acordeón de dos niveles.
+  const intencionesMovil: [string, string][] = [
+    ["/maceteros", "Ver todas las búsquedas"],
+    ...intenciones.flatMap((g) =>
+      g.items.map((i) => [`/maceteros/${i.slug}`, i.h1] as [string, string]),
+    ),
+  ];
   const asesMovil: [string, string][] = [
     ["/asesoramiento", "Formulario Asesoramiento"],
     ["/olivo", "Maceteros para tu Olivo"],
@@ -201,6 +215,15 @@ export function Header({ productos }: HeaderProps) {
                   style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}
                 >
                   Tienda <Chevron abierto={menu === "tienda"} />
+                </Link>
+              </div>
+              <div style={{ position: "relative" }} onMouseEnter={() => setMenu("intenciones")}>
+                <Link
+                  href="/maceteros"
+                  className="mm-nav-link-dark"
+                  style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}
+                >
+                  Maceteros por… <Chevron abierto={menu === "intenciones"} />
                 </Link>
               </div>
               <div style={{ position: "relative" }} onMouseEnter={() => setMenu("ases")}>
@@ -331,6 +354,63 @@ export function Header({ productos }: HeaderProps) {
           </div>
         )}
 
+        {menu === "intenciones" && (
+          <div
+            className="mm-desktop-only-block"
+            onMouseLeave={() => setMenu(null)}
+            style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              top: `${HEADER_ALTO_ESCRITORIO}px`,
+              background: "#fff",
+              color: "var(--foreground)",
+              boxShadow: "0 18px 40px rgba(18,22,26,.22)",
+              animation: "mmFade .15s ease",
+            }}
+          >
+            <div
+              style={{
+                maxWidth: "1280px",
+                margin: "0 auto",
+                padding: "26px 24px 30px",
+                display: "grid",
+                gridTemplateColumns: "repeat(3,minmax(0,1fr))",
+                gap: "22px 40px",
+              }}
+            >
+              {intenciones.map((g) => (
+                <div key={g.grupo}>
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 700,
+                      letterSpacing: ".08em",
+                      textTransform: "uppercase",
+                      color: "#6f6c66",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    {g.grupo}
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "7px", fontSize: "13.5px" }}>
+                    {g.items.map((i) => (
+                      <Link
+                        key={i.slug}
+                        href={`/maceteros/${i.slug}`}
+                        className="mm-link"
+                        onClick={() => setMenu(null)}
+                      >
+                        {i.h1}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {menu === "ases" && (
           <div
             className="mm-desktop-only-block"
@@ -436,6 +516,7 @@ export function Header({ productos }: HeaderProps) {
               {(
                 [
                   ["tienda", "Tienda", tiendaMovil],
+                  ["intenciones", "Maceteros por…", intencionesMovil],
                   ["ases", "Te asesoramos", asesMovil],
                 ] as const
               ).map(([clave, label, items]) => (

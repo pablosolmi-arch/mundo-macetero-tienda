@@ -1,52 +1,14 @@
-import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { getActiveProductsWithVariants } from "../../../../queries/catalog";
-import { toCard } from "../../../../lib/catalog";
-import { ProductCard } from "../../../../components/ProductCard";
-import { GRUPOS_MENU, grupoPorSlug, rutaGrupo } from "../../../../content/menu";
+import { ProductCard } from "../ProductCard";
+import type { ProductCardData } from "../../lib/catalog";
+import { GRUPOS_MENU, rutaGrupo, type GrupoMenu } from "../../content/menu";
 
-// Página de un grupo del menú (bowls, altos, redondos, jardineras, complementos).
-// Es la vista que ve quien no conoce los nombres de modelo: una grilla con las
-// mismas tarjetas del catálogo, sin filtros, y chips para saltar a otro grupo.
-//
-// force-dynamic a propósito: los grupos son listas cortas y fijas, y así el precio
-// y la disponibilidad que muestra la tarjeta salen siempre de la base al momento.
-export const dynamic = "force-dynamic";
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ grupo: string }>;
-}): Promise<Metadata> {
-  const { grupo: slug } = await params;
-  const grupo = grupoPorSlug(slug);
-  if (!grupo) return { title: "Maceteros" };
-
-  return {
-    title: `${grupo.nombre} de fibrocemento liviano`,
-    description: grupo.descripcion,
-    alternates: { canonical: `/maceteros/${grupo.slug}` },
-    openGraph: {
-      title: `${grupo.nombre} | Mundo Macetero`,
-      description: grupo.descripcion,
-    },
-  };
-}
-
-export default async function GrupoPage({ params }: { params: Promise<{ grupo: string }> }) {
-  const { grupo: slug } = await params;
-  const grupo = grupoPorSlug(slug);
-  if (!grupo) notFound();
-
-  const productos = await getActiveProductsWithVariants();
-  const porSlug = new Map(productos.map((p) => [p.slug, p]));
-  // El orden de la grilla es el orden de la lista del grupo, no el de la base.
-  const lista = grupo.productos
-    .map((s) => porSlug.get(s))
-    .filter((p): p is NonNullable<typeof p> => Boolean(p))
-    .map(toCard);
-
+// Vista de un grupo del menú (bowls, redondos, jardineras, complementos): una
+// grilla con las mismas tarjetas del catálogo, sin filtros, y chips para saltar
+// a otro grupo. Vivía dentro de app/(tienda)/maceteros/[grupo]/page.tsx; se
+// extrajo tal cual cuando /maceteros/<slug> pasó a servir también las páginas
+// de intención, porque Next.js solo admite un nombre de parámetro por segmento.
+export function GrupoMenuVista({ grupo, lista }: { grupo: GrupoMenu; lista: ProductCardData[] }) {
   const otrosGrupos = GRUPOS_MENU.filter((g) => g.slug !== grupo.slug);
 
   return (

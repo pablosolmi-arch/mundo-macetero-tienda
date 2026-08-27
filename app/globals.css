@@ -186,12 +186,14 @@ button {
   }
 }
 
-/* Entre 1024 y 1279 la fila de navegación no cabe completa junto al logo
-   centrado, así que ahí se aprieta el espaciado y el ítem más largo usa su
-   etiqueta corta. */
+/* Desde 1024 la fila de navegación se aprieta y el ítem más largo usa su
+   etiqueta corta. Antes esto valía solo hasta 1279, pero al entrar "Maceteros
+   por…" la fila pasó a seis ítems y ya no cabe junto al monograma a ningún
+   ancho: el interior del header está topado en 1280 px, así que una pantalla
+   más ancha no da más espacio. */
 .mm-nav-corto { display: none; }
 
-@media (min-width: 1024px) and (max-width: 1279px) {
+@media (min-width: 1024px) {
   .mm-desktop-nav { gap: 10px !important; font-size: 12.5px !important; }
   .mm-nav-largo { display: none; }
   .mm-nav-corto { display: inline; }

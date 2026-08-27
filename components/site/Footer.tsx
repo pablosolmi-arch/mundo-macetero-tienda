@@ -103,6 +103,7 @@ export function Footer() {
           <div style={{ display: "flex", flexDirection: "column", gap: "9px", fontSize: "13px" }}>
             {[
               ["/tienda", "Todos los maceteros"],
+              ["/maceteros", "Maceteros por uso y tamaño"],
               ["/paleta", "Paleta de colores"],
               ["/asesoramiento", "Te asesoramos"],
               ["/quienes-somos", "Quiénes somos"],

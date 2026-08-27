@@ -4,6 +4,7 @@ import { Header } from "../../components/site/Header";
 import { Footer } from "../../components/site/Footer";
 import { Tracker } from "../../components/site/Tracker";
 import { getNavData } from "../../queries/catalog";
+import { navIntenciones } from "../../lib/intenciones";
 import { TIENDA } from "../../content/site";
 import {
   LOCAL_BUSINESS_ID,
@@ -101,7 +102,15 @@ export default async function TiendaLayout({ children }: { children: React.React
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(SITE_JSON_LD) }}
       />
-      <Header productos={productos} colecciones={colecciones} otros={otros} />
+      {/* Las intenciones salen de content/intenciones.ts, no de la base. Se
+          resuelven aquí, en el servidor, para que los párrafos de copy de cada
+          colección no viajen al bundle del header, que es un client component. */}
+      <Header
+        productos={productos}
+        colecciones={colecciones}
+        otros={otros}
+        intenciones={navIntenciones()}
+      />
       <main style={{ flex: 1 }}>{children}</main>
       <Footer />
       <CartDrawer />

@@ -29,9 +29,20 @@ interface CatalogoProps {
   // Texto editorial de la colección (content/geo.ts). Va bajo el H1 para que la
   // página diga de qué se trata antes de la grilla, en vez de abrir con filtros.
   intro?: string;
+  // Las páginas de intención (/maceteros/<slug>) ya escriben su propio H1 y su
+  // intro sobre la grilla, así que aquí solo piden la grilla con sus filtros:
+  // dos H1 en la misma página confundirían a los buscadores.
+  sinTitulo?: boolean;
 }
 
-export function Catalogo({ titulo, productos, colecciones, coleccionActual, intro }: CatalogoProps) {
+export function Catalogo({
+  titulo,
+  productos,
+  colecciones,
+  coleccionActual,
+  intro,
+  sinTitulo = false,
+}: CatalogoProps) {
   const router = useRouter();
   const [precio, setPrecio] = useState<Precio>("0");
   const [orden, setOrden] = useState<Orden>("destacados");
@@ -57,45 +68,59 @@ export function Catalogo({ titulo, productos, colecciones, coleccionActual, intr
   }
 
   return (
-    <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "40px 24px 70px" }}>
-      <h1
-        className="font-display"
-        style={{ fontSize: "clamp(24px,3vw,34px)", fontWeight: 700, margin: "0 0 4px" }}
-      >
-        {titulo}
-      </h1>
-      {intro && (
-        <p
-          style={{
-            fontSize: "15px",
-            lineHeight: 1.7,
-            color: "#4c4944",
-            margin: "12px 0 0",
-            maxWidth: "760px",
-            textWrap: "pretty",
-          }}
-        >
-          {intro}
-        </p>
+    <div
+      style={{
+        maxWidth: "1280px",
+        margin: "0 auto",
+        padding: sinTitulo ? "0 24px 70px" : "40px 24px 70px",
+      }}
+    >
+      {!sinTitulo && (
+        <>
+          <h1
+            className="font-display"
+            style={{ fontSize: "clamp(24px,3vw,34px)", fontWeight: 700, margin: "0 0 4px" }}
+          >
+            {titulo}
+          </h1>
+          {intro && (
+            <p
+              style={{
+                fontSize: "15px",
+                lineHeight: 1.7,
+                color: "#4c4944",
+                margin: "12px 0 0",
+                maxWidth: "760px",
+                textWrap: "pretty",
+              }}
+            >
+              {intro}
+            </p>
+          )}
+        </>
       )}
-      <div style={{ fontSize: "13.5px", color: "#6f6c66", margin: intro ? "16px 0 24px" : "0 0 24px" }}>
+      <div style={{ fontSize: "13.5px", color: "#6f6c66", margin: intro && !sinTitulo ? "16px 0 24px" : "0 0 24px" }}>
         {lista.length} {lista.length === 1 ? "producto" : "productos"}
       </div>
 
       <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "center", marginBottom: "26px" }}>
-        <select
-          value={coleccionActual ?? "todas"}
-          onChange={(e) => router.push(e.target.value === "todas" ? "/tienda" : `/tienda/${e.target.value}`)}
-          aria-label="Colección"
-          style={SELECT}
-        >
-          <option value="todas">Todas las colecciones</option>
-          {colecciones.map((c) => (
-            <option key={c.slug} value={c.slug}>
-              {c.nombre}
-            </option>
-          ))}
-        </select>
+        {/* Sin colecciones que ofrecer el selector solo podría llevar a /tienda,
+            que no es un filtro sino salir de la página: mejor no mostrarlo. */}
+        {colecciones.length > 0 && (
+          <select
+            value={coleccionActual ?? "todas"}
+            onChange={(e) => router.push(e.target.value === "todas" ? "/tienda" : `/tienda/${e.target.value}`)}
+            aria-label="Colección"
+            style={SELECT}
+          >
+            <option value="todas">Todas las colecciones</option>
+            {colecciones.map((c) => (
+              <option key={c.slug} value={c.slug}>
+                {c.nombre}
+              </option>
+            ))}
+          </select>
+        )}
 
         <select
           value={precio}

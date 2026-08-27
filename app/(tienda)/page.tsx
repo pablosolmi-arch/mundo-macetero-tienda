@@ -41,6 +41,20 @@ const H2_OSCURO: React.CSSProperties = { ...H2, color: "#fff" };
 const FAQ_PORTADA = FAQ_GENERAL.slice(0, 6);
 const GUIAS_PORTADA = GUIAS.slice(0, 3);
 
+// Atajos a las colecciones por intención (/maceteros/<slug>). La etiqueta va
+// corta porque las ocho empiezan por "Maceteros" y el H2 ya da el contexto; el
+// título completo viaja en aria-label para quien navega con lector de pantalla.
+const BUSQUEDAS: [string, string, string][] = [
+  ["maceteros-para-terraza", "Para terraza", "Maceteros para terraza"],
+  ["maceteros-grandes", "Grandes", "Maceteros grandes"],
+  ["maceteros-livianos", "Livianos", "Maceteros livianos"],
+  ["maceteros-para-interior", "Para interior", "Maceteros para interior"],
+  ["maceteros-negros", "Negros", "Maceteros negros"],
+  ["maceteros-con-doble-fondo", "Con doble fondo", "Maceteros con doble fondo (autorregantes)"],
+  ["maceteros-para-olivo", "Para olivo", "Maceteros para olivo"],
+  ["maceteros-de-diseno", "De diseño", "Maceteros de diseño"],
+];
+
 export default async function HomePage() {
   const productos = await getActiveProductsWithVariants();
 
@@ -414,6 +428,43 @@ export default async function HomePage() {
               <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--accent-soft)" }}>Leer la guía →</span>
             </Link>
           ))}
+        </div>
+      </Banda>
+
+      <Banda tono="claro" fondo="var(--cream)">
+        <h2 className="font-display" style={{ ...H2, margin: "0 0 18px" }}>
+          Busca por lo que necesitas
+        </h2>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+          {BUSQUEDAS.map(([slug, etiqueta, completo]) => (
+            <Link
+              key={slug}
+              href={`/maceteros/${slug}`}
+              aria-label={completo}
+              style={{
+                border: "1px solid #d8d5cf",
+                borderRadius: "999px",
+                padding: "9px 18px",
+                fontSize: "13.5px",
+                background: "#fff",
+                color: "#2a2925",
+              }}
+            >
+              {etiqueta}
+            </Link>
+          ))}
+          <Link
+            href="/maceteros"
+            style={{
+              borderRadius: "999px",
+              padding: "9px 18px",
+              fontSize: "13.5px",
+              fontWeight: 600,
+              color: "#a5613f",
+            }}
+          >
+            Ver todas →
+          </Link>
         </div>
       </Banda>
 

@@ -2,6 +2,7 @@
 import { getAllCategories, getAllActiveProducts } from "../../queries/catalog";
 import { SITE_URL, stripHtml } from "../../lib/seo";
 import { COLECCIONES, COLECCION_GENERICA, GUIAS } from "../../content/geo";
+import { INTENCIONES } from "../../content/intenciones";
 
 // llms.txt: the plain-text index that assistants (ChatGPT, Claude, Perplexity)
 // read to understand the site in one request, instead of crawling every page.
@@ -50,6 +51,10 @@ export async function GET() {
           COLECCIONES[c.slug]?.metaDescription ?? COLECCION_GENERICA.metaDescription,
         ),
       ),
+    ].join("\n"),
+    [
+      "## Maceteros por uso, tamaño, color y planta",
+      ...INTENCIONES.map((i) => link(i.h1, `/maceteros/${i.slug}`, i.metaDescription)),
     ].join("\n"),
     [
       "## Productos",
