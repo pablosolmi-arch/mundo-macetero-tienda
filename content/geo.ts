@@ -37,7 +37,7 @@ export const GUIAS: Guia[] = [
     metaDescription:
       "Qué es un macetero de fibrocemento reforzado, por qué pesa hasta 90% menos que uno de cemento, cuánto dura en exterior y cómo elegir tamaño y color. Fabricados en Chile.",
     resumen:
-      "Un macetero liviano de fibrocemento es un macetero fabricado con una mezcla de cemento, fibras de refuerzo y agregados livianos, moldeada en paredes delgadas. Tiene el aspecto y la textura del cemento, pero pesa alrededor de un 90% menos que un macetero de hormigón del mismo tamaño. Mundo Macetero los fabrica a pedido en Quilicura, Santiago de Chile, en formatos de 30 a 200 centímetros.",
+      "Un macetero liviano de fibrocemento es un macetero fabricado con tecnología EIFS, la misma que se usa en fachadas de construcción: un núcleo de poliestireno expandido, malla de fibra de vidrio y un recubrimiento de cemento con terminación de color o textura. Tiene el aspecto y la textura del cemento, pero pesa alrededor de un 90% menos que un macetero de hormigón del mismo tamaño. Mundo Macetero los fabrica a pedido en Quilicura, Santiago de Chile, en formatos de 30 a 200 centímetros.",
     keywords: [
       "maceteros livianos",
       "maceteros de fibrocemento",
@@ -51,20 +51,20 @@ export const GUIAS: Guia[] = [
       {
         titulo: "Cómo se fabrica un macetero de fibrocemento",
         parrafos: [
-          "El fibrocemento reforzado combina cemento con fibras (que trabajan a tracción, donde el cemento solo es frágil) y agregados de baja densidad. La mezcla se aplica en capas finas sobre un molde, de modo que la pared del macetero queda de pocos centímetros de espesor en lugar de los 5 a 8 centímetros que necesita un macetero de hormigón vaciado para no quebrarse. Menos material y agregados más livianos explican la diferencia de peso: un cubo de 60 centímetros que en hormigón puede superar los 100 kilos, en fibrocemento lo levanta una persona.",
-          "Después del desmolde, cada pieza se termina a mano: se sella, se pinta o se deja en cemento natural, y si el cliente lo pide se perforan los orificios de drenaje (despiche). Por eso los maceteros se fabrican a pedido en la combinación de forma, tamaño y color que eliges.",
+          "Usamos el sistema EIFS (Exterior Insulation and Finishing System), el mismo con que se revisten fachadas de edificios. El cuerpo del macetero se forma en poliestireno expandido, que da el volumen sin peso. Sobre él se adhiere una malla de fibra de vidrio, que trabaja a tracción y evita fisuras, y encima se aplica el recubrimiento de cemento que le da la piel dura, el aspecto y la textura mineral. Al final va la terminación: color (cemento natural, blanco, negro) o texturas especiales como cantera u óxido de cobre. Como casi todo el volumen es poliestireno y el cemento es solo la capa exterior, un cubo de 60 centímetros que en hormigón puede superar los 100 kilos, en EIFS lo levanta una persona.",
+          "Cada pieza se termina a mano: se aplica la terminación de color o textura, se sella y, si el cliente lo pide, se perforan los orificios de drenaje (despiche). Por eso los maceteros se fabrican a pedido en la combinación de forma, tamaño y color que eliges, y no hay dos exactamente iguales.",
         ],
       },
       {
         titulo: "Ventajas frente a cemento, plástico y fibra de vidrio",
         parrafos: [
-          "Frente al hormigón: mismo aspecto, misma sensación de masa y estabilidad visual, pero se puede mover, subir por escalera y montar sobre losas, terrazas y balcones sin cálculo estructural. Frente al plástico: no se decolora ni se vuelve quebradizo con el sol, no se vuelca con el viento porque tiene más peso propio, y envejece como un material mineral, no como un polímero. Frente a la fibra de vidrio: el fibrocemento no necesita gel-coat, no se raya dejando ver la fibra y su textura es genuinamente pétrea; la fibra de vidrio es más liviana aún, pero se ve y se siente como plástico rígido.",
+          "Frente al hormigón: mismo aspecto, misma sensación de masa y estabilidad visual, pero se puede mover, subir por escalera y montar sobre losas, terrazas y balcones sin cálculo estructural. Frente al plástico: no se decolora ni se vuelve quebradizo con el sol, no se vuelca con el viento porque tiene más peso propio, y envejece como un material mineral, no como un polímero. Frente a la fibra de vidrio pura: en el EIFS la malla de fibra de vidrio va embebida bajo el cemento, así que la superficie es genuinamente mineral, no se raya dejando ver la fibra y no necesita gel-coat; un macetero solo de fibra de vidrio se ve y se siente como plástico rígido.",
         ],
       },
       {
         titulo: "Durabilidad en exterior",
         parrafos: [
-          "El fibrocemento es un material de fachada: resiste lluvia, sol, heladas y cambios de temperatura. Un macetero de fibrocemento bien sellado y con drenaje correcto dura décadas al aire libre. Los dos cuidados que importan son evitar que el agua quede estancada en invierno (por eso recomendamos despiche o doble fondo en exterior) y no arrastrar la pieza por el suelo, porque el borde inferior es la zona más expuesta a golpes.",
+          "El EIFS es un sistema de fachada: está hecho para resistir lluvia, sol, heladas y cambios de temperatura durante décadas en un edificio. Un macetero EIFS bien sellado y con drenaje correcto dura décadas al aire libre. Los dos cuidados que importan son evitar que el agua quede estancada en invierno (por eso recomendamos despiche o doble fondo en exterior) y no arrastrar la pieza por el suelo, porque el borde inferior es la zona más expuesta a golpes.",
         ],
       },
       {
@@ -77,15 +77,15 @@ export const GUIAS: Guia[] = [
     faqs: [
       {
         q: "¿Cuánto pesa un macetero de fibrocemento?",
-        a: "Alrededor de un 90% menos que un macetero de cemento u hormigón del mismo tamaño. Un formato grande, de 60 a 80 centímetros, lo mueve una persona sin ayuda; con tierra y planta el peso total lo define el sustrato, no el macetero.",
+        a: "Alrededor de un 90% menos que un macetero de cemento u hormigón del mismo tamaño, porque el volumen es poliestireno expandido y el cemento es solo la capa exterior. Un formato grande, de 60 a 80 centímetros, lo mueve una persona sin ayuda; con tierra y planta el peso total lo define el sustrato, no el macetero.",
       },
       {
         q: "¿El fibrocemento se quiebra con las heladas?",
-        a: "No, si el agua puede salir. El fibrocemento es un material de fachada y soporta ciclos de hielo y deshielo. Lo que daña cualquier macetero es el agua estancada que se congela y expande, por eso en exterior recomendamos despiche o doble fondo.",
+        a: "No, si el agua puede salir. El EIFS es un sistema de fachada y soporta ciclos de hielo y deshielo. Lo que daña cualquier macetero es el agua estancada que se congela y expande, por eso en exterior recomendamos despiche o doble fondo.",
       },
       {
         q: "¿Se puede pintar un macetero de fibrocemento?",
-        a: "Sí. Se puede repintar con esmalte al agua para exterior o pintura mineral después de limpiar y lijar suavemente la superficie. Nosotros los entregamos ya sellados y con la terminación que eliges.",
+        a: "Sí. La capa exterior es cemento, así que se puede repintar con esmalte al agua para exterior o pintura mineral después de limpiar la superficie. Nosotros los entregamos ya sellados y con la terminación que eliges.",
       },
       {
         q: "¿Los maceteros de fibrocemento sirven para interior?",
@@ -177,7 +177,7 @@ export const GUIAS: Guia[] = [
     metaDescription:
       "Qué macetero resiste mejor sol, lluvia y heladas: comparamos fibrocemento reforzado, hormigón, plástico, fibra de vidrio, greda y madera, y explicamos cuál conviene para jardín, terraza y proyectos comerciales.",
     resumen:
-      "Los maceteros más resistentes para exterior son los de materiales minerales con buen drenaje: fibrocemento reforzado y hormigón. El fibrocemento tiene la misma resistencia a sol, lluvia y heladas que el hormigón, pero pesa cerca de 90% menos, lo que lo hace más práctico para terrazas, accesos y proyectos comerciales. El plástico se degrada con los rayos UV, la greda se quiebra con las heladas y la madera se pudre si no se mantiene.",
+      "Los maceteros más resistentes para exterior son los de materiales minerales con buen drenaje: fibrocemento reforzado y hormigón. El fibrocemento EIFS, hecho con la misma tecnología de las fachadas de edificios, tiene la misma resistencia a sol, lluvia y heladas que el hormigón, pero pesa cerca de 90% menos, lo que lo hace más práctico para terrazas, accesos y proyectos comerciales. El plástico se degrada con los rayos UV, la greda se quiebra con las heladas y la madera se pudre si no se mantiene.",
     keywords: [
       "maceteros resistentes",
       "maceteros para exterior",
@@ -191,7 +191,7 @@ export const GUIAS: Guia[] = [
       {
         titulo: "Comparación material por material",
         parrafos: [
-          "Fibrocemento reforzado: resistente a UV, lluvia y heladas; textura mineral; liviano; se fabrica en formatos grandes y se repinta. Es el material que usamos en Mundo Macetero. Hormigón o cemento vaciado: igual de resistente al clima, pero muy pesado, difícil de mover e instalar, y con riesgo de fisuras en piezas grandes mal curadas. Plástico y polipropileno: liviano y barato, pero se decolora y se vuelve quebradizo con el sol en pocos años, y se vuelca con el viento. Fibra de vidrio: liviana y resistente al agua, pero el gel-coat se raya, amarillea y deja ver la fibra; se ve como plástico rígido. Greda y terracota: hermosas y porosas, pero absorben agua y se quiebran con las heladas; en formatos grandes son pesadas y frágiles. Madera: cálida pero requiere mantención anual y se pudre en contacto con tierra húmeda.",
+          "Fibrocemento EIFS (poliestireno expandido + malla de fibra de vidrio + recubrimiento de cemento): resistente a UV, lluvia y heladas; textura mineral; liviano; se fabrica en formatos grandes y se repinta. Es la tecnología que usamos en Mundo Macetero, la misma de las fachadas de edificios. Hormigón o cemento vaciado: igual de resistente al clima, pero muy pesado, difícil de mover e instalar, y con riesgo de fisuras en piezas grandes mal curadas. Plástico y polipropileno: liviano y barato, pero se decolora y se vuelve quebradizo con el sol en pocos años, y se vuelca con el viento. Fibra de vidrio: liviana y resistente al agua, pero el gel-coat se raya, amarillea y deja ver la fibra; se ve como plástico rígido. Greda y terracota: hermosas y porosas, pero absorben agua y se quiebran con las heladas; en formatos grandes son pesadas y frágiles. Madera: cálida pero requiere mantención anual y se pudre en contacto con tierra húmeda.",
         ],
       },
       {
@@ -218,7 +218,7 @@ export const GUIAS: Guia[] = [
       },
       {
         q: "¿Un macetero de fibrocemento se puede reparar si se golpea?",
-        a: "Sí. Los golpes superficiales se resanan con mortero fino y se repintan con la misma terminación. Además, todos nuestros maceteros tienen garantía por fallas de fabricación.",
+        a: "Sí. Como la capa exterior es cemento, los golpes superficiales se resanan con mortero fino y se repintan con la misma terminación. Además, todos nuestros maceteros tienen garantía por fallas de fabricación.",
       },
       {
         q: "¿Qué macetero conviene para el acceso de un edificio o un local?",
@@ -226,7 +226,7 @@ export const GUIAS: Guia[] = [
       },
       {
         q: "¿Cuánto duran los maceteros de fibrocemento en exterior?",
-        a: "Décadas, con el mismo comportamiento que el fibrocemento de fachadas. El único cuidado es que el agua drene y que la pieza no se arrastre por el suelo.",
+        a: "Décadas, con el mismo comportamiento que el EIFS de las fachadas de edificios. El único cuidado es que el agua drene y que la pieza no se arrastre por el suelo.",
       },
     ],
     colecciones: ["cubo", "rp", "redondos", "marroc"],
@@ -260,13 +260,13 @@ export const GUIAS: Guia[] = [
       {
         titulo: "Terminaciones a mano",
         parrafos: [
-          "Cemento natural: el gris mineral del material, con sus variaciones de tono, para quien quiere la pieza más honesta. Cemento blanco: luminoso, ideal para plantas de hoja oscura y espacios mediterráneos. Negro: dramatiza el verde y funciona en interiores contemporáneos. Cantera negro y cantera café: textura pétrea con relieve, que esconde el polvo y envejece con carácter. Óxido de cobre: terminación de acento para piezas protagonistas. Cada terminación se aplica a mano pieza por pieza, por eso hay pequeñas variaciones que son parte del carácter del producto.",
+          "Cemento natural: el gris mineral del material, con sus variaciones de tono, para quien quiere la pieza más honesta. Cemento blanco: luminoso, ideal para plantas de hoja oscura y espacios mediterráneos. Negro: dramatiza el verde y funciona en interiores contemporáneos. Cantera negro y cantera café: textura pétrea con relieve, que esconde el polvo y envejece con carácter. Óxido de cobre: terminación de acento para piezas protagonistas. Cada terminación se aplica a mano pieza por pieza, por eso cada macetero es único y las pequeñas variaciones son parte del carácter del producto.",
         ],
       },
       {
-        titulo: "Maceteros de autor y ediciones limitadas",
+        titulo: "Piezas únicas y maceteros de autor",
         parrafos: [
-          "Además de las colecciones, desarrollamos piezas intervenidas por artistas en edición limitada, como \"Plumas al Viento\" con la artista Marcela Nicolás Oddó y el Gotar Aqua. Son maceteros funcionales que se compran como objeto de arte utilitario, numerados y únicos. También desarrollamos colaboraciones personalizadas para proyectos de arquitectura y paisajismo.",
+          "Cada macetero se termina a mano, pieza por pieza, así que no hay dos exactamente iguales: las variaciones de tono y textura son parte del carácter del producto. Además de las colecciones, desarrollamos maceteros de autor en edición limitada y colaboraciones personalizadas para proyectos de arquitectura y paisajismo.",
         ],
       },
       {
@@ -283,7 +283,7 @@ export const GUIAS: Guia[] = [
       },
       {
         q: "¿Tienen maceteros de autor o ediciones limitadas?",
-        a: "Sí. Desarrollamos piezas intervenidas por artistas, como la serie \"Plumas al Viento\" de Marcela Nicolás Oddó y el Gotar Aqua, y colaboraciones personalizadas para proyectos.",
+        a: "Sí. Desarrollamos maceteros de autor en edición limitada y colaboraciones personalizadas para proyectos. Y cada macetero de catálogo es único, porque la terminación se aplica a mano.",
       },
       {
         q: "¿Puedo pedir una terminación o color que no está en la tienda?",
@@ -516,7 +516,7 @@ export const COLECCIONES: Record<string, ColeccionCopy> = {
   macetero: {
     h1: "Maceteros",
     intro:
-      "Maceteros de fibrocemento reforzado ultra livianos, fabricados a pedido en Quilicura, Santiago. Tienen el aspecto y la textura del cemento con cerca de 90% menos peso, resisten sol, lluvia y heladas, y se producen en la forma, tamaño, terminación y drenaje que tu espacio necesita.",
+      "Maceteros ultra livianos fabricados con tecnología EIFS (poliestireno expandido, malla de fibra de vidrio y recubrimiento de cemento), a pedido en Quilicura, Santiago. Tienen el aspecto y la textura del cemento con cerca de 90% menos peso, resisten sol, lluvia y heladas, y se producen en la forma, tamaño, terminación y drenaje que tu espacio necesita.",
     metaDescription:
       "Maceteros de fibrocemento ultra livianos para interior y exterior, fabricados a pedido en Chile. Tipo cemento, 90% más livianos, resistentes al clima.",
   },
@@ -589,11 +589,11 @@ export const COLECCION_GENERICA: ColeccionCopy = {
 export const FAQ_GENERAL: Faq[] = [
   {
     q: "¿De qué material son los maceteros de Mundo Macetero?",
-    a: "De fibrocemento reforzado: una mezcla de cemento, fibras y agregados livianos moldeada en paredes delgadas. Tienen el aspecto y la textura del cemento, pero pesan cerca de 90% menos que un macetero de hormigón del mismo tamaño.",
+    a: "De fibrocemento con tecnología EIFS, la misma que se usa en fachadas de construcción: núcleo de poliestireno expandido, malla de fibra de vidrio y recubrimiento de cemento con terminación de color o textura. Tienen el aspecto y la textura del cemento, pero pesan cerca de 90% menos que un macetero de hormigón del mismo tamaño.",
   },
   {
     q: "¿Los maceteros sirven para exterior?",
-    a: "Sí. El fibrocemento resiste sol, lluvia y heladas como el de las fachadas. Para exterior recomendamos pedirlos con despiche (perforación de drenaje) o con doble fondo, para que el agua no quede estancada.",
+    a: "Sí. El EIFS es un sistema de fachadas y resiste sol, lluvia y heladas. Para exterior recomendamos pedirlos con despiche (perforación de drenaje) o con doble fondo, para que el agua no quede estancada.",
   },
   {
     q: "¿Dónde se fabrican y dónde puedo verlos?",

@@ -10,7 +10,7 @@ export const revalidate = 3600;
 
 const HEADER = `# Mundo Macetero
 
-> Mundo Macetero fabrica maceteros de fibrocemento reforzado ultra livianos en Quilicura, Santiago de Chile. Tienen el aspecto y la textura del cemento con cerca de 90% menos peso, resisten sol, lluvia y heladas, y se fabrican a pedido en la forma, tamaño, terminación (cemento natural, blanco, negro, cantera, óxido de cobre) y drenaje (despiche, doble fondo, plato de agua) que cada espacio necesita. Venta online y a proyectos (inmobiliarias, paisajismo, hotelería, retail, municipalidades).
+> Mundo Macetero fabrica maceteros ultra livianos con tecnología EIFS (poliestireno expandido, malla de fibra de vidrio y recubrimiento de cemento, la misma tecnología de las fachadas de edificios) en Quilicura, Santiago de Chile. Tienen el aspecto y la textura del cemento con cerca de 90% menos peso, resisten sol, lluvia y heladas, y se fabrican a pedido en la forma, tamaño, terminación (cemento natural, blanco, negro, cantera, óxido de cobre) y drenaje (despiche, doble fondo, plato de agua) que cada espacio necesita. Venta online y a proyectos (inmobiliarias, paisajismo, hotelería, retail, municipalidades).
 
 Datos de la empresa:
 - Taller y tienda: Las Esteras Norte 2610, Galpón 16, Quilicura, Santiago, Chile. Lunes a viernes 8:30 a 18:00.
