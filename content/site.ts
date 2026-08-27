@@ -114,11 +114,25 @@ export interface HeroSlide {
   sub: string;
   cta: string;
   href: string;
+  // El primer slide trae su propia foto (no sale del catálogo); los demás la
+  // reciben desde HERO_IMGS en la portada.
+  imagen?: string;
+  imagenMovil?: string;
+  alt?: string;
 }
 
-// El primer slide del hero es el bloque de marca (components/home/HeroDestacado),
-// que tiene su propia composición. Estos son los que vienen después.
+// Todos los slides del hero comparten la misma composición: foto a sangre,
+// título, subtítulo y botón blanco. El primero es el de marca.
 export const HERO_SLIDES: HeroSlide[] = [
+  {
+    titulo: "Maceteros ultra livianos que transforman tus espacios",
+    sub: "Hasta 90% más livianos que el concreto, ahorran hasta 40% de agua y con diseños únicos.",
+    cta: "Ver los más vendidos",
+    href: "/maceteros/bowls-y-platos",
+    imagen: "/hero/plato-de-agua-2000.webp",
+    imagenMovil: "/hero/plato-de-agua-1000.webp",
+    alt: "Macetero plato de agua de Mundo Macetero con planta, en exterior",
+  },
   {
     titulo: "¿Quieres ver tu espacio con un macetero nuestro?",
     sub: "Mándanos una foto. Te lo devolvemos transformado.",

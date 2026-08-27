@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BadgeDestacado } from "../BadgeDestacado";
 
 // Main image plus a four-up thumbnail strip, as in the design. The main image
 // zooms slightly on hover.
@@ -8,11 +9,14 @@ export function ProductGallery({
   images,
   thumbs,
   alt,
+  slug,
 }: {
   images: string[];
   // Miniaturas de 600 px para la tira inferior; la imagen grande usa `images`.
   thumbs?: string[];
   alt: string;
+  // El slug decide si la foto grande lleva la etiqueta del más vendido.
+  slug: string;
 }) {
   const [active, setActive] = useState(0);
   const main = images[active] ?? images[0] ?? null;
@@ -20,7 +24,15 @@ export function ProductGallery({
 
   return (
     <div>
-      <div style={{ borderRadius: "14px", overflow: "hidden", aspectRatio: "1/1", background: "#e7e4df" }}>
+      <div
+        style={{
+          position: "relative",
+          borderRadius: "14px",
+          overflow: "hidden",
+          aspectRatio: "1/1",
+          background: "#e7e4df",
+        }}
+      >
         <div className="mm-zoom" style={{ width: "100%", height: "100%" }}>
           {main && (
             /* eslint-disable-next-line @next/next/no-img-element */
@@ -31,6 +43,7 @@ export function ProductGallery({
              loading="lazy" decoding="async" />
           )}
         </div>
+        <BadgeDestacado slug={slug} />
       </div>
       {tira.length > 1 && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "10px", marginTop: "10px" }}>

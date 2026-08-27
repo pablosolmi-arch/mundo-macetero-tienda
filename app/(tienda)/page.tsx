@@ -3,7 +3,6 @@ import Link from "next/link";
 import { getActiveProductsWithVariants } from "../../queries/catalog";
 import { toCard } from "../../lib/catalog";
 import { HeroCarousel } from "../../components/home/HeroCarousel";
-import { HeroDestacado } from "../../components/home/HeroDestacado";
 import { FeaturedRow } from "../../components/home/FeaturedRow";
 import { Newsletter } from "../../components/home/Newsletter";
 import { Banda } from "../../components/site/Banda";
@@ -75,9 +74,12 @@ export default async function HomePage() {
 
   // Los banners son los de la tienda actual. HERO_IMGS viene en el orden en que
   // Shopify los sirve; este mapa los ordena según los slides del diseño. El
-  // primer slide ya no sale de aquí: es <HeroDestacado />.
+  // primer slide trae su propia foto, así que la lista arranca en el segundo.
   const ORDEN_HERO = [2, 3, 0];
-  const slides = HERO_SLIDES.map((s, i) => ({ ...s, image: HERO_IMGS[ORDEN_HERO[i]] ?? null }));
+  const slides = HERO_SLIDES.map((s, i) => {
+    const orden = ORDEN_HERO[i - 1];
+    return { ...s, image: s.imagen ?? (orden == null ? null : HERO_IMGS[orden] ?? null) };
+  });
 
   const proyectos = PROYECTOS_THUMBS;
 
@@ -85,7 +87,7 @@ export default async function HomePage() {
   // en claro para no pegar dos bandas oscuras con el footer.
   return (
     <div>
-      <HeroCarousel slides={slides} destacado={<HeroDestacado />} />
+      <HeroCarousel slides={slides} />
 
       <Banda tono="claro">
         <FeaturedRow productos={destacadosCards} />

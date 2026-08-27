@@ -17,6 +17,8 @@ import { sanitizeHtml } from "../../../../lib/sanitize";
 import { toCard, toVariantOptions } from "../../../../lib/catalog";
 import { ProductGallery } from "../../../../components/product/ProductGallery";
 import { AddToCart, type VariantOption } from "../../../../components/product/AddToCart";
+import { BadgeDestacado } from "../../../../components/BadgeDestacado";
+import { DESTACADO } from "../../../../content/menu";
 import { formatCLP } from "../../../../lib/format";
 
 interface Props {
@@ -93,7 +95,12 @@ export default async function ProductPage({ params }: Props) {
           alignItems: "start",
         }}
       >
-        <ProductGallery images={product.images} thumbs={product.thumbs} alt={product.name} />
+        <ProductGallery
+          images={product.images}
+          thumbs={product.thumbs}
+          alt={product.name}
+          slug={product.slug}
+        />
 
         <div>
           {colNombre && (
@@ -107,6 +114,20 @@ export default async function ProductPage({ params }: Props) {
               }}
             >
               {colNombre}
+            </div>
+          )}
+          {/* El más vendido también se dice con palabras junto al nombre, no solo
+              con la etiqueta sobre la foto. */}
+          {product.slug === DESTACADO.slug && (
+            <div
+              style={{
+                fontSize: "12.5px",
+                fontWeight: 600,
+                color: "#6f6c66",
+                marginTop: colNombre ? "5px" : 0,
+              }}
+            >
+              Nuestro macetero más vendido
             </div>
           )}
           <h1
@@ -190,6 +211,7 @@ export default async function ProductPage({ params }: Props) {
                       style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
                      loading="lazy" decoding="async" />
                   )}
+                  <BadgeDestacado slug={p.slug} />
                 </div>
                 <div style={{ padding: "12px 14px" }}>
                   <div style={{ fontSize: "14px", fontWeight: 600 }}>{p.nombre}</div>

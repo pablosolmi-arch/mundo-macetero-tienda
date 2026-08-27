@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { formatCLP } from "../lib/format";
-import { DESTACADO } from "../content/menu";
+import { BadgeDestacado } from "./BadgeDestacado";
 import type { ProductCardData } from "../lib/catalog";
 
 // Product card from the design: square image, name, "A partir de" price and an
@@ -50,29 +50,7 @@ export function ProductCard({
             style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
            loading="lazy" decoding="async" />
         )}
-        {/* El más vendido se marca sobre la imagen: es la única jerarquía que
-            distingue una tarjeta de otra en la grilla. */}
-        {p.slug === DESTACADO.slug && (
-          <span
-            style={{
-              position: "absolute",
-              top: "8px",
-              left: "8px",
-              zIndex: 1,
-              background: "var(--ink)",
-              color: "#fff",
-              fontSize: "11px",
-              letterSpacing: ".06em",
-              textTransform: "uppercase",
-              padding: "4px 8px",
-              borderRadius: "4px",
-              lineHeight: 1.2,
-              whiteSpace: "nowrap",
-            }}
-          >
-            {DESTACADO.etiqueta}
-          </span>
-        )}
+        <BadgeDestacado slug={p.slug} />
       </Link>
       <div style={{ padding: "14px 16px 16px", display: "flex", flexDirection: "column", gap: "8px", flex: 1 }}>
         {showCollection && p.colNombre && (
