@@ -106,6 +106,8 @@ export function Footer() {
               ["/paleta", "Paleta de colores"],
               ["/asesoramiento", "Te asesoramos"],
               ["/quienes-somos", "Quiénes somos"],
+              ["/guias", "Guías para elegir"],
+              ["/preguntas-frecuentes", "Preguntas frecuentes"],
               ["/blog", "Noticias"],
             ].map(([href, label]) => (
               <Link key={href} href={href} className="mm-footer-link" style={LINK}>

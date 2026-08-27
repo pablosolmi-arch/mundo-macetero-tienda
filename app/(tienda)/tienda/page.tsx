@@ -6,9 +6,10 @@ import { Catalogo } from "../../../components/catalog/Catalogo";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Tienda",
+  title: "Tienda · Maceteros de fibrocemento livianos",
   description:
-    "Todos los maceteros, jardineras y accesorios de Mundo Macetero. Ultra livianos, fabricados en Chile.",
+    "Todos los maceteros, jardineras y accesorios de Mundo Macetero: fibrocemento reforzado, 90% más livianos que el cemento, resistentes al exterior y fabricados a pedido en Chile.",
+  alternates: { canonical: "/tienda" },
 };
 
 export default async function TiendaPage() {

@@ -2,11 +2,10 @@
 import type { MetadataRoute } from "next";
 import { getAllCategories, getAllActiveProducts } from "../queries/catalog";
 import { BLOG } from "../content/site";
+import { GUIAS } from "../content/geo";
+import { SITE_URL } from "../lib/seo";
 
 export const revalidate = 3600;
-
-// `||` (not `??`) so a blank SITE_URL="" also falls back to a valid absolute URL.
-const BASE_URL = process.env.SITE_URL || "https://fase1-storefront-catalogo.vercel.app";
 
 // Content pages worth indexing. Cart, checkout and confirmation are deliberately
 // excluded: they are per-session and have nothing to index.
@@ -23,14 +22,31 @@ const STATIC_PATHS = [
   "/politicas",
 ];
 
+// Editorial pages added with the GEO work. Fixed lastModified so the sitemap is
+// stable between requests instead of claiming a change every hour.
+const GEO_DATE = new Date("2026-08-26");
+const GEO_STATIC_PATHS = ["/guias", "/preguntas-frecuentes"];
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [categories, products] = await Promise.all([getAllCategories(), getAllActiveProducts()]);
 
   return [
-    ...STATIC_PATHS.map((path) => ({ url: `${BASE_URL}${path}` })),
+    ...STATIC_PATHS.map((path) => ({ url: `${SITE_URL}${path}` })),
+    ...GEO_STATIC_PATHS.map((path) => ({
+      url: `${SITE_URL}${path}`,
+      lastModified: GEO_DATE,
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
+    ...GUIAS.map((g) => ({
+      url: `${SITE_URL}/guias/${g.slug}`,
+      lastModified: new Date(g.fechaPublicacion),
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
     // Collections live under /tienda/<slug> now.
-    ...categories.map((c) => ({ url: `${BASE_URL}/tienda/${c.slug}` })),
-    ...products.map((p) => ({ url: `${BASE_URL}/producto/${p.slug}` })),
-    ...BLOG.map((b) => ({ url: `${BASE_URL}/blog/${b.slug}` })),
+    ...categories.map((c) => ({ url: `${SITE_URL}/tienda/${c.slug}` })),
+    ...products.map((p) => ({ url: `${SITE_URL}/producto/${p.slug}` })),
+    ...BLOG.map((b) => ({ url: `${SITE_URL}/blog/${b.slug}` })),
   ];
 }

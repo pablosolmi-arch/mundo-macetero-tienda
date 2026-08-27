@@ -7,7 +7,12 @@ import {
   getAllCategories,
   getProductBySlug,
 } from "../../../../queries/catalog";
-import { buildProductJsonLd, buildProductMetadata, serializeJsonLd } from "../../../../lib/seo";
+import {
+  buildBreadcrumbJsonLd,
+  buildProductJsonLd,
+  buildProductMetadata,
+  serializeJsonLd,
+} from "../../../../lib/seo";
 import { sanitizeHtml } from "../../../../lib/sanitize";
 import { toCard, toVariantOptions } from "../../../../lib/catalog";
 import { ProductGallery } from "../../../../components/product/ProductGallery";
@@ -42,6 +47,17 @@ export default async function ProductPage({ params }: Props) {
       : "";
 
   const jsonLd = buildProductJsonLd(product);
+  const colSlug =
+    product.categoryId != null ? categories.find((c) => c.id === product.categoryId)?.slug : undefined;
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    ...buildBreadcrumbJsonLd([
+      { name: "Inicio", path: "/" },
+      { name: "Tienda", path: "/tienda" },
+      ...(colSlug && colNombre ? [{ name: colNombre, path: `/tienda/${colSlug}` }] : []),
+      { name: product.name, path: `/producto/${product.slug}` },
+    ]),
+  };
   const basePrice = Number(product.basePrice);
   const variantOptions: VariantOption[] = toVariantOptions(product);
 
@@ -53,8 +69,12 @@ export default async function ProductPage({ params }: Props) {
   return (
     <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "28px 24px 70px" }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
+      />
 
-      <div style={{ fontSize: "12.5px", color: "#9b978f", marginBottom: "22px" }}>
+      <nav aria-label="Breadcrumb" style={{ fontSize: "12.5px", color: "#9b978f", marginBottom: "22px" }}>
         <Link href="/" className="mm-link" style={{ color: "#9b978f" }}>
           Inicio
         </Link>{" "}
@@ -63,7 +83,7 @@ export default async function ProductPage({ params }: Props) {
           Tienda
         </Link>{" "}
         / <span style={{ color: "#2a2925" }}>{product.name}</span>
-      </div>
+      </nav>
 
       <div
         style={{

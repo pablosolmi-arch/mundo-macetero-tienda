@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getActiveProductsWithVariants } from "../../queries/catalog";
 import { toCard } from "../../lib/catalog";
@@ -6,6 +7,9 @@ import { HeroDestacado } from "../../components/home/HeroDestacado";
 import { FeaturedRow } from "../../components/home/FeaturedRow";
 import { Newsletter } from "../../components/home/Newsletter";
 import { Banda } from "../../components/site/Banda";
+import { FaqList } from "../../components/site/FaqList";
+import { buildFaqJsonLd, serializeJsonLd } from "../../lib/seo";
+import { FAQ_GENERAL, GUIAS } from "../../content/geo";
 import { HERO_IMGS } from "../../content/images";
 import { BLOG_THUMBS, EQUIPO_THUMBS, LOGOS_THUMBS, PROYECTOS_THUMBS } from "../../content/thumbs";
 import {
@@ -19,6 +23,10 @@ import {
 
 export const revalidate = 3600;
 
+// El único canónico del sitio que se declara "a mano": va aquí y no en el layout
+// raíz, porque un canónico heredado apuntaría todas las rutas a la portada.
+export const metadata: Metadata = { alternates: { canonical: "/" } };
+
 const H2: React.CSSProperties = {
   fontSize: "clamp(22px,2.6vw,30px)",
   fontWeight: 600,
@@ -27,6 +35,12 @@ const H2: React.CSSProperties = {
 
 // Títulos y textos secundarios sobre banda oscura.
 const H2_OSCURO: React.CSSProperties = { ...H2, color: "#fff" };
+
+// Las seis primeras del FAQ general viven en la portada; las diez están en
+// /preguntas-frecuentes. El mismo recorte alimenta el JSON-LD de FAQPage, para
+// que lo marcado y lo visible sean exactamente lo mismo.
+const FAQ_PORTADA = FAQ_GENERAL.slice(0, 6);
+const GUIAS_PORTADA = GUIAS.slice(0, 3);
 
 export default async function HomePage() {
   const productos = await getActiveProductsWithVariants();
@@ -361,6 +375,63 @@ export default async function HomePage() {
             Síguenos en Instagram @mundomacetero →
           </a>
         </div>
+      </Banda>
+
+      <Banda tono="oscuro">
+        <h2 className="font-display" style={{ ...H2_OSCURO, margin: "0 0 6px" }}>
+          Guías para elegir tu macetero
+        </h2>
+        <div style={{ color: "var(--on-ink)", fontSize: "13.5px", marginBottom: "22px" }}>
+          Lo que preguntan nuestros clientes antes de comprar, respondido por quienes los fabrican.
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(270px,1fr))", gap: "18px" }}>
+          {GUIAS_PORTADA.map((g) => (
+            <Link
+              key={g.slug}
+              href={`/guias/${g.slug}`}
+              className="mm-tile-dark"
+              style={{
+                display: "block",
+                background: "var(--ink-card)",
+                border: "1px solid #394148",
+                borderRadius: "12px",
+                overflow: "hidden",
+                color: "var(--on-ink)",
+                padding: "20px 18px 18px",
+              }}
+            >
+              <div
+                className="font-display"
+                style={{ fontSize: "16px", fontWeight: 600, lineHeight: 1.35, textWrap: "pretty", color: "#fff" }}
+              >
+                {g.titulo}
+              </div>
+              <p style={{ fontSize: "13.5px", color: "var(--on-ink)", lineHeight: 1.55, margin: "8px 0 10px" }}>
+                {g.metaDescription.slice(0, 120)}…
+              </p>
+              <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--accent-soft)" }}>Leer la guía →</span>
+            </Link>
+          ))}
+        </div>
+      </Banda>
+
+      <Banda tono="claro" interior={{ maxWidth: "860px" }}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: serializeJsonLd({ "@context": "https://schema.org", ...buildFaqJsonLd(FAQ_PORTADA) }),
+          }}
+        />
+        <h2 className="font-display" style={{ ...H2, margin: "0 0 22px" }}>
+          Preguntas frecuentes
+        </h2>
+        <FaqList faqs={FAQ_PORTADA} />
+        <Link
+          href="/preguntas-frecuentes"
+          style={{ display: "inline-block", marginTop: "22px", fontSize: "13.5px", fontWeight: 600, color: "#a5613f" }}
+        >
+          Ver todas las preguntas →
+        </Link>
       </Banda>
 
       <Banda tono="claro" fondo="var(--cream)">

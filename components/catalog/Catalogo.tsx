@@ -26,9 +26,12 @@ interface CatalogoProps {
   productos: ProductCardData[];
   colecciones: { slug: string; nombre: string }[];
   coleccionActual: string | null;
+  // Texto editorial de la colección (content/geo.ts). Va bajo el H1 para que la
+  // página diga de qué se trata antes de la grilla, en vez de abrir con filtros.
+  intro?: string;
 }
 
-export function Catalogo({ titulo, productos, colecciones, coleccionActual }: CatalogoProps) {
+export function Catalogo({ titulo, productos, colecciones, coleccionActual, intro }: CatalogoProps) {
   const router = useRouter();
   const [precio, setPrecio] = useState<Precio>("0");
   const [orden, setOrden] = useState<Orden>("destacados");
@@ -61,7 +64,21 @@ export function Catalogo({ titulo, productos, colecciones, coleccionActual }: Ca
       >
         {titulo}
       </h1>
-      <div style={{ fontSize: "13.5px", color: "#6f6c66", marginBottom: "24px" }}>
+      {intro && (
+        <p
+          style={{
+            fontSize: "15px",
+            lineHeight: 1.7,
+            color: "#4c4944",
+            margin: "12px 0 0",
+            maxWidth: "760px",
+            textWrap: "pretty",
+          }}
+        >
+          {intro}
+        </p>
+      )}
+      <div style={{ fontSize: "13.5px", color: "#6f6c66", margin: intro ? "16px 0 24px" : "0 0 24px" }}>
         {lista.length} {lista.length === 1 ? "producto" : "productos"}
       </div>
 

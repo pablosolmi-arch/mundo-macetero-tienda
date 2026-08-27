@@ -481,6 +481,57 @@ button {
   transform: scale(1.05);
 }
 
+/* Preguntas frecuentes en <details> nativos (portada, /preguntas-frecuentes y las
+   guías). Sin JavaScript: el contenido de la respuesta está en el HTML aunque el
+   acordeón esté cerrado, que es justo lo que necesitan los buscadores y los
+   modelos de lenguaje para citarlo. */
+.mm-faq {
+  border-top: 1px solid var(--line-soft);
+}
+.mm-faq details {
+  border-bottom: 1px solid var(--line-soft);
+}
+.mm-faq summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 2px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.45;
+  cursor: pointer;
+  list-style: none;
+  text-wrap: pretty;
+  transition: color .2s;
+}
+.mm-faq summary::-webkit-details-marker {
+  display: none;
+}
+.mm-faq summary::after {
+  content: "+";
+  flex: none;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--accent);
+}
+.mm-faq details[open] > summary::after {
+  content: "−";
+}
+.mm-faq summary:hover {
+  color: var(--accent);
+}
+.mm-faq p {
+  margin: 0;
+  padding: 0 2px 18px;
+  max-width: 68ch;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
 /* Sanitized Shopify description formatting */
 .rte p { margin: 0 0 0.85rem; line-height: 1.7; }
 .rte ul { list-style: disc; padding-left: 1.25rem; margin: 0 0 0.85rem; }
