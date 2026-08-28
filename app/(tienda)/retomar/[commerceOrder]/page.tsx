@@ -5,7 +5,6 @@ import { db } from "../../../../db/client";
 import { products } from "../../../../db/schema";
 import { getOrderWithItems } from "../../../../queries/orders";
 import { RetomarCarrito } from "../../../../components/cart/RetomarCarrito";
-import { varianteSinTerminacion } from "../../../../content/terminaciones";
 
 export const metadata: Metadata = { title: "Retomando tu compra" };
 export const dynamic = "force-dynamic";
@@ -52,10 +51,7 @@ export default async function RetomarPage({
         productSlug: producto.slug,
         name: it.productName,
         variantId: it.variantId,
-        // El pedido guarda la terminación pegada al nombre de la variante (para que
-        // el correo y el panel la muestren); acá se vuelve a separar.
-        variantName: varianteSinTerminacion(it.variantName, it.terminacion),
-        terminacion: it.terminacion,
+        variantName: it.variantName,
         unitPrice: Number(it.unitPrice),
         image: producto.thumbs[0] ?? producto.images[0] ?? null,
         qty: it.qty,
