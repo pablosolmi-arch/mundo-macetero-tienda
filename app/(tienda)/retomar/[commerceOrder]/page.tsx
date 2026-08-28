@@ -5,6 +5,7 @@ import { db } from "../../../../db/client";
 import { products } from "../../../../db/schema";
 import { getOrderWithItems } from "../../../../queries/orders";
 import { RetomarCarrito } from "../../../../components/cart/RetomarCarrito";
+import { varianteSinTerminacion } from "../../../../content/terminaciones";
 
 export const metadata: Metadata = { title: "Retomando tu compra" };
 export const dynamic = "force-dynamic";
