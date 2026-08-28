@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { formatCLP } from "../../lib/format";
 import { COMUNAS_RM, ENVIO, REGIONES } from "../../content/site";
+import { TERMINACIONES, TERMINACION_PENDIENTE } from "../../content/terminaciones";
 
 // Carga de una venta tomada por WhatsApp o teléfono. El subtotal que se ve acá es
 // solo una referencia para conversar con el cliente: el total que se cobra lo
@@ -27,6 +28,9 @@ interface Linea {
   key: number;
   slug: string;
   variantId: number | null;
+  // Acabado acordado con el cliente. Arranca en "Decidir más tarde": la venta por
+  // teléfono muchas veces se cierra antes de definirlo.
+  terminacion: string;
   qty: number;
 }
 
@@ -93,7 +97,7 @@ const ETIQUETA: React.CSSProperties = {
 let contador = 0;
 function nuevaLinea(): Linea {
   contador += 1;
-  return { key: contador, slug: "", variantId: null, qty: 1 };
+  return { key: contador, slug: "", variantId: null, terminacion: TERMINACION_PENDIENTE, qty: 1 };
 }
 
 // Las líneas del pedido que se está duplicando, o una línea vacía si no hay.
@@ -175,6 +179,7 @@ export function NuevoPedido({
           items: lineasListas.map((l) => ({
             productSlug: l.slug,
             variantId: l.variantId,
+            terminacion: l.terminacion,
             qty: l.qty,
           })),
           customer: {
@@ -313,7 +318,8 @@ export function NuevoPedido({
                 key={linea.key}
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "minmax(160px,1.4fr) minmax(160px,1.6fr) 80px auto",
+                  gridTemplateColumns:
+                    "minmax(150px,1.3fr) minmax(150px,1.5fr) minmax(130px,1fr) 80px auto",
                   gap: "8px",
                   alignItems: "center",
                 }}
@@ -356,6 +362,19 @@ export function NuevoPedido({
                     {producto ? formatCLP(producto.precioBase) : "—"}
                   </div>
                 )}
+
+                <select
+                  value={linea.terminacion}
+                  onChange={(e) => actualizar(linea.key, { terminacion: e.target.value })}
+                  aria-label="Terminación"
+                  style={INPUT}
+                >
+                  {[...TERMINACIONES, TERMINACION_PENDIENTE].map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
 
                 <input
                   value={String(linea.qty)}

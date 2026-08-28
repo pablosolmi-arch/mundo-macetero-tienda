@@ -84,7 +84,10 @@ export function HeroCarousel({ slides }: { slides: (HeroSlide & { image: string 
               }}
             />
             <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", pointerEvents: "none" }}>
-              <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 68px", width: "100%" }}>
+              <div
+                className="mm-hero-cont"
+                style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 68px", width: "100%" }}
+              >
                 {/* Con cifras la fila se parte en dos columnas iguales en
                     escritorio; en móvil las cifras caen bajo el botón. */}
                 <div className="mm-hero-grid">

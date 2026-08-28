@@ -11,6 +11,7 @@ import {
 } from "../../../../../lib/pedido-vista";
 import { Etiqueta } from "../../../../../components/admin/Etiqueta";
 import { AccionesPedido } from "../../../../../components/admin/AccionesPedido";
+import { esPendiente } from "../../../../../content/terminaciones";
 
 export const dynamic = "force-dynamic";
 
@@ -275,6 +276,23 @@ export default async function AdminPedidoDetalle({
           }
         />
       </div>
+
+      {pedido.items.some((it) => esPendiente(it.terminacion)) && (
+        <div
+          style={{
+            marginTop: "16px",
+            padding: "13px 16px",
+            borderRadius: "12px",
+            border: "1px solid #e6cf9a",
+            background: "#fbf3df",
+            color: "#8a6a2b",
+            fontSize: "13px",
+            fontWeight: 600,
+          }}
+        >
+          Terminación pendiente: confirmar con el cliente antes de fabricar
+        </div>
+      )}
 
       <div style={{ ...TARJETA, marginTop: "16px" }}>
         <h2 className="font-display" style={TITULO}>

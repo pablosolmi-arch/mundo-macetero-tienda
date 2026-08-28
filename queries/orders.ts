@@ -9,7 +9,12 @@ export interface NewOrderLine {
   productId: number;
   variantId: number | null;
   productName: string;
+  // Ya trae la terminación concatenada (ver content/terminaciones.ts): es el campo
+  // que imprimen el correo, la hoja de impresión y el panel.
   variantName: string | null;
+  // El acabado limpio, para consultarlo y para avisar en el panel cuando quedó
+  // como "Decidir más tarde".
+  terminacion: string | null;
   unitPrice: number;
   qty: number;
 }
@@ -86,6 +91,7 @@ export async function createPendingOrder(input: NewOrderInput) {
         variantId: line.variantId,
         productName: line.productName,
         variantName: line.variantName,
+        terminacion: line.terminacion,
         unitPrice: String(line.unitPrice),
         qty: line.qty,
       })),

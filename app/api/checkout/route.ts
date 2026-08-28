@@ -6,6 +6,10 @@ import { crearLinkPago, gatewayActiva } from "../../../lib/pagos";
 import { calcTotales, type Entrega } from "../../../lib/pricing";
 import { montoDescuento, validarCodigo } from "../../../lib/descuentos";
 import { CANALES } from "../../../lib/origen";
+import {
+  nombreVarianteConTerminacion,
+  normalizarTerminacion,
+} from "../../../content/terminaciones";
 
 // Flow (Chile) payment creation. Requires the merchant's Flow credentials as
 // env vars: FLOW_API_KEY, FLOW_SECRET, and optionally FLOW_BASE_URL
@@ -17,9 +21,14 @@ import { CANALES } from "../../../lib/origen";
 // delivery choice and a discount code. Unit prices, the shipping cost and the
 // discount are ALL recomputed here — a client can edit localStorage and network
 // requests freely, so nothing money-related is taken on trust.
+//
+// La terminación es la única cosa que el cliente elige y que el servidor NO puede
+// recalcular (no está en el catálogo, no mueve el precio), así que llega en la
+// petición y se valida contra la lista cerrada de content/terminaciones.ts.
 interface CheckoutLineRequest {
   productSlug: string;
   variantId: number | null;
+  terminacion?: string | null;
   qty: number;
 }
 
@@ -127,12 +136,18 @@ export async function POST(req: Request) {
       }
     }
 
+    // Un carrito guardado antes de que existiera la pregunta, o un valor que no
+    // está en la lista, queda como "Decidir más tarde": el equipo la confirma con
+    // el cliente antes de fabricar, así que no hay razón para botar la compra.
+    const terminacion = normalizarTerminacion(line.terminacion);
+
     subtotal += unitPrice * line.qty;
     lines.push({
       productId: product.id,
       variantId: line.variantId,
       productName: product.name,
-      variantName,
+      variantName: nombreVarianteConTerminacion(variantName, terminacion),
+      terminacion,
       unitPrice,
       qty: line.qty,
     });

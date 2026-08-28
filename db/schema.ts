@@ -124,6 +124,13 @@ export const orderItems = pgTable("order_items", {
   variantId: integer("variant_id").references(() => productVariants.id),
   productName: text("product_name").notNull(),
   variantName: text("variant_name"),
+  // Acabado elegido en la ficha (ver content/terminaciones.ts). Va también pegado
+  // al final de `variantName`, porque el correo al cliente, la hoja de impresión y
+  // el panel imprimen ese campo por línea; esta columna guarda el dato limpio para
+  // poder consultarlo, y "Decidir más tarde" es lo que gatilla el aviso de
+  // terminación pendiente en el panel. Nulo en los pedidos anteriores a la
+  // pregunta: no se les puede inventar un acabado que nadie eligió.
+  terminacion: text("terminacion"),
   unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull(),
   qty: integer("qty").notNull(),
 });

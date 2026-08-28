@@ -4,6 +4,7 @@ import { formatCLP } from "../../../../lib/format";
 import { codigoPedido } from "../../../../lib/pedido-codigo";
 import { etiquetaPago, etiquetaPreparacion, resumenArticulos } from "../../../../lib/pedido-vista";
 import { Etiqueta } from "../../../../components/admin/Etiqueta";
+import { esPendiente } from "../../../../content/terminaciones";
 
 export const dynamic = "force-dynamic";
 
@@ -295,6 +296,20 @@ export default async function AdminPedidos({
                         >
                           {codigoPedido(p.numero, p.createdAt)}
                         </Link>
+                        {p.items.some((it) => esPendiente(it.terminacion)) && (
+                          <span
+                            title="Terminación por confirmar con el cliente"
+                            style={{
+                              display: "inline-block",
+                              width: "7px",
+                              height: "7px",
+                              borderRadius: "50%",
+                              background: "#d9a13b",
+                              marginLeft: "6px",
+                              verticalAlign: "middle",
+                            }}
+                          />
+                        )}
                       </td>
                       <td style={{ ...CELDA, color: "#6f6c66", whiteSpace: "nowrap" }}>
                         {p.createdAt.toLocaleDateString("es-CL", {

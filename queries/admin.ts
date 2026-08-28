@@ -79,6 +79,9 @@ export async function itemsDePedidos(ids: number[]): Promise<Map<number, Articul
       orderId: orderItems.orderId,
       productName: orderItems.productName,
       variantName: orderItems.variantName,
+      // La lista de pedidos marca con un punto los que tienen la terminación por
+      // confirmar, así que el dato viaja con cada artículo.
+      terminacion: orderItems.terminacion,
       qty: orderItems.qty,
     })
     .from(orderItems)
@@ -89,6 +92,7 @@ export async function itemsDePedidos(ids: number[]): Promise<Map<number, Articul
     const item = {
       productName: fila.productName,
       variantName: fila.variantName,
+      terminacion: fila.terminacion,
       qty: fila.qty,
     };
     if (lista) lista.push(item);

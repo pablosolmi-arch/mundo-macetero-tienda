@@ -513,9 +513,17 @@ button {
 .mm-hero-cifras {
   display: flex;
   flex-direction: row;
-  gap: 12px;
+  gap: 10px;
   margin-top: 20px;
   color: #fff;
+}
+
+/* En móvil el interior del hero baja a los 24px del resto del sitio: con los 68
+   px del escritorio las tres columnas de cifras no caben en 390 px. */
+@media (max-width: 1023px) {
+  .mm-hero-cont {
+    padding: 0 24px !important;
+  }
 }
 
 .mm-hero-cifra {
@@ -530,6 +538,12 @@ button {
   font-weight: 800;
   line-height: 1.05;
   text-shadow: 0 2px 14px rgba(0, 0, 0, 0.4);
+}
+
+/* "Únicos" es una palabra, no un número de tres caracteres: a 26px no entra en
+   un tercio del ancho de un teléfono y no tiene por dónde cortarse. */
+.mm-hero-cifra-valor-corto {
+  font-size: 20px;
 }
 
 .mm-hero-cifra-texto {
@@ -597,5 +611,15 @@ button {
   .mm-desktop-nav {
     gap: 8px !important;
     font-size: 12px !important;
+  }
+}
+
+/* En la banda angosta del escritorio la fila se aprieta un punto más, para que
+   el séptimo ítem no adelante el ancho al que la navegación ya chocaba con el
+   monograma antes de entrar "Instagram". */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .mm-desktop-nav {
+    gap: 6px !important;
+    font-size: 11.4px !important;
   }
 }

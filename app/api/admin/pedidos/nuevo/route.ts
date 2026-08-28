@@ -8,6 +8,10 @@ import { crearLinkPago, gatewayActiva } from "../../../../../lib/pagos";
 import { calcTotales, type Entrega } from "../../../../../lib/pricing";
 import { montoDescuento, validarCodigo } from "../../../../../lib/descuentos";
 import { codigoPedido } from "../../../../../lib/pedido-codigo";
+import {
+  nombreVarianteConTerminacion,
+  normalizarTerminacion,
+} from "../../../../../content/terminaciones";
 
 // Venta manual: pedidos que el equipo toma por WhatsApp o teléfono y carga desde
 // el panel. Queda como un pedido normal en estado 'pending' con origen 'manual'.
@@ -26,6 +30,9 @@ export const dynamic = "force-dynamic";
 interface LineaRequest {
   productSlug: string;
   variantId: number | null;
+  // Opcional: una venta tomada por teléfono muchas veces se cierra sin acordar el
+  // acabado, y en ese caso queda como "Decidir más tarde".
+  terminacion?: string | null;
   qty: number;
 }
 
@@ -117,12 +124,15 @@ export async function POST(req: Request) {
       }
     }
 
+    const terminacion = normalizarTerminacion(line.terminacion);
+
     subtotal += unitPrice * line.qty;
     lines.push({
       productId: product.id,
       variantId: line.variantId,
       productName: product.name,
-      variantName,
+      variantName: nombreVarianteConTerminacion(variantName, terminacion),
+      terminacion,
       unitPrice,
       qty: line.qty,
     });

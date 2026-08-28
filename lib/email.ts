@@ -6,7 +6,7 @@
 //
 // Variables:
 //   RESEND_API_KEY  clave de Resend
-//   MAIL_FROM       remitente, ej: "Mundo Macetero <pedidos@mundomacetero.cl>"
+//   MAIL_FROM       remitente, ej: "Mundo Macetero <mundo@mundomacetero.cl>"
 //                   (el dominio debe estar verificado en Resend)
 //   MAIL_EQUIPO     a quién avisar de cada venta (por defecto, el correo de la tienda)
 

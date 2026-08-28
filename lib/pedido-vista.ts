@@ -58,6 +58,9 @@ export function nombreEvento(tipo: string): string {
 export interface ArticuloPedido {
   productName: string;
   variantName: string | null;
+  // Acabado elegido, o "Decidir más tarde" cuando el cliente lo dejó abierto.
+  // Opcional: los pedidos anteriores a la pregunta no lo traen.
+  terminacion?: string | null;
   qty: number;
 }
 
