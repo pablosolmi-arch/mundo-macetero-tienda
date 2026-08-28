@@ -12,7 +12,8 @@ import { ResenasGoogle } from "../../components/site/ResenasGoogle";
 import { buildFaqJsonLd, serializeJsonLd } from "../../lib/seo";
 import { FAQ_GENERAL, GUIAS } from "../../content/geo";
 import { HERO_IMGS } from "../../content/images";
-import { BLOG_THUMBS, EQUIPO_THUMBS, LOGOS_THUMBS, PROYECTOS_THUMBS } from "../../content/thumbs";
+import { BLOG_THUMBS, EQUIPO_THUMBS, PROYECTOS_THUMBS } from "../../content/thumbs";
+import { LOGOS_CLIENTES } from "../../content/logos";
 import {
   BLOG,
   COLECCION_DESC,
@@ -353,16 +354,17 @@ export default async function HomePage() {
         {/* Grilla estática, como en el sitio de referencia: el marquee movía los
             logos justo cuando el visitante intenta reconocer una marca. */}
         <div className="mm-logos-grid">
-          {LOGOS_THUMBS.map((src) => (
+          {LOGOS_CLIENTES.map((l) => (
             <div
-              key={src}
-              style={{ height: "110px", display: "flex", alignItems: "center", justifyContent: "center" }}
+              key={l.src}
+              style={{ height: "96px", display: "flex", alignItems: "center", justifyContent: "center" }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={src}
-                alt=""
-                style={{ width: "100%", height: "90px", objectFit: "contain", display: "block" }}
+                src={l.src}
+                alt={l.nombre}
+                title={l.nombre}
+                style={{ maxWidth: "100%", maxHeight: "78px", objectFit: "contain", display: "block" }}
                loading="lazy" decoding="async" />
             </div>
           ))}
