@@ -6,6 +6,7 @@ import { Tracker } from "../../components/site/Tracker";
 import { getNavData } from "../../queries/catalog";
 import { navIntenciones } from "../../lib/intenciones";
 import { TIENDA } from "../../content/site";
+import { GOOGLE_PERFIL, RESENAS, RESUMEN } from "../../content/resenas";
 import {
   LOCAL_BUSINESS_ID,
   ORGANIZATION_ID,
@@ -46,7 +47,7 @@ const SITE_JSON_LD = {
       email: TIENDA.email,
       telephone: TIENDA.telefonos.map((t) => t.replace(/\s/g, "")),
       address: DIRECCION,
-      sameAs: [TIENDA.instagram, TIENDA.facebook],
+      sameAs: [TIENDA.instagram, TIENDA.facebook, GOOGLE_PERFIL.url],
       contactPoint: {
         "@type": "ContactPoint",
         telephone: "+56992891754",
@@ -81,6 +82,20 @@ const SITE_JSON_LD = {
       },
       priceRange: "$$",
       hasMap: "https://goo.gl/maps/x5Kixi1EfCGNdQpL9",
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: RESUMEN.rating,
+        reviewCount: RESUMEN.total,
+        bestRating: 5,
+        worstRating: 1,
+      },
+      review: RESENAS.map((r) => ({
+        "@type": "Review",
+        author: { "@type": "Person", name: r.autor },
+        reviewRating: { "@type": "Rating", ratingValue: r.estrellas, bestRating: 5 },
+        reviewBody: r.texto,
+        datePublished: r.fecha,
+      })),
     },
     {
       "@type": "WebSite",

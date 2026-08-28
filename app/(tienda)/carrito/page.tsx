@@ -59,7 +59,7 @@ export default function CarritoPage() {
           <div style={{ minWidth: 0 }}>
             {items.map((it) => (
               <div
-                key={`${it.productSlug}-${it.variantName ?? ""}`}
+                key={`${it.productSlug}-${it.variantName ?? ""}-${it.terminacion ?? ""}`}
                 style={{ display: "flex", gap: "16px", padding: "16px 0", borderBottom: "1px solid #e9e6e1" }}
               >
                 <Link
@@ -90,6 +90,11 @@ export default function CarritoPage() {
                   {it.variantName && it.variantName !== "Default Title" && (
                     <div style={{ fontSize: "12.5px", color: "#6f6c66", marginTop: "3px" }}>{it.variantName}</div>
                   )}
+                  {it.terminacion && (
+                    <div style={{ fontSize: "12.5px", color: "#6f6c66", marginTop: "3px" }}>
+                      Terminación: {it.terminacion}
+                    </div>
+                  )}
                   <div style={{ fontSize: "12.5px", color: "#6f6c66", marginTop: "2px" }}>
                     {formatCLP(it.unitPrice)} c/u
                   </div>
@@ -104,7 +109,7 @@ export default function CarritoPage() {
                       }}
                     >
                       <button
-                        onClick={() => changeQty(it.productSlug, it.variantName, -1)}
+                        onClick={() => changeQty(it.productSlug, it.variantName, it.terminacion ?? null, -1)}
                         aria-label="Quitar una unidad"
                         style={{
                           background: "none",
@@ -119,7 +124,7 @@ export default function CarritoPage() {
                       </button>
                       <span style={{ fontSize: "14px", minWidth: "22px", textAlign: "center" }}>{it.qty}</span>
                       <button
-                        onClick={() => changeQty(it.productSlug, it.variantName, 1)}
+                        onClick={() => changeQty(it.productSlug, it.variantName, it.terminacion ?? null, 1)}
                         aria-label="Agregar una unidad"
                         style={{
                           background: "none",
@@ -134,7 +139,7 @@ export default function CarritoPage() {
                       </button>
                     </div>
                     <button
-                      onClick={() => remove(it.productSlug, it.variantName)}
+                      onClick={() => remove(it.productSlug, it.variantName, it.terminacion ?? null)}
                       style={{
                         background: "none",
                         border: "none",

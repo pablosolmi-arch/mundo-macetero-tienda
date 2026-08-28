@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { HERO_IMGS } from "../../../../content/images";
 import Link from "next/link";
+import { GoogleRating } from "../../../../components/site/GoogleRating";
 import { notFound } from "next/navigation";
 import { Breadcrumb } from "../../../../components/site/Breadcrumb";
 import { FaqList } from "../../../../components/site/FaqList";
@@ -210,6 +211,9 @@ export default async function GuiaPage({ params }: { params: Promise<{ slug: str
         <p style={{ fontSize: "14px", color: "#4c4944", lineHeight: 1.65, margin: "0 0 16px", textWrap: "pretty" }}>
           Cuéntanos qué planta tienes y dónde vivirá, y te recomendamos modelo, medida, terminación y drenaje sin costo.
         </p>
+        <div style={{ margin: "-6px 0 16px" }}>
+          <GoogleRating size="sm" />
+        </div>
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
           <Link
             href="/asesoramiento"

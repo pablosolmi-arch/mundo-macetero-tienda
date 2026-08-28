@@ -19,7 +19,9 @@ import { ProductGallery } from "../../../../components/product/ProductGallery";
 import { AddToCart, type VariantOption } from "../../../../components/product/AddToCart";
 import { BadgeDestacado } from "../../../../components/BadgeDestacado";
 import { DESTACADO } from "../../../../content/menu";
+import { MATERIAL_PARRAFO, MATERIAL_PUNTOS } from "../../../../content/material";
 import { formatCLP } from "../../../../lib/format";
+import { GoogleRating } from "../../../../components/site/GoogleRating";
 
 interface Props {
   params: Promise<{ productSlug: string }>;
@@ -141,6 +143,9 @@ export default async function ProductPage({ params }: Props) {
           >
             {product.name}
           </h1>
+          <div style={{ margin: "0 0 14px" }}>
+            <GoogleRating size="sm" />
+          </div>
 
           <AddToCart
             productSlug={product.slug}
@@ -164,11 +169,13 @@ export default async function ProductPage({ params }: Props) {
 
           <details style={DETAILS}>
             <summary style={SUMMARY}>Material y cuidados</summary>
+            <p style={{ fontSize: "14px", lineHeight: 1.65, color: "#4c4944", margin: "10px 0 0", textWrap: "pretty" }}>
+              {MATERIAL_PARRAFO}
+            </p>
             <ul style={{ fontSize: "14px", lineHeight: 1.8, color: "#4c4944", margin: "10px 0 0", paddingLeft: "20px" }}>
-              <li>Fibrocemento reforzado, ultra liviano</li>
-              <li>Apto para interior y exterior</li>
-              <li>Perforaciones de drenaje a pedido</li>
-              <li>Fabricado en Chile</li>
+              {MATERIAL_PUNTOS.map((punto) => (
+                <li key={punto}>{punto}</li>
+              ))}
             </ul>
           </details>
 

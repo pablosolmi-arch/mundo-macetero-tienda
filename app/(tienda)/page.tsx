@@ -7,6 +7,8 @@ import { FeaturedRow } from "../../components/home/FeaturedRow";
 import { Newsletter } from "../../components/home/Newsletter";
 import { Banda } from "../../components/site/Banda";
 import { FaqList } from "../../components/site/FaqList";
+import { InstagramFeed } from "../../components/site/InstagramFeed";
+import { ResenasGoogle } from "../../components/site/ResenasGoogle";
 import { buildFaqJsonLd, serializeJsonLd } from "../../lib/seo";
 import { FAQ_GENERAL, GUIAS } from "../../content/geo";
 import { HERO_IMGS } from "../../content/images";
@@ -348,38 +350,34 @@ export default async function HomePage() {
         <h2 className="font-display" style={{ ...H2, margin: "0 0 22px", textAlign: "center" }}>
           Confían en nuestros Maceteros
         </h2>
-        <div
-          style={{
-            overflow: "hidden",
-            position: "relative",
-            WebkitMaskImage: "linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)",
-            maskImage: "linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)",
-          }}
-        >
-          <div style={{ display: "flex", gap: "14px", width: "max-content", animation: "mmMarquee 32s linear infinite" }}>
-            {[...LOGOS_THUMBS, ...LOGOS_THUMBS].map((src, i) => (
-              <div
-                key={`${src}-${i}`}
-                style={{
-                  width: "150px",
-                  height: "64px",
-                  flex: "none",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: "6px",
-                }}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={src}
-                  alt=""
-                  style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", display: "block" }}
-                 loading="lazy" decoding="async" />
-              </div>
-            ))}
-          </div>
+        {/* Grilla estática, como en el sitio de referencia: el marquee movía los
+            logos justo cuando el visitante intenta reconocer una marca. */}
+        <div className="mm-logos-grid">
+          {LOGOS_THUMBS.map((src) => (
+            <div
+              key={src}
+              style={{ height: "110px", display: "flex", alignItems: "center", justifyContent: "center" }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={src}
+                alt=""
+                style={{ width: "100%", height: "90px", objectFit: "contain", display: "block" }}
+               loading="lazy" decoding="async" />
+            </div>
+          ))}
         </div>
+
+        <div style={{ marginTop: "44px" }}>
+          <h3
+            className="font-display"
+            style={{ fontSize: "15px", fontWeight: 600, textAlign: "center", margin: "0 0 18px" }}
+          >
+            En Instagram
+          </h3>
+          <InstagramFeed />
+        </div>
+
         <div style={{ textAlign: "center", marginTop: "36px" }}>
           <a
             href={TIENDA.instagram}
@@ -467,6 +465,8 @@ export default async function HomePage() {
           </Link>
         </div>
       </Banda>
+
+      <ResenasGoogle />
 
       <Banda tono="claro" interior={{ maxWidth: "860px" }}>
         <script

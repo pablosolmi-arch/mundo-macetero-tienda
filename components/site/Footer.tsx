@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { TIENDA } from "../../content/site";
+import { GOOGLE_PERFIL } from "../../content/resenas";
 import { ScrollTopButton } from "./ScrollTopButton";
 
 const SECTION_LABEL: React.CSSProperties = {
@@ -58,6 +59,9 @@ export function Footer() {
             </a>
             <a href={TIENDA.instagram} target="_blank" rel="noopener noreferrer" className="mm-footer-link" style={PILL}>
               Instagram
+            </a>
+            <a href={GOOGLE_PERFIL.url} target="_blank" rel="noopener noreferrer" aria-label="Reseñas en Google" className="mm-footer-link" style={PILL}>
+              Google
             </a>
             <ScrollTopButton />
           </div>

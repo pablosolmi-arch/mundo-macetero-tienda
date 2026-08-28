@@ -243,6 +243,9 @@ export function Header({ productos, intenciones }: HeaderProps) {
               <Link href="/contacto" className="mm-nav-link-dark" onMouseEnter={() => setMenu(null)}>
                 Proyecto Profesional
               </Link>
+              <Link href="/instagram" className="mm-nav-link-dark" onMouseEnter={() => setMenu(null)}>
+                Instagram
+              </Link>
             </nav>
           </div>
 
@@ -573,6 +576,7 @@ export function Header({ productos, intenciones }: HeaderProps) {
                   ["/contacto", "Proyecto Profesional"],
                   ["/quienes-somos", "Quiénes somos"],
                   ["/blog", "Noticias"],
+                  ["/instagram", "Instagram"],
                 ] as [string, string][]
               ).map(([href, label], i, arr) => (
                 <Link

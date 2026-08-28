@@ -506,3 +506,96 @@ button {
     background: #fff !important;
   }
 }
+
+/* Cifras grandes del hero. En móvil van bajo el botón, en una fila compacta de
+   tres columnas; desde 1024px pasan a la columna derecha de la foto, centradas
+   verticalmente y con el borde de acento a la izquierda de cada fila. */
+.mm-hero-cifras {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  margin-top: 20px;
+  color: #fff;
+}
+
+.mm-hero-cifra {
+  flex: 1 1 0;
+  min-width: 0;
+  border-left: 2px solid #d99e77;
+  padding-left: 10px;
+}
+
+.mm-hero-cifra-valor {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.05;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.4);
+}
+
+.mm-hero-cifra-texto {
+  font-size: 12px;
+  line-height: 1.3;
+  margin-top: 4px;
+  white-space: pre-line;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.45);
+}
+
+@media (min-width: 1024px) {
+  /* Dos columnas iguales: sobre 1440px la derecha arranca cerca de x=720. */
+  .mm-hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 24px;
+  }
+  .mm-hero-cifras {
+    flex-direction: column;
+    gap: 22px;
+    margin-top: 0;
+    max-width: 560px;
+  }
+  .mm-hero-cifra {
+    flex: none;
+    padding-left: 18px;
+  }
+  .mm-hero-cifra-valor {
+    font-size: 64px;
+  }
+  .mm-hero-cifra-valor-corto {
+    font-size: 44px;
+  }
+  .mm-hero-cifra-texto {
+    font-size: 18px;
+    max-width: 220px;
+    margin-top: 6px;
+  }
+}
+
+/* Logos de clientes: grilla estática de celdas de 200x110, seis columnas en
+   escritorio y tres en móvil. Sin fondo ni borde: manda el logo. */
+.mm-logos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 200px));
+  gap: 48px 40px;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .mm-logos-grid {
+    grid-template-columns: repeat(6, minmax(0, 200px));
+  }
+}
+
+/* Con "Instagram" la navegación llegó a siete ítems y la fila ya no cabía junto
+   al monograma centrado: se aprieta el interior del header y el paso entre
+   enlaces. El !important del padding es para ganarle al estilo en línea. */
+@media (min-width: 1024px) {
+  .mm-header-inner {
+    padding: 0 16px !important;
+  }
+  .mm-desktop-nav {
+    gap: 8px !important;
+    font-size: 12px !important;
+  }
+}

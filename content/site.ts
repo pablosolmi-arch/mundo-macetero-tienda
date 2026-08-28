@@ -119,6 +119,10 @@ export interface HeroSlide {
   imagen?: string;
   imagenMovil?: string;
   alt?: string;
+  // Cifras grandes a la derecha de la foto. Solo el slide de marca las trae: el
+  // subtítulo se acorta porque las cifras dicen el resto. El salto de línea del
+  // texto es literal y se respeta al renderizar.
+  cifras?: { valor: string; texto: string }[];
 }
 
 // Todos los slides del hero comparten la misma composición: foto a sangre,
@@ -126,12 +130,17 @@ export interface HeroSlide {
 export const HERO_SLIDES: HeroSlide[] = [
   {
     titulo: "Maceteros ultra livianos que transforman tus espacios",
-    sub: "Hasta 90% más livianos que el concreto, ahorran hasta 40% de agua y con diseños únicos.",
+    sub: "Fabricados en Chile con tecnología EIFS.",
     cta: "Ver los más vendidos",
     href: "/maceteros/bowls-y-platos",
     imagen: "/hero/plato-de-agua-2000.webp",
     imagenMovil: "/hero/plato-de-agua-1000.webp",
     alt: "Macetero plato de agua de Mundo Macetero con planta, en exterior",
+    cifras: [
+      { valor: "90%", texto: "más livianos\nque el concreto" },
+      { valor: "40%", texto: "de ahorro de agua\npor ser térmicos" },
+      { valor: "Únicos", texto: "diseños que no verás\nen otro lugar" },
+    ],
   },
   {
     titulo: "¿Quieres ver tu espacio con un macetero nuestro?",

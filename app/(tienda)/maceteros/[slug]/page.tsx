@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { GoogleRating } from "../../../../components/site/GoogleRating";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { getActiveProductsWithVariants } from "../../../../queries/catalog";
@@ -296,6 +297,9 @@ export default async function MaceterosSlugPage({ params }: { params: Promise<{ 
           <p style={{ fontSize: "14px", color: "#4c4944", lineHeight: 1.65, margin: "0 0 16px", textWrap: "pretty" }}>
             Cuéntanos qué planta tienes y dónde vivirá, y te recomendamos modelo, medida, terminación y drenaje sin costo.
           </p>
+          <div style={{ margin: "-6px 0 16px" }}>
+            <GoogleRating size="sm" />
+          </div>
           <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
             <Link href="/asesoramiento" className="mm-btn-select" style={{ ...BOTON, border: "1px solid #2a2925" }}>
               Asesoría gratuita

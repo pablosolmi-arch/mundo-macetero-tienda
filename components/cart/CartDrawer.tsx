@@ -87,7 +87,7 @@ export function CartDrawer() {
 
           {items.map((it) => (
             <div
-              key={`${it.productSlug}-${it.variantName ?? ""}`}
+              key={`${it.productSlug}-${it.variantName ?? ""}-${it.terminacion ?? ""}`}
               style={{ display: "flex", gap: "14px", padding: "13px 0", borderBottom: "1px solid #efede9" }}
             >
               <Link
@@ -123,6 +123,11 @@ export function CartDrawer() {
                 {it.variantName && it.variantName !== "Default Title" && (
                   <div style={{ fontSize: "12px", color: "#6f6c66", marginTop: "2px" }}>{it.variantName}</div>
                 )}
+                {it.terminacion && (
+                  <div style={{ fontSize: "12px", color: "#6f6c66", marginTop: "2px" }}>
+                    Terminación: {it.terminacion}
+                  </div>
+                )}
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "8px" }}>
                   <div
                     style={{
@@ -133,7 +138,7 @@ export function CartDrawer() {
                     }}
                   >
                     <button
-                      onClick={() => changeQty(it.productSlug, it.variantName, -1)}
+                      onClick={() => changeQty(it.productSlug, it.variantName, it.terminacion ?? null, -1)}
                       aria-label="Quitar una unidad"
                       style={{
                         background: "none",
@@ -148,7 +153,7 @@ export function CartDrawer() {
                     </button>
                     <span style={{ fontSize: "13px", minWidth: "18px", textAlign: "center" }}>{it.qty}</span>
                     <button
-                      onClick={() => changeQty(it.productSlug, it.variantName, 1)}
+                      onClick={() => changeQty(it.productSlug, it.variantName, it.terminacion ?? null, 1)}
                       aria-label="Agregar una unidad"
                       style={{
                         background: "none",
@@ -163,7 +168,7 @@ export function CartDrawer() {
                     </button>
                   </div>
                   <button
-                    onClick={() => remove(it.productSlug, it.variantName)}
+                    onClick={() => remove(it.productSlug, it.variantName, it.terminacion ?? null)}
                     style={{
                       background: "none",
                       border: "none",

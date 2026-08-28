@@ -8,6 +8,10 @@ export interface CartItem {
   name: string;
   variantId: number | null;
   variantName: string | null;
+  // Acabado elegido en la ficha: uno de content/terminaciones.ts o "Decidir más
+  // tarde". Opcional porque los carritos guardados antes de que existiera la
+  // pregunta siguen en localStorage; el checkout los toma como pendientes.
+  terminacion?: string | null;
   unitPrice: number; // CLP integer — DISPLAY ONLY. The checkout API recomputes
   // the real price server-side from productSlug/variantId; never trust this
   // field for payment amounts (it lives in localStorage, fully client-editable).
@@ -21,9 +25,21 @@ interface CartState {
   // True right after an add, so the drawer can show its confirmation banner.
   justAdded: boolean;
   add: (item: Omit<CartItem, "qty">, qty?: number) => void;
-  remove: (productSlug: string, variantName: string | null) => void;
-  setQty: (productSlug: string, variantName: string | null, qty: number) => void;
-  changeQty: (productSlug: string, variantName: string | null, delta: number) => void;
+  // La terminación entra en la identidad de la línea: el mismo macetero en negro y
+  // en cemento natural son dos cosas distintas para el taller.
+  remove: (productSlug: string, variantName: string | null, terminacion: string | null) => void;
+  setQty: (
+    productSlug: string,
+    variantName: string | null,
+    terminacion: string | null,
+    qty: number,
+  ) => void;
+  changeQty: (
+    productSlug: string,
+    variantName: string | null,
+    terminacion: string | null,
+    delta: number,
+  ) => void;
   clear: () => void;
   open: () => void;
   close: () => void;
@@ -39,8 +55,12 @@ interface CartState {
 const CartCtx = createContext<CartState | null>(null);
 const STORAGE_KEY = "mm-cart-v1";
 
-function sameLine(a: CartItem, slug: string, variant: string | null) {
-  return a.productSlug === slug && (a.variantName ?? null) === (variant ?? null);
+function sameLine(a: CartItem, slug: string, variant: string | null, terminacion: string | null) {
+  return (
+    a.productSlug === slug &&
+    (a.variantName ?? null) === (variant ?? null) &&
+    (a.terminacion ?? null) === (terminacion ?? null)
+  );
 }
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
@@ -97,31 +117,41 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       add: (item, qty = 1) => {
         setItems((prev) => {
           const idx = prev.findIndex((p) =>
-            sameLine(p, item.productSlug, item.variantName ?? null),
+            sameLine(p, item.productSlug, item.variantName ?? null, item.terminacion ?? null),
           );
           if (idx >= 0) {
             const next = [...prev];
             next[idx] = { ...next[idx], qty: next[idx].qty + qty };
             return next;
           }
-          return [...prev, { ...item, variantName: item.variantName ?? null, qty }];
+          return [
+            ...prev,
+            {
+              ...item,
+              variantName: item.variantName ?? null,
+              terminacion: item.terminacion ?? null,
+              qty,
+            },
+          ];
         });
         setIsOpen(true);
         setJustAdded(true);
         track("agregar", { productSlug: item.productSlug });
       },
-      remove: (slug, variant) =>
-        setItems((prev) => prev.filter((p) => !sameLine(p, slug, variant))),
-      setQty: (slug, variant, qty) =>
+      remove: (slug, variant, terminacion) =>
+        setItems((prev) => prev.filter((p) => !sameLine(p, slug, variant, terminacion))),
+      setQty: (slug, variant, terminacion, qty) =>
         setItems((prev) =>
           prev
-            .map((p) => (sameLine(p, slug, variant) ? { ...p, qty: Math.max(0, qty) } : p))
+            .map((p) =>
+              sameLine(p, slug, variant, terminacion) ? { ...p, qty: Math.max(0, qty) } : p,
+            )
             .filter((p) => p.qty > 0),
         ),
-      changeQty: (slug, variant, delta) =>
+      changeQty: (slug, variant, terminacion, delta) =>
         setItems((prev) =>
           prev.map((p) =>
-            sameLine(p, slug, variant) ? { ...p, qty: Math.max(1, p.qty + delta) } : p,
+            sameLine(p, slug, variant, terminacion) ? { ...p, qty: Math.max(1, p.qty + delta) } : p,
           ),
         ),
       clear: () => {

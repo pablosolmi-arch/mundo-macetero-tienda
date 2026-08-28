@@ -51,7 +51,10 @@ export default async function RetomarPage({
         productSlug: producto.slug,
         name: it.productName,
         variantId: it.variantId,
-        variantName: it.variantName,
+        // El pedido guarda la terminación pegada al nombre de la variante (para que
+        // el correo y el panel la muestren); acá se vuelve a separar.
+        variantName: varianteSinTerminacion(it.variantName, it.terminacion),
+        terminacion: it.terminacion,
         unitPrice: Number(it.unitPrice),
         image: producto.thumbs[0] ?? producto.images[0] ?? null,
         qty: it.qty,

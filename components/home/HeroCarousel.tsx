@@ -73,52 +73,85 @@ export function HeroCarousel({ slides }: { slides: (HeroSlide & { image: string 
                 // El slide que trae su propia foto conserva su degradado, más
                 // profundo a la izquierda: la loza es clara y el texto blanco se
                 // perdería con el degradado de los banners del catálogo.
-                background: s.imagen
-                  ? "linear-gradient(100deg,rgba(18,20,16,.82) 0%,rgba(18,20,16,.55) 42%,rgba(18,20,16,.05) 75%)"
-                  : "linear-gradient(90deg,rgba(24,22,19,.55) 0%,rgba(24,22,19,.25) 55%,rgba(24,22,19,0) 80%)",
+                // El slide de las cifras necesita cubierta hasta más a la
+                // derecha: los números van sobre la foto y deben leerse.
+                background: s.cifras
+                  ? "linear-gradient(100deg,rgba(18,20,16,.86) 0%,rgba(18,20,16,.6) 50%,rgba(18,20,16,.15) 80%)"
+                  : s.imagen
+                    ? "linear-gradient(100deg,rgba(18,20,16,.82) 0%,rgba(18,20,16,.55) 42%,rgba(18,20,16,.05) 75%)"
+                    : "linear-gradient(90deg,rgba(24,22,19,.55) 0%,rgba(24,22,19,.25) 55%,rgba(24,22,19,0) 80%)",
                 pointerEvents: "none",
               }}
             />
             <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", pointerEvents: "none" }}>
               <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 68px", width: "100%" }}>
-                <div style={{ maxWidth: "560px", color: "#fff" }}>
-                  <h2
-                    className="font-display"
-                    style={{
-                      fontSize: "clamp(26px,4vw,44px)",
-                      fontWeight: 700,
-                      lineHeight: 1.15,
-                      margin: 0,
-                      textWrap: "pretty",
-                      textShadow: "0 2px 18px rgba(0,0,0,.35)",
-                    }}
-                  >
-                    {s.titulo}
-                  </h2>
-                  <p
-                    style={{
-                      fontSize: "clamp(14px,1.6vw,17px)",
-                      margin: "14px 0 22px",
-                      opacity: 0.92,
-                      textShadow: "0 1px 10px rgba(0,0,0,.4)",
-                    }}
-                  >
-                    {s.sub}
-                  </p>
-                  <Link
-                    href={s.href}
-                    className="mm-btn-white"
-                    style={{
-                      pointerEvents: "auto",
-                      display: "inline-block",
-                      padding: "13px 26px",
-                      borderRadius: "9px",
-                      fontSize: "14px",
-                      fontWeight: 700,
-                    }}
-                  >
-                    {s.cta}
-                  </Link>
+                {/* Con cifras la fila se parte en dos columnas iguales en
+                    escritorio; en móvil las cifras caen bajo el botón. */}
+                <div className="mm-hero-grid">
+                  <div style={{ maxWidth: "560px", color: "#fff" }}>
+                    {/* El primer slide lleva el H1 de la portada (una sola vez por
+                        página); los demás bajan a H2 para no duplicarlo. */}
+                    {(() => {
+                      const Titulo = i === 0 ? "h1" : "h2";
+                      return (
+                        <Titulo
+                          className="font-display"
+                          style={{
+                            fontSize: "clamp(26px,4vw,44px)",
+                            fontWeight: 700,
+                            lineHeight: 1.15,
+                            margin: 0,
+                            textWrap: "pretty",
+                            textShadow: "0 2px 18px rgba(0,0,0,.35)",
+                          }}
+                        >
+                          {s.titulo}
+                        </Titulo>
+                      );
+                    })()}
+                    <p
+                      style={{
+                        fontSize: "clamp(14px,1.6vw,17px)",
+                        margin: "14px 0 22px",
+                        opacity: 0.92,
+                        textShadow: "0 1px 10px rgba(0,0,0,.4)",
+                      }}
+                    >
+                      {s.sub}
+                    </p>
+                    <Link
+                      href={s.href}
+                      className="mm-btn-white"
+                      style={{
+                        pointerEvents: "auto",
+                        display: "inline-block",
+                        padding: "13px 26px",
+                        borderRadius: "9px",
+                        fontSize: "14px",
+                        fontWeight: 700,
+                      }}
+                    >
+                      {s.cta}
+                    </Link>
+                  </div>
+                  {s.cifras && (
+                    <div className="mm-hero-cifras">
+                      {s.cifras.map((c) => (
+                        <div key={c.valor} className="mm-hero-cifra">
+                          {/* Las cifras con número van más grandes que las de
+                              palabra ("Únicos"), que necesitan menos cuerpo. */}
+                          <div
+                            className={`font-display mm-hero-cifra-valor${
+                              /^\d/.test(c.valor) ? "" : " mm-hero-cifra-valor-corto"
+                            }`}
+                          >
+                            {c.valor}
+                          </div>
+                          <div className="mm-hero-cifra-texto">{c.texto}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

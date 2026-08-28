@@ -106,6 +106,9 @@ export default function CheckoutPage() {
           items: items.map((it) => ({
             productSlug: it.productSlug,
             variantId: it.variantId,
+            // La terminación no mueve el precio, así que sí viaja tal cual: el
+            // servidor la valida contra la lista y la guarda con la línea.
+            terminacion: it.terminacion ?? null,
             qty: it.qty,
           })),
           customer: {
@@ -406,7 +409,7 @@ export default function CheckoutPage() {
           </div>
           {items.map((it) => (
             <div
-              key={`${it.productSlug}-${it.variantName ?? ""}`}
+              key={`${it.productSlug}-${it.variantName ?? ""}-${it.terminacion ?? ""}`}
               style={{
                 display: "flex",
                 justifyContent: "space-between",
@@ -422,6 +425,14 @@ export default function CheckoutPage() {
                   <>
                     <br />
                     <span style={{ fontSize: "11.5px", color: "#9b978f" }}>{it.variantName}</span>
+                  </>
+                )}
+                {it.terminacion && (
+                  <>
+                    <br />
+                    <span style={{ fontSize: "11.5px", color: "#9b978f" }}>
+                      Terminación: {it.terminacion}
+                    </span>
                   </>
                 )}
               </span>

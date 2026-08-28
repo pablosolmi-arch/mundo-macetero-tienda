@@ -6,13 +6,25 @@ import { useMemo, useState } from "react";
 import { useCart } from "../cart/CartContext";
 import { formatCLP } from "../../lib/format";
 import { HEXES } from "../../content/site";
+import {
+  HEX_TERMINACION,
+  TERMINACIONES,
+  TERMINACION_PENDIENTE,
+  esEjeDeColor,
+} from "../../content/terminaciones";
 
-// Buy box: one group of buttons per option axis (size, colour, drainage…), a price
-// that tracks the selected combination, quantity and add-to-cart.
+// Buy box: one group of buttons per option axis (size, drainage…), the standard
+// finish choice, a price that tracks the selected combination, quantity and
+// add-to-cart.
 //
 // A variant is one sellable COMBINATION. Values that no combination can reach with
 // the current selection are shown struck through and cannot be picked, so the
 // customer never lands on something that does not exist.
+//
+// El eje de color que traía el catálogo NO se muestra: la terminación se pregunta
+// aparte, igual en las 23 fichas (ver content/terminaciones.ts). La variante se
+// resuelve ignorando ese eje, tomando la primera combinación disponible del tamaño
+// y la forma elegidos.
 //
 // Prices here are display only: /api/checkout recomputes the charged amount from
 // the database using the variant id.
@@ -67,11 +79,13 @@ export function AddToCart({
   // elegida en vez de la primera disponible.
   const variantePedida = useSearchParams().get("variante");
 
-  // Distinct values per axis, in the order the catalog lists them.
+  // Distinct values per axis, in the order the catalog lists them. `oculto` marca
+  // el eje de color: sigue existiendo para resolver la variante, pero no se pinta.
   const axes = useMemo(
     () =>
       optionNames.map((nombre, i) => ({
         nombre,
+        oculto: esEjeDeColor(nombre),
         valores: [...new Set(variants.map((v) => valueOf(v, i)).filter((x): x is string => !!x))],
       })),
     [optionNames, variants],
@@ -88,9 +102,22 @@ export function AddToCart({
   }, [axes, variants, variantePedida]);
 
   const [seleccion, setSeleccion] = useState<string[]>(initial);
+  // Nadie sale por defecto: la terminación es una decisión del cliente, y elegirla
+  // por él dejaría pedidos "Cemento Natural" que nunca miró.
+  const [terminacion, setTerminacion] = useState<string | null>(null);
+  const [faltaTerminacion, setFaltaTerminacion] = useState(false);
+
+  // Una variante calza cuando coincide en todos los ejes VISIBLES; el de color se
+  // ignora, así que varias variantes pueden calzar y manda la primera disponible.
+  function coincide(v: VariantOption, sel: string[], salvo = -1): boolean {
+    return axes.every(
+      (eje, i) => eje.oculto || i === salvo || (valueOf(v, i) ?? "") === (sel[i] ?? ""),
+    );
+  }
 
   const selected =
-    variants.find((v) => axes.every((_, i) => (valueOf(v, i) ?? "") === (seleccion[i] ?? ""))) ??
+    variants.find((v) => coincide(v, seleccion) && v.available) ??
+    variants.find((v) => coincide(v, seleccion)) ??
     null;
 
   const unitPrice = selected?.price ?? basePrice;
@@ -102,7 +129,7 @@ export function AddToCart({
 
     // If the new value makes the rest of the selection impossible, slide the other
     // axes to the first combination that works with it.
-    const exists = variants.some((v) => next.every((val, i) => (valueOf(v, i) ?? "") === val));
+    const exists = variants.some((v) => coincide(v, next));
     if (!exists) {
       const fallback =
         variants.find((v) => (valueOf(v, axis) ?? "") === value && v.available) ??
@@ -114,16 +141,17 @@ export function AddToCart({
     setSeleccion(next);
   }
 
-  // A value is reachable when some variant has it alongside every OTHER axis as
-  // currently selected.
+  // A value is reachable when some variant has it alongside every OTHER visible
+  // axis as currently selected.
   function reachable(axis: number, value: string): boolean {
     return variants.some(
-      (v) =>
-        (valueOf(v, axis) ?? "") === value &&
-        v.available &&
-        seleccion.every((val, i) => i === axis || (valueOf(v, i) ?? "") === val),
+      (v) => (valueOf(v, axis) ?? "") === value && v.available && coincide(v, seleccion, axis),
     );
   }
+
+  // "Color" en las bases metálicas: son de metal, no llevan acabado de cemento,
+  // pero el dueño quiere preguntar igual por el tono.
+  const etiquetaTerminacion = productSlug === "bases-metalicas" ? "Color" : "Terminación";
 
   return (
     <>
@@ -138,7 +166,7 @@ export function AddToCart({
         se calculan en la pantalla de pago.
       </div>
 
-      {axes.map((eje, i) => (
+      {axes.map((eje, i) => eje.oculto ? null : (
         <div key={eje.nombre} style={{ marginBottom: "18px" }}>
           <div style={{ fontSize: "12.5px", fontWeight: 700, marginBottom: "9px" }}>{eje.nombre}</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
@@ -187,6 +215,64 @@ export function AddToCart({
         </div>
       ))}
 
+      <div style={{ marginBottom: "18px" }}>
+        <div style={{ fontSize: "12.5px", fontWeight: 700, marginBottom: "9px" }}>
+          {etiquetaTerminacion}
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+          {[...TERMINACIONES, TERMINACION_PENDIENTE].map((valor) => {
+            const on = terminacion === valor;
+            const hex = HEX_TERMINACION[valor] ?? null;
+            return (
+              <button
+                key={valor}
+                onClick={() => {
+                  setTerminacion(valor);
+                  setFaltaTerminacion(false);
+                }}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "9px 14px",
+                  borderRadius: "8px",
+                  fontSize: "13px",
+                  cursor: "pointer",
+                  border: on ? "1.5px solid #2a2925" : "1px solid #d8d5cf",
+                  background: on ? "#2a2925" : "#fff",
+                  color: on ? "#fff" : "#2a2925",
+                  fontWeight: on ? 700 : 500,
+                }}
+              >
+                {hex && (
+                  <span
+                    style={{
+                      width: "13px",
+                      height: "13px",
+                      borderRadius: "50%",
+                      background: hex,
+                      border: "1px solid rgba(42,41,37,.28)",
+                      display: "inline-block",
+                      flex: "none",
+                    }}
+                  />
+                )}
+                {valor}
+              </button>
+            );
+          })}
+        </div>
+        <div style={{ fontSize: "12px", color: "#6f6c66", marginTop: "9px" }}>
+          Si aún no lo decides, marca {TERMINACION_PENDIENTE} y lo confirmamos contigo antes de
+          fabricar.
+        </div>
+        {faltaTerminacion && (
+          <div style={{ fontSize: "12.5px", color: "#a5613f", fontWeight: 600, marginTop: "7px" }}>
+            Elige una terminación
+          </div>
+        )}
+      </div>
+
       <div style={{ display: "flex", gap: "12px", alignItems: "stretch", margin: "24px 0 10px", flexWrap: "wrap" }}>
         <div
           style={{
@@ -229,19 +315,24 @@ export function AddToCart({
         </div>
         <button
           disabled={agotado}
-          onClick={() =>
+          onClick={() => {
+            if (!terminacion) {
+              setFaltaTerminacion(true);
+              return;
+            }
             add(
               {
                 productSlug,
                 name: productName,
                 variantId: selected?.id ?? null,
                 variantName: selected?.name ?? null,
+                terminacion,
                 unitPrice,
                 image,
               },
               qty,
-            )
-          }
+            );
+          }}
           className={agotado ? undefined : "mm-btn-dark"}
           style={{
             flex: 1,
