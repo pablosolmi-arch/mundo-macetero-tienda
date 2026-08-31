@@ -46,6 +46,11 @@ export const metadata: Metadata = {
   ...(process.env.GOOGLE_SITE_VERIFICATION
     ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } }
     : {}),
+  other: {
+    // Verificación de Bing Webmaster Tools, que alimenta también a Copilot y a
+    // parte de ChatGPT. Bing pide no quitar la etiqueta después de verificar.
+    "msvalidate.01": "A21F3F0925A8E32AB9A240E38273BA2B",
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
