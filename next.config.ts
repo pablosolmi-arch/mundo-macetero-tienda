@@ -75,6 +75,15 @@ const REDIRECCIONES: [string, string][] = [
 const nextConfig: NextConfig = {
   async redirects() {
     return [
+      // El sitio vive en el dominio sin www. Servirlo también en www duplicaba
+      // cada página en dos direcciones: el canonical ya apuntaba aquí, pero un
+      // 308 lo deja explícito para buscadores y para quien comparta el enlace.
+      {
+        source: "/:ruta*",
+        has: [{ type: "host", value: "www.mundomacetero.cl" }],
+        destination: "https://mundomacetero.cl/:ruta*",
+        permanent: true,
+      },
       // Los slugs de producto son los mismos en ambas tiendas.
       { source: "/products/:slug", destination: "/producto/:slug", permanent: true },
       // Shopify sirve el producto también dentro de la colección.
