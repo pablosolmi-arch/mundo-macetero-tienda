@@ -70,7 +70,7 @@ export function buildProductJsonLd(product: Product & { variants: ProductVariant
     sku: product.slug,
     brand: { "@type": "Brand", name: "Mundo Macetero" },
     manufacturer: { "@id": ORGANIZATION_ID },
-    material: "Fibrocemento EIFS: poliestireno expandido, malla de fibra de vidrio y recubrimiento de cemento",
+    material: "Tecnología EIFS: poliestireno expandido, malla de fibra de vidrio y recubrimiento de cemento",
     category: "Maceteros",
     countryOfOrigin: { "@type": "Country", name: "Chile" },
     offers,

@@ -8,7 +8,7 @@ import { FAQ_GENERAL, GUIAS } from "../../../content/geo";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Preguntas frecuentes sobre maceteros de fibrocemento",
+  title: "Preguntas frecuentes sobre maceteros EIFS",
   description:
     "Material, resistencia al exterior, drenaje, despacho, plazos de fabricación, garantía y medios de pago de los maceteros livianos de Mundo Macetero.",
   alternates: { canonical: "/preguntas-frecuentes" },
@@ -36,7 +36,7 @@ export default function PreguntasFrecuentesPage() {
         Preguntas frecuentes sobre nuestros maceteros
       </h1>
       <p style={{ fontSize: "15.5px", lineHeight: 1.75, color: "#4c4944", margin: "0 0 32px", textWrap: "pretty" }}>
-        Todo lo que nos preguntan antes de comprar: de qué está hecho un macetero de fibrocemento, cómo se comporta
+        Todo lo que nos preguntan antes de comprar: de qué está hecho un macetero EIFS, cómo se comporta
         afuera, qué drenaje pedir, cuánto demora la fabricación y cómo funcionan el despacho, la garantía y el pago.
       </p>
 

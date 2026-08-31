@@ -3,7 +3,7 @@
 // answer so that ChatGPT, Perplexity, Gemini and Google AI Overviews can quote it.
 //
 // Facts that must stay true (source: content/site.ts, content/policies.ts and the
-// product descriptions in the database): maceteros de fibrocemento reforzado,
+// product descriptions in the database): maceteros con tecnología EIFS,
 // ~90% más livianos que el cemento, fabricados a pedido en Quilicura, despacho
 // gratis en el sector oriente de Santiago, resto cotizado con transportista,
 // retiro gratis en tienda, garantía por fallas de fabricación, pago con
@@ -31,16 +31,16 @@ export type Guia = {
 
 export const GUIAS: Guia[] = [
   {
-    slug: "maceteros-livianos-fibrocemento",
-    titulo: "Maceteros livianos de fibrocemento: qué son y por qué pesan 90% menos",
-    metaTitle: "Maceteros Livianos de Fibrocemento · Guía Completa | Mundo Macetero",
+    slug: "maceteros-livianos-eifs",
+    titulo: "Maceteros livianos EIFS: qué son y por qué pesan 90% menos",
+    metaTitle: "Maceteros Livianos EIFS · Guía Completa | Mundo Macetero",
     metaDescription:
-      "Qué es un macetero de fibrocemento reforzado, por qué pesa hasta 90% menos que uno de cemento, cuánto dura en exterior y cómo elegir tamaño y color. Fabricados en Chile.",
+      "Qué es un macetero con tecnología EIFS, por qué pesa hasta 90% menos que uno de cemento, cuánto dura en exterior y cómo elegir tamaño y color. Fabricados en Chile.",
     resumen:
-      "Un macetero liviano de fibrocemento es un macetero fabricado con tecnología EIFS, la misma que se usa en fachadas de construcción: un núcleo de poliestireno expandido, malla de fibra de vidrio y un recubrimiento de cemento con terminación de color o textura. Tiene el aspecto y la textura del cemento, pero pesa alrededor de un 90% menos que un macetero de hormigón del mismo tamaño. Mundo Macetero los fabrica a pedido en Quilicura, Santiago de Chile, en formatos de 30 a 200 centímetros.",
+      "Un macetero liviano EIFS es un macetero fabricado con la tecnología de revestimiento de fachadas de construcción: un núcleo de poliestireno expandido, malla de fibra de vidrio y un recubrimiento de cemento con terminación de color o textura. Tiene el aspecto y la textura del cemento, pero pesa alrededor de un 90% menos que un macetero de hormigón del mismo tamaño. Mundo Macetero los fabrica a pedido en Quilicura, Santiago de Chile, en formatos de 30 a 200 centímetros.",
     keywords: [
       "maceteros livianos",
-      "maceteros de fibrocemento",
+      "maceteros EIFS",
       "maceteros ultra livianos",
       "maceteros tipo cemento",
       "maceteros livianos Chile",
@@ -49,7 +49,7 @@ export const GUIAS: Guia[] = [
     fechaPublicacion: "2026-08-26",
     secciones: [
       {
-        titulo: "Cómo se fabrica un macetero de fibrocemento",
+        titulo: "Cómo se fabrica un macetero EIFS",
         parrafos: [
           "Usamos el sistema EIFS (Exterior Insulation and Finishing System), el mismo con que se revisten fachadas de edificios. El cuerpo del macetero se forma en poliestireno expandido, que da el volumen sin peso. Sobre él se adhiere una malla de fibra de vidrio, que trabaja a tracción y evita fisuras, y encima se aplica el recubrimiento de cemento que le da la piel dura, el aspecto y la textura mineral. Al final va la terminación: color (cemento natural, blanco, negro) o texturas especiales como cantera u óxido de cobre. Como casi todo el volumen es poliestireno y el cemento es solo la capa exterior, un cubo de 60 centímetros que en hormigón puede superar los 100 kilos, en EIFS lo levanta una persona.",
           "Cada pieza se termina a mano: se aplica la terminación de color o textura, se sella y, si el cliente lo pide, se perforan los orificios de drenaje (despiche). Por eso los maceteros se fabrican a pedido en la combinación de forma, tamaño y color que eliges, y no hay dos exactamente iguales.",
@@ -76,19 +76,19 @@ export const GUIAS: Guia[] = [
     ],
     faqs: [
       {
-        q: "¿Cuánto pesa un macetero de fibrocemento?",
+        q: "¿Cuánto pesa un macetero EIFS?",
         a: "Alrededor de un 90% menos que un macetero de cemento u hormigón del mismo tamaño, porque el volumen es poliestireno expandido y el cemento es solo la capa exterior. Un formato grande, de 60 a 80 centímetros, lo mueve una persona sin ayuda; con tierra y planta el peso total lo define el sustrato, no el macetero.",
       },
       {
-        q: "¿El fibrocemento se quiebra con las heladas?",
+        q: "¿El EIFS se quiebra con las heladas?",
         a: "No, si el agua puede salir. El EIFS es un sistema de fachada y soporta ciclos de hielo y deshielo. Lo que daña cualquier macetero es el agua estancada que se congela y expande, por eso en exterior recomendamos despiche o doble fondo.",
       },
       {
-        q: "¿Se puede pintar un macetero de fibrocemento?",
+        q: "¿Se puede pintar un macetero EIFS?",
         a: "Sí. La capa exterior es cemento, así que se puede repintar con esmalte al agua para exterior o pintura mineral después de limpiar la superficie. Nosotros los entregamos ya sellados y con la terminación que eliges.",
       },
       {
-        q: "¿Los maceteros de fibrocemento sirven para interior?",
+        q: "¿Los maceteros EIFS sirven para interior?",
         a: "Sí. Son livianos para mover en la limpieza y su textura de cemento funciona muy bien en interiores de estilo contemporáneo. Para interior conviene pedirlos sin despiche o usar un plato de agua para proteger el piso.",
       },
       {
@@ -107,7 +107,7 @@ export const GUIAS: Guia[] = [
     metaDescription:
       "Guía para elegir maceteros de terraza y balcón: cuánto peso soporta una losa, qué formatos resisten el viento, cómo resolver el drenaje sin manchar el piso y qué tamaño usar según la planta.",
     resumen:
-      "El mejor macetero para una terraza o balcón es uno liviano, estable frente al viento y con un sistema de drenaje que no manche ni inunde el piso. Los maceteros de fibrocemento reforzado cumplen las tres condiciones: pesan hasta 90% menos que el cemento, tienen suficiente masa para no volcarse y se fabrican con despiche, doble fondo o plato de agua según lo que el espacio necesite.",
+      "El mejor macetero para una terraza o balcón es uno liviano, estable frente al viento y con un sistema de drenaje que no manche ni inunde el piso. Los maceteros con tecnología EIFS cumplen las tres condiciones: pesan hasta 90% menos que el cemento, tienen suficiente masa para no volcarse y se fabrican con despiche, doble fondo o plato de agua según lo que el espacio necesite.",
     keywords: [
       "maceteros para terraza",
       "maceteros de terraza",
@@ -121,14 +121,14 @@ export const GUIAS: Guia[] = [
       {
         titulo: "El peso es el primer límite de una terraza",
         parrafos: [
-          "Las losas de terrazas y balcones se diseñan para una sobrecarga de uso acotada, y un macetero de hormigón grande con tierra húmeda puede concentrar varios cientos de kilos en menos de un metro cuadrado. Con fibrocemento el peso del envase casi desaparece de la ecuación: lo que pesa es el sustrato. Eso permite usar formatos grandes (cubos de 60 a 80 centímetros, jardineras de 150 a 200) en pisos altos, y además moverlos para limpiar, cambiar la distribución o proteger las plantas del viento en invierno.",
+          "Las losas de terrazas y balcones se diseñan para una sobrecarga de uso acotada, y un macetero de hormigón grande con tierra húmeda puede concentrar varios cientos de kilos en menos de un metro cuadrado. Con EIFS el peso del envase casi desaparece de la ecuación: lo que pesa es el sustrato. Eso permite usar formatos grandes (cubos de 60 a 80 centímetros, jardineras de 150 a 200) en pisos altos, y además moverlos para limpiar, cambiar la distribución o proteger las plantas del viento en invierno.",
           "Si la terraza es sobre un deck de madera o una losa antigua, conviene además repartir la carga con jardineras largas en vez de pocos maceteros muy profundos, y usar sustratos livianos con perlita o fibra de coco.",
         ],
       },
       {
         titulo: "Viento: base ancha y altura moderada",
         parrafos: [
-          "En pisos altos el viento vuelca los maceteros de plástico y los formatos muy esbeltos. Los formatos con base ancha (cubo, jardinera, bowl, redondo) son los más estables. Si quieres altura, el Gotar y el cónico funcionan bien con plantas de copa liviana; para árboles o arbustos de copa densa en zonas ventosas, preferimos cubo o RP de mayor diámetro. El peso propio del fibrocemento, mayor que el del plástico pero manejable, ayuda a que la pieza no se mueva.",
+          "En pisos altos el viento vuelca los maceteros de plástico y los formatos muy esbeltos. Los formatos con base ancha (cubo, jardinera, bowl, redondo) son los más estables. Si quieres altura, el Gotar y el cónico funcionan bien con plantas de copa liviana; para árboles o arbustos de copa densa en zonas ventosas, preferimos cubo o RP de mayor diámetro. El peso propio del EIFS, mayor que el del plástico pero manejable, ayuda a que la pieza no se mueva.",
         ],
       },
       {
@@ -147,7 +147,7 @@ export const GUIAS: Guia[] = [
     faqs: [
       {
         q: "¿Puedo poner un macetero grande en un balcón sin revisar la estructura?",
-        a: "Con fibrocemento, en la gran mayoría de los casos sí, porque el envase pesa una fracción del cemento y la carga total la define el sustrato. Para instalaciones de muchas jardineras grandes en un mismo balcón antiguo recomendamos consultar al administrador o a un calculista.",
+        a: "Con EIFS, en la gran mayoría de los casos sí, porque el envase pesa una fracción del cemento y la carga total la define el sustrato. Para instalaciones de muchas jardineras grandes en un mismo balcón antiguo recomendamos consultar al administrador o a un calculista.",
       },
       {
         q: "¿Qué macetero de terraza no se vuelca con el viento?",
@@ -167,17 +167,17 @@ export const GUIAS: Guia[] = [
       },
     ],
     colecciones: ["cubo", "jardinera", "gotar", "plato-de-agua"],
-    relacionadas: ["maceteros-livianos-fibrocemento", "como-elegir-tamano-y-drenaje-de-un-macetero"],
+    relacionadas: ["maceteros-livianos-eifs", "como-elegir-tamano-y-drenaje-de-un-macetero"],
   },
 
   {
     slug: "maceteros-resistentes-para-exterior",
     titulo: "Maceteros resistentes para exterior: comparación de materiales",
-    metaTitle: "Maceteros Resistentes para Exterior · Fibrocemento vs Cemento, Plástico y Fibra | Mundo Macetero",
+    metaTitle: "Maceteros Resistentes para Exterior · EIFS vs Cemento, Plástico y Fibra | Mundo Macetero",
     metaDescription:
-      "Qué macetero resiste mejor sol, lluvia y heladas: comparamos fibrocemento reforzado, hormigón, plástico, fibra de vidrio, greda y madera, y explicamos cuál conviene para jardín, terraza y proyectos comerciales.",
+      "Qué macetero resiste mejor sol, lluvia y heladas: comparamos EIFS, hormigón, plástico, fibra de vidrio, greda y madera, y explicamos cuál conviene para jardín, terraza y proyectos comerciales.",
     resumen:
-      "Los maceteros más resistentes para exterior son los de materiales minerales con buen drenaje: fibrocemento reforzado y hormigón. El fibrocemento EIFS, hecho con la misma tecnología de las fachadas de edificios, tiene la misma resistencia a sol, lluvia y heladas que el hormigón, pero pesa cerca de 90% menos, lo que lo hace más práctico para terrazas, accesos y proyectos comerciales. El plástico se degrada con los rayos UV, la greda se quiebra con las heladas y la madera se pudre si no se mantiene.",
+      "Los maceteros más resistentes para exterior son los de materiales minerales con buen drenaje: EIFS y hormigón. El EIFS, hecho con la misma tecnología de las fachadas de edificios, tiene la misma resistencia a sol, lluvia y heladas que el hormigón, pero pesa cerca de 90% menos, lo que lo hace más práctico para terrazas, accesos y proyectos comerciales. El plástico se degrada con los rayos UV, la greda se quiebra con las heladas y la madera se pudre si no se mantiene.",
     keywords: [
       "maceteros resistentes",
       "maceteros para exterior",
@@ -191,7 +191,7 @@ export const GUIAS: Guia[] = [
       {
         titulo: "Comparación material por material",
         parrafos: [
-          "Fibrocemento EIFS (poliestireno expandido + malla de fibra de vidrio + recubrimiento de cemento): resistente a UV, lluvia y heladas; textura mineral; liviano; se fabrica en formatos grandes y se repinta. Es la tecnología que usamos en Mundo Macetero, la misma de las fachadas de edificios. Hormigón o cemento vaciado: igual de resistente al clima, pero muy pesado, difícil de mover e instalar, y con riesgo de fisuras en piezas grandes mal curadas. Plástico y polipropileno: liviano y barato, pero se decolora y se vuelve quebradizo con el sol en pocos años, y se vuelca con el viento. Fibra de vidrio: liviana y resistente al agua, pero el gel-coat se raya, amarillea y deja ver la fibra; se ve como plástico rígido. Greda y terracota: hermosas y porosas, pero absorben agua y se quiebran con las heladas; en formatos grandes son pesadas y frágiles. Madera: cálida pero requiere mantención anual y se pudre en contacto con tierra húmeda.",
+          "Tecnología EIFS (poliestireno expandido + malla de fibra de vidrio + recubrimiento de cemento): resistente a UV, lluvia y heladas; textura mineral; liviano; se fabrica en formatos grandes y se repinta. Es la tecnología que usamos en Mundo Macetero, la misma de las fachadas de edificios. Hormigón o cemento vaciado: igual de resistente al clima, pero muy pesado, difícil de mover e instalar, y con riesgo de fisuras en piezas grandes mal curadas. Plástico y polipropileno: liviano y barato, pero se decolora y se vuelve quebradizo con el sol en pocos años, y se vuelca con el viento. Fibra de vidrio: liviana y resistente al agua, pero el gel-coat se raya, amarillea y deja ver la fibra; se ve como plástico rígido. Greda y terracota: hermosas y porosas, pero absorben agua y se quiebran con las heladas; en formatos grandes son pesadas y frágiles. Madera: cálida pero requiere mantención anual y se pudre en contacto con tierra húmeda.",
         ],
       },
       {
@@ -203,34 +203,34 @@ export const GUIAS: Guia[] = [
       {
         titulo: "Maceteros resistentes para proyectos comerciales",
         parrafos: [
-          "Inmobiliarias, hoteles, restaurantes, municipalidades y retail necesitan maceteros que aguanten tráfico de personas, limpieza frecuente y años sin reposición. El fibrocemento cumple porque no se decolora, resiste golpes moderados, se repara y se repinta, y su peso permite instalar formatos grandes en accesos, terrazas de edificios y patios de comida sin refuerzo estructural. Fabricamos series de piezas iguales en color y medida para proyectos.",
+          "Inmobiliarias, hoteles, restaurantes, municipalidades y retail necesitan maceteros que aguanten tráfico de personas, limpieza frecuente y años sin reposición. El EIFS cumple porque no se decolora, resiste golpes moderados, se repara y se repinta, y su peso permite instalar formatos grandes en accesos, terrazas de edificios y patios de comida sin refuerzo estructural. Fabricamos series de piezas iguales en color y medida para proyectos.",
         ],
       },
     ],
     faqs: [
       {
         q: "¿Qué macetero resiste mejor el sol directo?",
-        a: "Los de material mineral: fibrocemento y hormigón. No se decoloran ni se vuelven frágiles con los rayos UV, a diferencia del plástico y la fibra de vidrio.",
+        a: "Los de material mineral: EIFS y hormigón. No se decoloran ni se vuelven frágiles con los rayos UV, a diferencia del plástico y la fibra de vidrio.",
       },
       {
-        q: "¿Los maceteros de fibrocemento resisten heladas?",
-        a: "Sí, siempre que tengan drenaje. Lo que rompe cualquier macetero en invierno es el agua estancada que se congela; con despiche o doble fondo el fibrocemento soporta ciclos de hielo y deshielo sin problema.",
+        q: "¿Los maceteros EIFS resisten heladas?",
+        a: "Sí, siempre que tengan drenaje. Lo que rompe cualquier macetero en invierno es el agua estancada que se congela; con despiche o doble fondo el EIFS soporta ciclos de hielo y deshielo sin problema.",
       },
       {
-        q: "¿Un macetero de fibrocemento se puede reparar si se golpea?",
+        q: "¿Un macetero EIFS se puede reparar si se golpea?",
         a: "Sí. Como la capa exterior es cemento, los golpes superficiales se resanan con mortero fino y se repintan con la misma terminación. Además, todos nuestros maceteros tienen garantía por fallas de fabricación.",
       },
       {
         q: "¿Qué macetero conviene para el acceso de un edificio o un local?",
-        a: "Formatos grandes y estables como cubo, RP o redondo, en fibrocemento, con despiche o doble fondo. Fabricamos series iguales para proyectos de inmobiliarias, hotelería, retail y municipalidades.",
+        a: "Formatos grandes y estables como cubo, RP o redondo, en EIFS, con despiche o doble fondo. Fabricamos series iguales para proyectos de inmobiliarias, hotelería, retail y municipalidades.",
       },
       {
-        q: "¿Cuánto duran los maceteros de fibrocemento en exterior?",
+        q: "¿Cuánto duran los maceteros EIFS en exterior?",
         a: "Décadas, con el mismo comportamiento que el EIFS de las fachadas de edificios. El único cuidado es que el agua drene y que la pieza no se arrastre por el suelo.",
       },
     ],
     colecciones: ["cubo", "rp", "redondos", "marroc"],
-    relacionadas: ["maceteros-livianos-fibrocemento", "maceteros-premium-de-diseno"],
+    relacionadas: ["maceteros-livianos-eifs", "maceteros-premium-de-diseno"],
   },
 
   {
@@ -238,9 +238,9 @@ export const GUIAS: Guia[] = [
     titulo: "Maceteros premium de diseño: terminaciones, formas y piezas de autor",
     metaTitle: "Maceteros Premium de Diseño en Chile · Terminaciones y Autor | Mundo Macetero",
     metaDescription:
-      "Qué distingue a un macetero premium: forma, terminación, proporción y fabricación a pedido. Colecciones Gotar, Gema, Milán, Marroc y maceteros de autor en fibrocemento, fabricados en Chile.",
+      "Qué distingue a un macetero premium: forma, terminación, proporción y fabricación a pedido. Colecciones Gotar, Gema, Milán, Marroc y maceteros de autor en EIFS, fabricados en Chile.",
     resumen:
-      "Un macetero premium se distingue por cuatro cosas: una forma con proporciones cuidadas, una terminación hecha a mano (cemento natural, blanco, negro, cantera u óxido de cobre), un material que envejece bien y una fabricación a pedido en la medida y color exactos del proyecto. Mundo Macetero fabrica maceteros premium en fibrocemento reforzado en Quilicura, Chile, incluidas colaboraciones de autor en edición limitada.",
+      "Un macetero premium se distingue por cuatro cosas: una forma con proporciones cuidadas, una terminación hecha a mano (cemento natural, blanco, negro, cantera u óxido de cobre), un material que envejece bien y una fabricación a pedido en la medida y color exactos del proyecto. Mundo Macetero fabrica maceteros premium con tecnología EIFS en Quilicura, Chile, incluidas colaboraciones de autor en edición limitada.",
     keywords: [
       "maceteros premium",
       "maceteros de diseño",
@@ -291,7 +291,7 @@ export const GUIAS: Guia[] = [
       },
       {
         q: "¿Los maceteros premium sirven para exterior?",
-        a: "Sí. Todas las colecciones son de fibrocemento reforzado sellado, apto para sol, lluvia y heladas, con despiche o doble fondo a pedido.",
+        a: "Sí. Todas las colecciones son de EIFS sellado, apto para sol, lluvia y heladas, con despiche o doble fondo a pedido.",
       },
       {
         q: "¿Ofrecen asesoría para elegir?",
@@ -336,7 +336,7 @@ export const GUIAS: Guia[] = [
       {
         titulo: "Ficus, monsteras y plantas de interior grandes",
         parrafos: [
-          "Van bien en cubos y redondos de 40 a 60 centímetros, sin despiche si están en interior sobre piso delicado, o con plato de agua. Al ser livianos, los maceteros de fibrocemento permiten girar la planta hacia la luz o moverla en la limpieza sin esfuerzo.",
+          "Van bien en cubos y redondos de 40 a 60 centímetros, sin despiche si están en interior sobre piso delicado, o con plato de agua. Al ser livianos, los maceteros EIFS permiten girar la planta hacia la luz o moverla en la limpieza sin esfuerzo.",
         ],
       },
       {
@@ -362,7 +362,7 @@ export const GUIAS: Guia[] = [
         a: "Uno profundo: Gotar M o L, cónico o vaso desde 55 centímetros de alto, porque las raíces de palmera crecen hacia abajo.",
       },
       {
-        q: "¿Puedo plantar aromáticas en una jardinera de fibrocemento?",
+        q: "¿Puedo plantar aromáticas en una jardinera EIFS?",
         a: "Sí. Nuestras jardineras de 30 centímetros de alto y 100 a 200 de largo son ideales para aromáticas y hortalizas de hoja; pídelas con despiche y usa sustrato para huerto.",
       },
       {
@@ -400,7 +400,7 @@ export const GUIAS: Guia[] = [
       {
         titulo: "Cómo calcular el tamaño",
         parrafos: [
-          "Regla general: el lado o diámetro del macetero debe ser al menos un tercio de la altura final de la planta, y la profundidad, similar al diámetro para árboles y mayor para palmeras. Un arbusto de 1,5 metros pide un envase de 50 centímetros; un árbol de 2,5 metros, de 70 a 80. Para plantas bajas manda el ancho de la composición, no la altura. Si dudas entre dos tamaños, elige el mayor: la planta crecerá y un macetero grande de fibrocemento sigue siendo fácil de mover.",
+          "Regla general: el lado o diámetro del macetero debe ser al menos un tercio de la altura final de la planta, y la profundidad, similar al diámetro para árboles y mayor para palmeras. Un arbusto de 1,5 metros pide un envase de 50 centímetros; un árbol de 2,5 metros, de 70 a 80. Para plantas bajas manda el ancho de la composición, no la altura. Si dudas entre dos tamaños, elige el mayor: la planta crecerá y un macetero grande EIFS sigue siendo fácil de mover.",
         ],
       },
       {
@@ -437,7 +437,7 @@ export const GUIAS: Guia[] = [
       },
       {
         q: "¿Qué tamaño de macetero elijo si dudo entre dos?",
-        a: "El mayor. La planta va a crecer, el sustrato extra retiene más humedad y un macetero grande de fibrocemento sigue siendo liviano para moverlo.",
+        a: "El mayor. La planta va a crecer, el sustrato extra retiene más humedad y un macetero grande EIFS sigue siendo liviano para moverlo.",
       },
       {
         q: "¿Venden platos a juego con los maceteros?",
@@ -460,79 +460,79 @@ export const COLECCIONES: Record<string, ColeccionCopy> = {
   bowl: {
     h1: "Maceteros Bowl",
     intro:
-      "El Bowl es un macetero bajo y abierto, de boca ancha, pensado para composiciones de suculentas, agaves y plantas de porte horizontal. En fibrocemento reforzado, pesa cerca de 90% menos que uno de cemento, así que se puede usar sobre mesas de terraza, accesos y bordes de piscina. Disponible en cemento natural, negro y cantera, con o sin despiche.",
+      "El Bowl es un macetero bajo y abierto, de boca ancha, pensado para composiciones de suculentas, agaves y plantas de porte horizontal. Con tecnología EIFS, pesa cerca de 90% menos que uno de cemento, así que se puede usar sobre mesas de terraza, accesos y bordes de piscina. Disponible en cemento natural, negro y cantera, con o sin despiche.",
     metaDescription:
-      "Maceteros Bowl de fibrocemento liviano para suculentas y composiciones bajas. Formato abierto, apto para exterior, fabricado a pedido en Chile.",
+      "Maceteros Bowl EIFS livianos para suculentas y composiciones bajas. Formato abierto, apto para exterior, fabricado a pedido en Chile.",
   },
   colonial: {
     h1: "Maceteros Colonial",
     intro:
-      "El Colonial recupera el perfil clásico del macetero de patio chileno, con borde marcado y cuerpo abombado, fabricado en fibrocemento liviano para que un formato grande se pueda mover sin ayuda. Funciona en jardines tradicionales, corredores y accesos, en cemento natural o terminaciones de color.",
+      "El Colonial recupera el perfil clásico del macetero de patio chileno, con borde marcado y cuerpo abombado, fabricado en EIFS liviano para que un formato grande se pueda mover sin ayuda. Funciona en jardines tradicionales, corredores y accesos, en cemento natural o terminaciones de color.",
     metaDescription:
-      "Maceteros Colonial de fibrocemento liviano: perfil clásico para patios y jardines, resistente al exterior, fabricado a pedido en Quilicura, Chile.",
+      "Maceteros Colonial EIFS livianos: perfil clásico para patios y jardines, resistente al exterior, fabricado a pedido en Quilicura, Chile.",
   },
   conico: {
     h1: "Maceteros Cónicos",
     intro:
-      "El Cónico es el formato de altura por excelencia: base más angosta que la boca, líneas rectas y mucha presencia vertical con poco piso ocupado. Ideal para palmeras, dracenas y plantas erguidas en terrazas y accesos. En fibrocemento reforzado resiste sol, lluvia y heladas con una fracción del peso del cemento.",
+      "El Cónico es el formato de altura por excelencia: base más angosta que la boca, líneas rectas y mucha presencia vertical con poco piso ocupado. Ideal para palmeras, dracenas y plantas erguidas en terrazas y accesos. Con tecnología EIFS resiste sol, lluvia y heladas con una fracción del peso del cemento.",
     metaDescription:
-      "Maceteros cónicos de fibrocemento liviano para palmeras y plantas erguidas. Altura y estabilidad para terrazas y accesos. Fabricados en Chile.",
+      "Maceteros cónicos EIFS livianos para palmeras y plantas erguidas. Altura y estabilidad para terrazas y accesos. Fabricados en Chile.",
   },
   copon: {
     h1: "Maceteros Copón",
     intro:
-      "El Copón es un formato de copa abierta sobre pie, que eleva la composición y la separa del suelo. Se usa para suculentas, flores de temporada y arreglos bajos en accesos, patios y hotelería. Fibrocemento liviano, terminaciones a mano, con o sin despiche.",
+      "El Copón es un formato de copa abierta sobre pie, que eleva la composición y la separa del suelo. Se usa para suculentas, flores de temporada y arreglos bajos en accesos, patios y hotelería. EIFS liviano, terminaciones a mano, con o sin despiche.",
     metaDescription:
-      "Maceteros Copón de fibrocemento: copa abierta sobre pie para composiciones bajas en accesos y patios. Livianos y resistentes al exterior.",
+      "Maceteros Copón EIFS: copa abierta sobre pie para composiciones bajas en accesos y patios. Livianos y resistentes al exterior.",
   },
   cubo: {
     h1: "Maceteros Cubo",
     intro:
-      "El Cubo es el macetero de caras rectas, de 40 a 120 centímetros de lado, en cemento natural o negro y con o sin despiche. Es el formato que mejor calza contra un muro o en una esquina y el único que se alinea en serie sin dejar espacio entre piezas. En fibrocemento reforzado pesa cerca de 90% menos que un cubo de cemento, por lo que incluso las medidas grandes se instalan en terrazas y balcones.",
+      "El Cubo es el macetero de caras rectas, de 40 a 120 centímetros de lado, en cemento natural o negro y con o sin despiche. Es el formato que mejor calza contra un muro o en una esquina y el único que se alinea en serie sin dejar espacio entre piezas. Con tecnología EIFS pesa cerca de 90% menos que un cubo de cemento, por lo que incluso las medidas grandes se instalan en terrazas y balcones.",
     metaDescription:
-      "Maceteros cubo de fibrocemento liviano de 40 a 120 cm. Se alinean en serie, resisten exterior y pesan 90% menos que el cemento. Fabricados en Chile.",
+      "Maceteros cubo EIFS livianos de 40 a 120 cm. Se alinean en serie, resisten exterior y pesan 90% menos que el cemento. Fabricados en Chile.",
   },
   gema: {
     h1: "Maceteros Gema",
     intro:
-      "El Gema tiene caras facetadas que cambian de tono con la luz, como una piedra tallada. Es una pieza protagonista para accesos, halls y terrazas contemporáneas, en fibrocemento liviano con terminaciones cemento, negro y cantera. Se fabrica a pedido con o sin despiche.",
+      "El Gema tiene caras facetadas que cambian de tono con la luz, como una piedra tallada. Es una pieza protagonista para accesos, halls y terrazas contemporáneas, en EIFS liviano con terminaciones cemento, negro y cantera. Se fabrica a pedido con o sin despiche.",
     metaDescription:
-      "Maceteros Gema de fibrocemento: caras facetadas de diseño para accesos y terrazas contemporáneas. Livianos, resistentes y fabricados en Chile.",
+      "Maceteros Gema EIFS: caras facetadas de diseño para accesos y terrazas contemporáneas. Livianos, resistentes y fabricados en Chile.",
   },
   gotar: {
     h1: "Maceteros Gotar",
     intro:
-      "El Gotar tiene silueta de gota, base angosta y cadera alta, en tallas S a L y cuatro terminaciones que van del cemento blanco al cantera negro. Es un macetero para planta erguida, donde la forma del envase se ve completa. En fibrocemento reforzado pesa cerca de 90% menos que un macetero de cemento del mismo tamaño, algo que se agradece en piezas de 55 centímetros hacia arriba.",
+      "El Gotar tiene silueta de gota, base angosta y cadera alta, en tallas S a L y cuatro terminaciones que van del cemento blanco al cantera negro. Es un macetero para planta erguida, donde la forma del envase se ve completa. Con tecnología EIFS pesa cerca de 90% menos que un macetero de cemento del mismo tamaño, algo que se agradece en piezas de 55 centímetros hacia arriba.",
     metaDescription:
-      "Maceteros Gotar de fibrocemento: silueta de gota, tallas S a L, cuatro terminaciones. Livianos, para palmeras y plantas erguidas. Fabricados en Chile.",
+      "Maceteros Gotar EIFS: silueta de gota, tallas S a L, cuatro terminaciones. Livianos, para palmeras y plantas erguidas. Fabricados en Chile.",
   },
   jardinera: {
     h1: "Jardineras",
     intro:
-      "Jardineras de 30 centímetros de alto y 100 a 200 centímetros de largo para plantar en hilera: cercos verdes, separación de terrazas, borde de piscina o una línea de aromáticas junto a la cocina. Al ser de fibrocemento reforzado, una jardinera larga sigue siendo manejable, con cerca de 90% menos peso que su equivalente en cemento, y se monta sobre deck, losa o balcón sin cálculo estructural.",
+      "Jardineras de 30 centímetros de alto y 100 a 200 centímetros de largo para plantar en hilera: cercos verdes, separación de terrazas, borde de piscina o una línea de aromáticas junto a la cocina. Al ser de EIFS, una jardinera larga sigue siendo manejable, con cerca de 90% menos peso que su equivalente en cemento, y se monta sobre deck, losa o balcón sin cálculo estructural.",
     metaDescription:
-      "Jardineras de fibrocemento liviano de 100 a 200 cm para cercos verdes, terrazas y aromáticas. 90% más livianas que el cemento. Fabricadas en Chile.",
+      "Jardineras EIFS livianas de 100 a 200 cm para cercos verdes, terrazas y aromáticas. 90% más livianas que el cemento. Fabricadas en Chile.",
   },
   macetero: {
     h1: "Maceteros",
     intro:
       "Maceteros ultra livianos fabricados con tecnología EIFS (poliestireno expandido, malla de fibra de vidrio y recubrimiento de cemento), a pedido en Quilicura, Santiago. Tienen el aspecto y la textura del cemento con cerca de 90% menos peso, resisten sol, lluvia y heladas, y se producen en la forma, tamaño, terminación y drenaje que tu espacio necesita.",
     metaDescription:
-      "Maceteros de fibrocemento ultra livianos para interior y exterior, fabricados a pedido en Chile. Tipo cemento, 90% más livianos, resistentes al clima.",
+      "Maceteros EIFS ultra livianos para interior y exterior, fabricados a pedido en Chile. Tipo cemento, 90% más livianos, resistentes al clima.",
   },
   marroc: {
     h1: "Maceteros Marroc",
     intro:
-      "El Marroc combina volumen recto con textura cantera y terminación óxido de cobre, pensado para arquitectura contemporánea, hotelería y proyectos donde el macetero es parte del diseño. Fibrocemento liviano, apto para exterior, fabricado a pedido.",
+      "El Marroc combina volumen recto con textura cantera y terminación óxido de cobre, pensado para arquitectura contemporánea, hotelería y proyectos donde el macetero es parte del diseño. EIFS liviano, apto para exterior, fabricado a pedido.",
     metaDescription:
-      "Maceteros Marroc de fibrocemento con textura cantera y óxido de cobre. Diseño contemporáneo para hotelería y arquitectura. Fabricados en Chile.",
+      "Maceteros Marroc EIFS con textura cantera y óxido de cobre. Diseño contemporáneo para hotelería y arquitectura. Fabricados en Chile.",
   },
   milan: {
     h1: "Maceteros Milán",
     intro:
-      "El Milán es un macetero de líneas rectas y proporciones altas para espacios contemporáneos: halls, terrazas de edificio, restaurantes. En fibrocemento reforzado, resiste el exterior y se mueve sin esfuerzo, con terminaciones cemento, blanco, negro y cantera.",
+      "El Milán es un macetero de líneas rectas y proporciones altas para espacios contemporáneos: halls, terrazas de edificio, restaurantes. Con tecnología EIFS, resiste el exterior y se mueve sin esfuerzo, con terminaciones cemento, blanco, negro y cantera.",
     metaDescription:
-      "Maceteros Milán de fibrocemento liviano: líneas rectas y proporciones altas para espacios contemporáneos. Resistentes al exterior, fabricados en Chile.",
+      "Maceteros Milán EIFS livianos: líneas rectas y proporciones altas para espacios contemporáneos. Resistentes al exterior, fabricados en Chile.",
   },
   piedras: {
     h1: "Piedras decorativas",
@@ -544,52 +544,52 @@ export const COLECCIONES: Record<string, ColeccionCopy> = {
   "plato-de-agua": {
     h1: "Platos de agua",
     intro:
-      "Platos de agua de fibrocemento a juego con los maceteros: reciben el agua del despiche y protegen pisos de madera, porcelanato y terrazas sobre vecinos. Misma terminación que el macetero para que la pieza se lea completa.",
+      "Platos de agua EIFS a juego con los maceteros: reciben el agua del despiche y protegen pisos de madera, porcelanato y terrazas sobre vecinos. Misma terminación que el macetero para que la pieza se lea completa.",
     metaDescription:
-      "Platos de agua de fibrocemento a juego con los maceteros Mundo Macetero. Protegen el piso y recogen el drenaje. Fabricados en Chile.",
+      "Platos de agua EIFS a juego con los maceteros Mundo Macetero. Protegen el piso y recogen el drenaje. Fabricados en Chile.",
   },
   "plato-invertido": {
     h1: "Platos invertidos",
     intro:
       "El plato invertido es una base o pedestal bajo del mismo material que eleva el macetero, mejora el drenaje al separarlo del suelo y le da presencia en accesos y terrazas. Combina con cubos, redondos y Gotar.",
     metaDescription:
-      "Platos invertidos de fibrocemento: base o pedestal para elevar el macetero, mejorar el drenaje y dar presencia. Mundo Macetero, Chile.",
+      "Platos invertidos EIFS: base o pedestal para elevar el macetero, mejorar el drenaje y dar presencia. Mundo Macetero, Chile.",
   },
   redondos: {
     h1: "Maceteros Redondos",
     intro:
-      "Maceteros redondos de fibrocemento liviano, el formato más versátil para olivos, ficus, arbustos y composiciones en jardín, terraza e interior. Base ancha y estable frente al viento, en cemento natural, blanco, negro y cantera, con o sin despiche.",
+      "Maceteros redondos EIFS livianos, el formato más versátil para olivos, ficus, arbustos y composiciones en jardín, terraza e interior. Base ancha y estable frente al viento, en cemento natural, blanco, negro y cantera, con o sin despiche.",
     metaDescription:
-      "Maceteros redondos de fibrocemento liviano para olivos, ficus y arbustos. Estables, resistentes al exterior y 90% más livianos que el cemento.",
+      "Maceteros redondos EIFS livianos para olivos, ficus y arbustos. Estables, resistentes al exterior y 90% más livianos que el cemento.",
   },
   rp: {
     h1: "Maceteros RP",
     intro:
-      "La línea RP es un formato de gran diámetro y proporción sólida para árboles en macetero, accesos de edificios y proyectos comerciales. En fibrocemento reforzado, permite instalar volúmenes grandes sin refuerzo estructural y moverlos cuando el proyecto cambia.",
+      "La línea RP es un formato de gran diámetro y proporción sólida para árboles en macetero, accesos de edificios y proyectos comerciales. Con tecnología EIFS, permite instalar volúmenes grandes sin refuerzo estructural y moverlos cuando el proyecto cambia.",
     metaDescription:
-      "Maceteros RP de fibrocemento: gran formato para árboles, accesos y proyectos comerciales. Livianos, resistentes y fabricados a pedido en Chile.",
+      "Maceteros RP EIFS: gran formato para árboles, accesos y proyectos comerciales. Livianos, resistentes y fabricados a pedido en Chile.",
   },
   vaso: {
     h1: "Maceteros Vaso",
     intro:
-      "El Vaso es un macetero alto de perfil clásico, más ancho en la boca que en la base, para palmeras, plantas erguidas y composiciones verticales en patios y terrazas. Fibrocemento liviano, terminaciones a mano, con o sin despiche.",
+      "El Vaso es un macetero alto de perfil clásico, más ancho en la boca que en la base, para palmeras, plantas erguidas y composiciones verticales en patios y terrazas. EIFS liviano, terminaciones a mano, con o sin despiche.",
     metaDescription:
-      "Maceteros Vaso de fibrocemento liviano: formato alto clásico para palmeras y plantas erguidas. Resistentes al exterior, fabricados en Chile.",
+      "Maceteros Vaso EIFS livianos: formato alto clásico para palmeras y plantas erguidas. Resistentes al exterior, fabricados en Chile.",
   },
 };
 
 export const COLECCION_GENERICA: ColeccionCopy = {
   intro:
-    "Maceteros de fibrocemento reforzado ultra livianos, fabricados a pedido en Quilicura, Chile. Aspecto de cemento, cerca de 90% menos peso, resistentes a sol, lluvia y heladas.",
+    "Maceteros con tecnología EIFS ultra livianos, fabricados a pedido en Quilicura, Chile. Aspecto de cemento, cerca de 90% menos peso, resistentes a sol, lluvia y heladas.",
   metaDescription:
-    "Maceteros de fibrocemento ultra livianos fabricados a pedido en Chile. Tipo cemento, resistentes al exterior, para terraza, jardín e interior.",
+    "Maceteros EIFS ultra livianos fabricados a pedido en Chile. Tipo cemento, resistentes al exterior, para terraza, jardín e interior.",
 };
 
 // Site-wide FAQ: /preguntas-frecuentes and (first 6) the home page.
 export const FAQ_GENERAL: Faq[] = [
   {
     q: "¿De qué material son los maceteros de Mundo Macetero?",
-    a: "De fibrocemento con tecnología EIFS, la misma que se usa en fachadas de construcción: núcleo de poliestireno expandido, malla de fibra de vidrio y recubrimiento de cemento con terminación de color o textura. Tienen el aspecto y la textura del cemento, pero pesan cerca de 90% menos que un macetero de hormigón del mismo tamaño.",
+    a: "Con tecnología EIFS, la misma que se usa en fachadas de construcción: núcleo de poliestireno expandido, malla de fibra de vidrio y recubrimiento de cemento con terminación de color o textura. Tienen el aspecto y la textura del cemento, pero pesan cerca de 90% menos que un macetero de hormigón del mismo tamaño.",
   },
   {
     q: "¿Los maceteros sirven para exterior?",

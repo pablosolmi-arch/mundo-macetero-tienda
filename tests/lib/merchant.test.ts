@@ -11,7 +11,7 @@ const SITIO = "https://tienda.example.com";
 const conVariantes: ProductoMerchant = {
   slug: "macetero-bowl",
   name: "Macetero Bowl",
-  description: "<p>Macetero de <strong>fibrocemento</strong> ultra liviano.</p>",
+  description: "<p>Macetero con <strong>tecnología EIFS</strong> ultra liviano.</p>",
   basePrice: "39990",
   images: ["https://cdn.example.com/bowl-1.jpg", "https://cdn.example.com/bowl-2.jpg"],
   status: "active",
@@ -100,7 +100,7 @@ describe("construirItemsMerchant", () => {
 
   it("convierte la descripción HTML a texto plano", () => {
     const [item] = construirItemsMerchant([conVariantes], SITIO);
-    expect(item.description).toBe("Macetero de fibrocemento ultra liviano.");
+    expect(item.description).toBe("Macetero con tecnología EIFS ultra liviano.");
   });
 
   it("recorta el título a 150 caracteres", () => {

@@ -165,7 +165,7 @@ export const INTENCIONES: Intencion[] = [
       { q: "¿Sirven para árboles?", a: "Sí. Son el formato indicado para olivos formados, cítricos, palmeras y árboles ornamentales en macetero." },
     ],
     relacionadas: ["maceteros-grandes", "maceteros-para-jardin", "maceteros-altos"],
-    guias: ["maceteros-resistentes-para-exterior", "maceteros-livianos-fibrocemento"],
+    guias: ["maceteros-resistentes-para-exterior", "maceteros-livianos-eifs"],
   },
   {
     slug: "maceteros-pequenos-y-medianos",
@@ -267,7 +267,7 @@ export const INTENCIONES: Intencion[] = [
       { q: "¿Es el mismo color que un macetero de hormigón?", a: "Sí, es el mismo cemento, con la diferencia de que pesa cerca de 90% menos." },
     ],
     relacionadas: ["maceteros-negros", "maceteros-de-cemento", "maceteros-para-jardin"],
-    guias: ["maceteros-livianos-fibrocemento"],
+    guias: ["maceteros-livianos-eifs"],
   },
   {
     slug: "maceteros-texturas-especiales",
@@ -349,7 +349,7 @@ export const INTENCIONES: Intencion[] = [
       { q: "¿Son de plástico o fibra de vidrio?", a: "No. La superficie es cemento real; la fibra de vidrio va embebida como refuerzo y el volumen es poliestireno expandido." },
     ],
     relacionadas: ["maceteros-grandes", "maceteros-para-terraza", "maceteros-de-cemento"],
-    guias: ["maceteros-livianos-fibrocemento", "maceteros-resistentes-para-exterior"],
+    guias: ["maceteros-livianos-eifs", "maceteros-resistentes-para-exterior"],
   },
   {
     slug: "maceteros-de-cemento",
@@ -366,10 +366,10 @@ export const INTENCIONES: Intencion[] = [
     faqs: [
       { q: "¿Es cemento de verdad?", a: "Sí. La capa exterior es cemento aplicado sobre malla de fibra de vidrio; el volumen interior es poliestireno expandido, por eso pesa tan poco." },
       { q: "¿Se fisura como el hormigón?", a: "Menos: la malla de fibra de vidrio trabaja a tracción y evita las fisuras que el cemento solo no aguanta." },
-      { q: "¿Es lo mismo que fibrocemento?", a: "Comercialmente se le llama fibrocemento; técnicamente es EIFS, el sistema de revestimiento de fachadas." },
+      { q: "¿Qué es la tecnología EIFS?", a: "Es el sistema de revestimiento de fachadas de edificios: núcleo de poliestireno expandido, malla de fibra de vidrio y recubrimiento de cemento." },
     ],
     relacionadas: ["maceteros-cemento-natural", "maceteros-livianos", "maceteros-para-jardin"],
-    guias: ["maceteros-livianos-fibrocemento"],
+    guias: ["maceteros-livianos-eifs"],
   },
 
   // ───────────────────────── Por planta ─────────────────────────

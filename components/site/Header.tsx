@@ -11,6 +11,11 @@ import type { GrupoIntenciones } from "../../lib/intenciones";
 // header oscuro con la navegación a la izquierda, el monograma centrado y los
 // íconos a la derecha. Mantiene los dos mega-menús, la búsqueda a pantalla
 // completa y el badge del carrito.
+//
+// En escritorio el monograma va centrado en posición absoluta, no como columna
+// central de una grilla: con siete ítems la navegación crecía hasta empujarlo y
+// terminaba montándose encima. Sacándolo del flujo, la fila puede ocupar toda su
+// mitad sin mover el logo. En móvil sigue siendo una grilla de tres columnas.
 
 export interface NavProducto {
   slug: string;
@@ -165,19 +170,11 @@ export function Header({ productos, intenciones }: HeaderProps) {
           color: "#fff",
         }}
       >
-        <div
-          className="mm-header-inner"
-          style={{
-            maxWidth: "1280px",
-            margin: "0 auto",
-            padding: "0 24px",
-            display: "grid",
-            gridTemplateColumns: "1fr auto 1fr",
-            alignItems: "center",
-            gap: "16px",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", minWidth: 0 }}>
+        {/* El layout vive en app/globals.css (.mm-header-*) y no en estilos en
+            línea: en escritorio el monograma se posiciona en absoluto y eso no se
+            puede expresar con un solo objeto de estilo para los dos breakpoints. */}
+        <div className="mm-header-inner">
+          <div className="mm-header-izq">
             <button
               onClick={() => setNavMovil(true)}
               aria-label="Menú"
@@ -196,15 +193,7 @@ export function Header({ productos, intenciones }: HeaderProps) {
               <span style={{ display: "block", width: "22px", height: "2px", background: "#fff" }} />
             </button>
 
-            <nav
-              className="mm-desktop-nav"
-              style={{
-                alignItems: "center",
-                gap: "16px",
-                fontSize: "13px",
-                letterSpacing: ".01em",
-              }}
-            >
+            <nav className="mm-desktop-nav">
               <Link href="/" className="mm-nav-link-dark" onMouseEnter={() => setMenu(null)}>
                 Inicio
               </Link>
@@ -217,15 +206,6 @@ export function Header({ productos, intenciones }: HeaderProps) {
                   Tienda <Chevron abierto={menu === "tienda"} />
                 </Link>
               </div>
-              <div style={{ position: "relative" }} onMouseEnter={() => setMenu("intenciones")}>
-                <Link
-                  href="/maceteros"
-                  className="mm-nav-link-dark"
-                  style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}
-                >
-                  Maceteros por… <Chevron abierto={menu === "intenciones"} />
-                </Link>
-              </div>
               <div style={{ position: "relative" }} onMouseEnter={() => setMenu("ases")}>
                 <Link
                   href="/asesoramiento"
@@ -235,13 +215,15 @@ export function Header({ productos, intenciones }: HeaderProps) {
                   Te asesoramos <Chevron abierto={menu === "ases"} />
                 </Link>
               </div>
+              {/* "Tu espacio con un macetero" ocupaba 110px de la fila y no cabe
+                  junto al monograma centrado a ningún ancho: la etiqueta corta
+                  queda fija y el título completo se lee al entrar a la página. */}
               <Link href="/tu-espacio" className="mm-nav-link-dark" onMouseEnter={() => setMenu(null)}>
-                {/* Bajo 1280px la fila no cabe con la etiqueta larga. */}
-                <span className="mm-nav-largo">Tu espacio con un macetero</span>
-                <span className="mm-nav-corto">Tu espacio</span>
+                Tu espacio
               </Link>
               <Link href="/contacto" className="mm-nav-link-dark" onMouseEnter={() => setMenu(null)}>
-                Proyecto Profesional
+                <span className="mm-nav-largo">Proyecto Profesional</span>
+                <span className="mm-nav-corto">Proyectos</span>
               </Link>
               <Link href="/instagram" className="mm-nav-link-dark" onMouseEnter={() => setMenu(null)}>
                 Instagram
@@ -252,7 +234,7 @@ export function Header({ productos, intenciones }: HeaderProps) {
           <Link
             href="/"
             aria-label="Mundo Macetero, ir al inicio"
-            style={{ display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+            className="mm-header-logo-link"
             onMouseEnter={() => setMenu(null)}
           >
             {/* Sobre el header oscuro va el monograma blanco; el oscuro queda para
@@ -267,7 +249,7 @@ export function Header({ productos, intenciones }: HeaderProps) {
             />
           </Link>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "10px", justifyContent: "flex-end" }}>
+          <div className="mm-header-der">
             {/* Solo la lupa: abre el overlay de búsqueda, que es donde se escribe
                 y se ven los resultados. */}
             <button
@@ -353,6 +335,51 @@ export function Header({ productos, intenciones }: HeaderProps) {
                   )}
                 </div>
               ))}
+            </div>
+
+            {/* Las colecciones por intención vivían en un ítem propio del primer
+                nivel, pero con siete etiquetas la fila se montaba sobre el
+                monograma. Acá abajo quedan a un paso y con más contexto. */}
+            <div style={{ borderTop: "1px solid #e9e6e1" }}>
+              <div
+                style={{
+                  maxWidth: "1280px",
+                  margin: "0 auto",
+                  padding: "22px 24px 30px",
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3,minmax(0,1fr))",
+                  gap: "22px 40px",
+                }}
+              >
+                {intenciones.map((g) => (
+                  <div key={g.grupo}>
+                    <div
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        letterSpacing: ".08em",
+                        textTransform: "uppercase",
+                        color: "#6f6c66",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      {g.grupo}
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "7px", fontSize: "13.5px" }}>
+                      {g.items.map((i) => (
+                        <Link
+                          key={i.slug}
+                          href={`/maceteros/${i.slug}`}
+                          className="mm-link"
+                          onClick={() => setMenu(null)}
+                        >
+                          {i.h1}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}

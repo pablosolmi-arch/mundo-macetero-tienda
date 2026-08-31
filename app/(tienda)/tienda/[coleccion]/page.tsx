@@ -25,11 +25,11 @@ export async function generateMetadata({
   const copy = COLECCIONES[cat.slug] ?? COLECCION_GENERICA;
   const h1 = copy.h1 ?? cat.name;
   return {
-    title: `${h1} de fibrocemento liviano`,
+    title: `${h1} en EIFS liviano`,
     description: copy.metaDescription,
     alternates: { canonical: `/tienda/${cat.slug}` },
     openGraph: {
-      title: `${h1} de fibrocemento liviano | Mundo Macetero`,
+      title: `${h1} en EIFS liviano | Mundo Macetero`,
       description: copy.metaDescription,
       url: `${SITE_URL}/tienda/${cat.slug}`,
       images: [HERO_IMGS[2]],
@@ -67,7 +67,7 @@ export default async function ColeccionPage({ params }: { params: Promise<{ cole
         "@type": "CollectionPage",
         "@id": url,
         url,
-        name: `${h1} de fibrocemento liviano`,
+        name: `${h1} en EIFS liviano`,
         description: copy.metaDescription,
         inLanguage: "es-CL",
         isPartOf: { "@id": WEBSITE_ID },

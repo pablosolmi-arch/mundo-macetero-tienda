@@ -15,16 +15,16 @@ const publicSans = Public_Sans({ variable: "--font-public-sans", subsets: ["lati
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Mundo Macetero · Maceteros livianos de fibrocemento para terraza, jardín e interior",
+    default: "Mundo Macetero · Maceteros livianos EIFS para terraza, jardín e interior",
     template: "%s | Mundo Macetero",
   },
   description:
-    "Maceteros de fibrocemento reforzado ultra livianos, fabricados a pedido en Chile. Tipo cemento, 90% más livianos, resistentes a sol, lluvia y heladas. Despacho gratis sector oriente de Santiago.",
+    "Maceteros con tecnología EIFS ultra livianos, fabricados a pedido en Chile. Tipo cemento, 90% más livianos, resistentes a sol, lluvia y heladas. Despacho gratis sector oriente de Santiago.",
   keywords: [
     "maceteros",
     "maceteros livianos",
     "maceteros premium",
-    "maceteros de fibrocemento",
+    "maceteros EIFS",
     "maceteros para terraza",
     "maceteros resistentes",
     "maceteros de exterior",

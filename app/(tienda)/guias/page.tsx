@@ -53,7 +53,7 @@ export default function GuiasPage() {
           textWrap: "pretty",
         }}
       >
-        Llevamos años fabricando maceteros de fibrocemento en Quilicura y asesorando proyectos residenciales y
+        Llevamos años fabricando maceteros con tecnología EIFS en Quilicura y asesorando proyectos residenciales y
         comerciales en todo Chile. Estas guías reúnen lo que respondemos a diario: qué material aguanta el exterior, qué
         tamaño pide cada planta, qué drenaje elegir y cómo resolver una terraza o un balcón sin problemas de peso.
       </p>

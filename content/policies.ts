@@ -58,7 +58,7 @@ export const POLITICAS: Politica[] = [
     slug: "terminos",
     titulo: "Términos del servicio",
     parrafos: [
-      "Mundo Macetero vende maceteros de fibrocemento reforzado ultra livianos, fabricados en Chile. Esta tienda online es nuestro canal de venta directa. Al comprar aquí aceptas estos términos.",
+      "Mundo Macetero vende maceteros con tecnología EIFS ultra livianos, fabricados en Chile. Esta tienda online es nuestro canal de venta directa. Al comprar aquí aceptas estos términos.",
       "Productos: Nuestros maceteros son livianos, resistentes al exterior y están disponibles en distintos tamaños, formas y colores. Si necesitas perforaciones de drenaje, las hacemos a pedido: indícalo al momento de comprar o escríbenos.",
       "Precios: Todos los precios están en pesos chilenos (CLP) e incluyen IVA. El precio publicado no incluye el costo de despacho cuando corresponde cotizarlo, según lo indicado en nuestra política de envío.",
       "Medios de pago: Aceptamos tarjetas de crédito, débito y prepago a través de Mercado Pago, y transferencia bancaria coordinada con nuestro equipo. Al pagar con tarjeta, confirmas que eres el titular o que estás autorizado a usarla.",

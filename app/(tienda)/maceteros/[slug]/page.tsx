@@ -67,7 +67,7 @@ export async function generateMetadata({
   const grupo = grupoPorSlug(slug);
   if (!grupo) return { title: "Maceteros" };
   return {
-    title: `${grupo.nombre} de fibrocemento liviano`,
+    title: `${grupo.nombre} en EIFS liviano`,
     description: grupo.descripcion,
     alternates: { canonical: `/maceteros/${grupo.slug}` },
     openGraph: {

@@ -43,7 +43,7 @@ const SITE_JSON_LD = {
       url: SITE_URL,
       logo: `${SITE_URL}/logo-email.png`,
       description:
-        "Mundo Macetero fabrica maceteros de fibrocemento reforzado ultra livianos en Quilicura, Santiago de Chile.",
+        "Mundo Macetero fabrica maceteros con tecnología EIFS ultra livianos en Quilicura, Santiago de Chile.",
       email: TIENDA.email,
       telephone: TIENDA.telefonos.map((t) => t.replace(/\s/g, "")),
       address: DIRECCION,
@@ -57,7 +57,7 @@ const SITE_JSON_LD = {
       },
       areaServed: { "@type": "Country", name: "Chile" },
       knowsAbout: [
-        "Maceteros de fibrocemento",
+        "Maceteros EIFS",
         "Maceteros livianos",
         "Maceteros para terraza",
         "Maceteros de exterior",

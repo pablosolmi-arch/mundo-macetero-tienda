@@ -165,8 +165,23 @@ button {
   }
 }
 
-/* Alturas del header y del logo: 96px en escritorio, 64px en móvil. */
-.mm-header-inner { height: 70px; }
+/* Estructura del header. Base (móvil): grilla de tres columnas con el monograma
+   en la del medio. Alturas: 70px en escritorio, 56px en móvil. */
+.mm-header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 70px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+}
+
+.mm-header-izq { display: flex; align-items: center; min-width: 0; }
+.mm-header-der { display: flex; align-items: center; gap: 10px; justify-content: flex-end; }
+.mm-header-logo-link { display: inline-flex; align-items: center; justify-content: center; }
+
 /* Proporción del sitio de referencia: el monograma ocupa poco más de la mitad
    del alto del header, no lo llena. */
 .mm-header-logo { height: 38px; }
@@ -186,17 +201,48 @@ button {
   }
 }
 
-/* Desde 1024 la fila de navegación se aprieta y el ítem más largo usa su
-   etiqueta corta. Antes esto valía solo hasta 1279, pero al entrar "Maceteros
-   por…" la fila pasó a seis ítems y ya no cabe junto al monograma a ningún
-   ancho: el interior del header está topado en 1280 px, así que una pantalla
-   más ancha no da más espacio. */
+/* Escritorio: el monograma sale del flujo y se centra en absoluto sobre el
+   interior del header. Así la navegación, que con siete ítems es la parte más
+   ancha, puede ocupar toda su mitad sin desplazarlo ni montarse encima. La fila
+   queda a la izquierda y los íconos a la derecha con `space-between`.
+
+   El tope de la mitad izquierda es `calc(50% - 90px)`: 50% marca el centro del
+   header y los 90px reservan el medio ancho del monograma (~28px a 38px de alto)
+   más el aire de separación. Va en `.mm-header-izq` y no en el `<nav>` porque el
+   porcentaje necesita resolverse contra un ancho definido, y el del `<nav>` lo
+   define su propio contenido. */
+/* Sin `display` aquí: lo fija el bloque de breakpoints de más arriba y volver a
+   declararlo en esta regla, que va después en el archivo, le ganaría al
+   `display: none` de la versión móvil y dejaría la fila visible en el celular. */
+.mm-desktop-nav {
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  letter-spacing: .01em;
+}
+
 .mm-nav-corto { display: none; }
 
 @media (min-width: 1024px) {
-  .mm-desktop-nav { gap: 10px !important; font-size: 12.5px !important; }
-  .mm-nav-largo { display: none; }
-  .mm-nav-corto { display: inline; }
+  .mm-header-inner {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+  }
+  .mm-header-logo-link {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .mm-header-izq {
+    max-width: calc(50% - 90px);
+  }
+  /* El contenedor se topa en 1280px, así que crecer el cuerpo con vw solo
+     ensanchaba la fila sin darle más espacio: paso y cuerpo fijos. */
+  .mm-desktop-nav {
+    gap: 16px;
+    font-size: 13px;
+  }
 }
 
 /* The design source expresses hover states with a `style-hover` attribute, which
@@ -601,25 +647,19 @@ button {
   }
 }
 
-/* Con "Instagram" la navegación llegó a siete ítems y la fila ya no cabía junto
-   al monograma centrado: se aprieta el interior del header y el paso entre
-   enlaces. El !important del padding es para ganarle al estilo en línea. */
-@media (min-width: 1024px) {
-  .mm-header-inner {
-    padding: 0 16px !important;
-  }
-  .mm-desktop-nav {
-    gap: 8px !important;
-    font-size: 12px !important;
-  }
-}
+/* El apretón manual del header (padding, gap y cuerpo con !important, más el
+   rango 1024-1279) se retiró: ahora el monograma va en absoluto y la fila usa
+   paso y cuerpo fluidos, así que no hace falta forzar nada. Ver .mm-header-* y
+   .mm-desktop-nav más arriba. */
 
-/* En la banda angosta del escritorio la fila se aprieta un punto más, para que
-   el séptimo ítem no adelante el ancho al que la navegación ya chocaba con el
-   monograma antes de entrar "Instagram". */
+/* Entre 1024 y 1279 la mitad izquierda es más angosta que la fila completa: se
+   aprieta el paso y se usan las etiquetas cortas ("Tu espacio", "Proyectos").
+   Medido: con las largas la fila mide 597px y la mitad disponible da 453px. */
 @media (min-width: 1024px) and (max-width: 1279px) {
   .mm-desktop-nav {
-    gap: 6px !important;
-    font-size: 11.4px !important;
+    gap: 12px;
+    font-size: 12.5px;
   }
+  .mm-nav-largo { display: none; }
+  .mm-nav-corto { display: inline; }
 }
