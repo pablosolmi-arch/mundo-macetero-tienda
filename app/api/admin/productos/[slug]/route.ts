@@ -4,6 +4,7 @@ import { db } from "../../../../../db/client";
 import { products, productVariants } from "../../../../../db/schema";
 import { getSessionUser } from "../../../../../lib/admin/auth";
 import { obtenerProducto } from "../../../../../queries/admin-productos";
+import { avisarIndexNow, rutasDeProducto } from "../../../../../lib/indexnow";
 
 // Guarda la ficha, las variantes y el orden de la galería de un producto. Exige
 // sesión del panel.
@@ -140,6 +141,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
       .set({ priceOverride: c.priceOverride, stock: c.stock, available: c.available })
       .where(and(eq(productVariants.id, c.id), eq(productVariants.productId, producto.id)));
   }
+
+  // Aviso a Bing de que la ficha cambió. Va sin await deliberadamente: el panel
+  // no debe esperar a un servicio externo para confirmar el guardado.
+  void avisarIndexNow(rutasDeProducto(producto.slug));
 
   return NextResponse.json({ ok: true });
 }
