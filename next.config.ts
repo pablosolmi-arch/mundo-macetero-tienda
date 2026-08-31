@@ -62,6 +62,11 @@ const REDIRECCIONES: [string, string][] = [
   ["/blogs/noticias/un-nuevo-macetero-de-autor-plumas-al-viento", "/blog/macetero-de-autor-plumas-al-viento"],
   ["/blogs/noticias/feria-plantas-diciembre-2019", "/blog"],
 
+  // ── Slugs propios que cambiaron después de publicarse ──────────────────────
+  // La guía pasó a llamarse por la tecnología (EIFS) y su URL anterior ya estaba
+  // enviada a Google, así que no puede quedar en 404.
+  ["/guias/maceteros-livianos-fibrocemento", "/guias/maceteros-livianos-eifs"],
+
   // ── Rutas propias de Shopify ───────────────────────────────────────────────
   ["/cart", "/carrito"],
   ["/collections", "/tienda"],
