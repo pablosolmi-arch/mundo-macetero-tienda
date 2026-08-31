@@ -15,11 +15,11 @@ const publicSans = Public_Sans({ variable: "--font-public-sans", subsets: ["lati
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Mundo Macetero · Maceteros livianos EIFS para terraza, jardín e interior",
+    default: "Mundo Macetero · Maceteros Livianos Tipo Cemento",
     template: "%s | Mundo Macetero",
   },
   description:
-    "Maceteros con tecnología EIFS ultra livianos, fabricados a pedido en Chile. Tipo cemento, 90% más livianos, resistentes a sol, lluvia y heladas. Despacho gratis sector oriente de Santiago.",
+    "Maceteros ultra livianos tipo cemento, fabricados a pedido en Chile: 90% menos peso, resistentes a sol, lluvia y heladas. Despacho gratis en el sector oriente.",
   keywords: [
     "maceteros",
     "maceteros livianos",

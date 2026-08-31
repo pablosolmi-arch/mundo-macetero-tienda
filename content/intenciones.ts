@@ -54,9 +54,9 @@ export const INTENCIONES: Intencion[] = [
     slug: "maceteros-para-terraza",
     grupo: "Por uso",
     h1: "Maceteros para terraza",
-    metaTitle: "Maceteros para Terraza y Balcón · Livianos y Resistentes | Mundo Macetero",
+    metaTitle: "Maceteros para Terraza y Balcón | Mundo Macetero",
     metaDescription:
-      "Maceteros para terraza y balcón fabricados en Chile: livianos para losas y pisos altos, estables frente al viento y con despiche, doble fondo o plato para no manchar el piso.",
+      "Maceteros para terraza y balcón: livianos para losas y pisos altos, estables al viento y con despiche, doble fondo o plato. Fabricados en Chile.",
     intro: [
       "Un macetero para terraza tiene que resolver tres cosas: no sobrecargar la losa, no volcarse con el viento y no manchar el piso al regar. Los nuestros están fabricados con tecnología EIFS (poliestireno expandido, malla de fibra de vidrio y recubrimiento de cemento), pesan cerca de 90% menos que el hormigón y se piden con despiche, doble fondo o plato de agua según el caso.",
       "Los formatos de base ancha (cubo, redondo, jardinera, bowl) son los más estables en pisos altos; el Gotar, el cónico y el vaso dan altura con plantas de copa liviana. Todos se fabrican a pedido en Quilicura y suben por ascensor o escalera sin problema.",
@@ -79,9 +79,9 @@ export const INTENCIONES: Intencion[] = [
     slug: "maceteros-para-interior",
     grupo: "Por uso",
     h1: "Maceteros para interior",
-    metaTitle: "Maceteros para Interior · Diseño Tipo Cemento, Livianos | Mundo Macetero",
+    metaTitle: "Maceteros para Interior Tipo Cemento | Mundo Macetero",
     metaDescription:
-      "Maceteros de interior con textura de cemento para living, hall y oficina: livianos para mover, sin despiche o con plato de agua, en cemento natural, blanco y negro. Fabricados en Chile.",
+      "Maceteros de interior con textura de cemento para living, hall y oficina: livianos, sin despiche o con plato de agua. Fabricados en Chile.",
     intro: [
       "Para interior un macetero debe verse bien de cerca, poder moverse en la limpieza y no dañar el piso. Los maceteros Mundo Macetero tienen textura mineral real (recubrimiento de cemento sobre EIFS), pesan cerca de 90% menos que el hormigón y se piden sin despiche o con plato de agua a juego para pisos de madera y porcelanato.",
       "Los formatos más usados en interior son el Gotar y el Gema para plantas erguidas junto a una ventana, el cónico y el piramidal para halls, y el cubo y el redondo de 40 a 60 cm para ficus, monsteras y palmeras de interior. Terminaciones cemento natural, blanco y negro.",
@@ -104,9 +104,9 @@ export const INTENCIONES: Intencion[] = [
     slug: "maceteros-para-jardin",
     grupo: "Por uso",
     h1: "Maceteros para jardín y exterior",
-    metaTitle: "Maceteros para Jardín y Exterior · Resistentes a Sol y Lluvia | Mundo Macetero",
+    metaTitle: "Maceteros para Jardín y Exterior | Mundo Macetero",
     metaDescription:
-      "Maceteros de exterior para jardín, acceso y patio: tecnología EIFS de fachada, resistentes a sol, lluvia y heladas, en formatos de 40 a 200 cm. Fabricados a pedido en Chile.",
+      "Maceteros de exterior para jardín, acceso y patio: tecnología EIFS, resistentes a sol, lluvia y heladas, de 40 a 200 cm. Hechos en Chile.",
     intro: [
       "Un macetero de jardín vive a la intemperie todo el año. Los nuestros usan la misma tecnología que reviste fachadas de edificios (EIFS: poliestireno expandido, malla de fibra de vidrio y cemento), por lo que resisten sol, lluvia y heladas durante décadas, y se piden con despiche para que el agua nunca quede estancada.",
       "Para accesos y jardines funcionan los formatos de mayor presencia: RP y Luxor, Belga, copón, Milán, cubos y redondos grandes, y jardineras de hasta 200 cm para cercos verdes y bordes de piscina.",
@@ -131,9 +131,9 @@ export const INTENCIONES: Intencion[] = [
     slug: "maceteros-grandes",
     grupo: "Por tamaño",
     h1: "Maceteros grandes",
-    metaTitle: "Maceteros Grandes para Terraza y Jardín (70 a 100 cm) | Mundo Macetero",
+    metaTitle: "Maceteros Grandes de 70 a 100 cm | Mundo Macetero",
     metaDescription:
-      "Maceteros grandes de 70 a 100 cm para árboles, palmeras y accesos: ultra livianos gracias al EIFS, resistentes al exterior y fabricados a pedido en Chile en cemento natural, blanco y negro.",
+      "Maceteros grandes de 70 a 100 cm para árboles, palmeras y accesos: ultra livianos gracias al EIFS y resistentes al exterior. Hechos en Chile.",
     intro: [
       "Los maceteros grandes (desde 70 cm de diámetro, lado o alto) son los que un macetero de hormigón vuelve inviables: pesan cientos de kilos y no se pueden mover. Los nuestros, fabricados con EIFS, pesan cerca de 90% menos, así que un cubo de 80 cm o un Gotar XL se instalan en una terraza y se reubican cuando el proyecto cambia.",
       "Sirven para olivos, limoneros, palmeras y arbustos formados, como hito en accesos de edificios y para proyectos de paisajismo y hotelería. Disponibles en cubo, redondo, Gotar, cónico, vaso, RP, Belga, copón y jardineras.",
@@ -151,7 +151,7 @@ export const INTENCIONES: Intencion[] = [
     slug: "maceteros-extra-grandes",
     grupo: "Por tamaño",
     h1: "Maceteros extra grandes",
-    metaTitle: "Maceteros Extra Grandes y Gigantes (100 cm o más) | Mundo Macetero",
+    metaTitle: "Maceteros Extra Grandes, 100 cm o Más | Mundo Macetero",
     metaDescription:
       "Maceteros extra grandes de 100 a 200 cm para árboles, accesos de edificios, hotelería y paisajismo. Ultra livianos en EIFS, fabricados a pedido en Chile.",
     intro: [
@@ -171,7 +171,7 @@ export const INTENCIONES: Intencion[] = [
     slug: "maceteros-pequenos-y-medianos",
     grupo: "Por tamaño",
     h1: "Maceteros pequeños y medianos",
-    metaTitle: "Maceteros Pequeños y Medianos (hasta 50 cm) · Tipo Cemento | Mundo Macetero",
+    metaTitle: "Maceteros Pequeños y Medianos | Mundo Macetero",
     metaDescription:
       "Maceteros medianos de hasta 50 cm con textura de cemento para interior, balcón y mesa de terraza. Livianos, con o sin despiche, fabricados en Chile.",
     intro: [
@@ -191,9 +191,9 @@ export const INTENCIONES: Intencion[] = [
     slug: "maceteros-altos",
     grupo: "Por tamaño",
     h1: "Maceteros altos",
-    metaTitle: "Maceteros Altos (80 cm o más) para Palmeras y Plantas Erguidas | Mundo Macetero",
+    metaTitle: "Maceteros Altos para Palmeras | Mundo Macetero",
     metaDescription:
-      "Maceteros altos de 80 a 160 cm para palmeras, dracenas y plantas erguidas, en Gotar, cónico, vaso y Milán. Livianos y resistentes al exterior. Fabricados en Chile.",
+      "Maceteros altos de 80 a 160 cm para palmeras, dracenas y plantas erguidas: Gotar, cónico, vaso y Milán. Livianos y aptos para exterior.",
     intro: [
       "Un macetero alto (desde 80 cm) da presencia vertical sin ocupar piso y es el formato correcto para plantas de raíz profunda como palmeras, dracenas y bambú. En EIFS un macetero de 1 metro de alto sigue siendo estable y liviano a la vez.",
       "Los formatos altos de Mundo Macetero son el Gotar (hasta 110 cm), el cónico (hasta 110 cm), el vaso (hasta 95 cm) y el Milán (100 a 160 cm), en cemento natural, blanco, negro y cantera.",
@@ -213,7 +213,7 @@ export const INTENCIONES: Intencion[] = [
     slug: "maceteros-negros",
     grupo: "Por color",
     h1: "Maceteros negros",
-    metaTitle: "Maceteros Negros de Cemento · Interior y Exterior | Mundo Macetero",
+    metaTitle: "Maceteros Negros de Cemento | Mundo Macetero",
     metaDescription:
       "Maceteros negros con textura de cemento para terraza, jardín e interior: dramatizan el verde y resisten el exterior. Livianos, fabricados a pedido en Chile.",
     intro: [
@@ -233,7 +233,7 @@ export const INTENCIONES: Intencion[] = [
     slug: "maceteros-blancos",
     grupo: "Por color",
     h1: "Maceteros blancos",
-    metaTitle: "Maceteros Blancos de Cemento · Estilo Mediterráneo | Mundo Macetero",
+    metaTitle: "Maceteros Blancos de Cemento | Mundo Macetero",
     metaDescription:
       "Maceteros blancos con textura de cemento para terraza, jardín e interior: luminosos, mediterráneos y resistentes al exterior. Fabricados a pedido en Chile.",
     intro: [
@@ -253,9 +253,9 @@ export const INTENCIONES: Intencion[] = [
     slug: "maceteros-cemento-natural",
     grupo: "Por color",
     h1: "Maceteros de cemento natural",
-    metaTitle: "Maceteros de Cemento Natural · Textura Mineral Auténtica | Mundo Macetero",
+    metaTitle: "Maceteros de Cemento Natural | Mundo Macetero",
     metaDescription:
-      "Maceteros tipo cemento en su color natural: la textura mineral honesta del material, con variaciones de tono propias de la terminación a mano. Livianos y fabricados en Chile.",
+      "Maceteros tipo cemento en su color natural: textura mineral con variaciones de tono propias de la terminación a mano. Livianos, hechos en Chile.",
     intro: [
       "El cemento natural es el color del material: un gris mineral con pequeñas variaciones de tono que hacen que cada pieza sea única. Es la terminación más pedida para jardines, terrazas y proyectos de arquitectura, porque envejece como una fachada y combina con todo.",
       "Toda la línea está disponible en cemento natural: cubo, redondo, Gotar, Gema, cónico, vaso, RP, Belga, copón, colonial, bowl, piramidal y jardineras.",
@@ -273,9 +273,9 @@ export const INTENCIONES: Intencion[] = [
     slug: "maceteros-texturas-especiales",
     grupo: "Por color",
     h1: "Maceteros con texturas especiales: cantera, óxido y rústico",
-    metaTitle: "Maceteros Cantera, Óxido de Cobre y Rústicos | Mundo Macetero",
+    metaTitle: "Maceteros Cantera y Óxido de Cobre | Mundo Macetero",
     metaDescription:
-      "Maceteros con terminaciones especiales hechas a mano: cantera negro y beige, óxido de cobre, ocre viejo y rústico blanco. Piezas únicas sobre EIFS, fabricadas en Chile.",
+      "Terminaciones especiales hechas a mano: cantera negro y beige, óxido de cobre, ocre viejo y rústico blanco. Piezas únicas sobre EIFS.",
     intro: [
       "Además de los colores lisos, aplicamos terminaciones especiales a mano: cantera (textura pétrea con relieve, en negro, beige o café), óxido de cobre, ocre viejo, cemento texturizado y rústico blanco. Son las terminaciones de las piezas protagonistas y de los proyectos de hotelería y paisajismo.",
       "Cada pieza con textura especial es única: el relieve y el veteado no se repiten. Disponible en Gotar, Marroc, bowl, Luxor RP, copón, cónico y otros según talla.",
@@ -295,9 +295,9 @@ export const INTENCIONES: Intencion[] = [
     slug: "maceteros-con-doble-fondo",
     grupo: "Por función",
     h1: "Maceteros con doble fondo (autorregantes)",
-    metaTitle: "Maceteros con Doble Fondo Autorregantes · Sin Manchar el Piso | Mundo Macetero",
+    metaTitle: "Maceteros con Doble Fondo Autorregantes | Mundo Macetero",
     metaDescription:
-      "Maceteros con doble fondo: cámara de reserva de agua que espacia el riego y evita que el macetero drene al piso. Ideales para balcones, interiores y proyectos. Fabricados en Chile.",
+      "Maceteros con doble fondo: cámara de reserva de agua que espacia el riego y no drena al piso. Ideales para balcones, interiores y proyectos.",
     intro: [
       "El doble fondo es una placa interior que separa el sustrato de una cámara de reserva de agua en la base. El agua sobrante baja a la cámara en vez de salir hacia afuera y la planta la toma por capilaridad: el riego se espacia, la planta tolera mejor una semana sin atención y el piso queda limpio. Es el equivalente a un macetero autorregante, con textura de cemento.",
       "Es la opción indicada para balcones sobre vecinos, interiores sobre piso delicado y proyectos comerciales con mantención esporádica. Se pide como opción al comprar en los modelos que lo ofrecen.",
@@ -315,9 +315,9 @@ export const INTENCIONES: Intencion[] = [
     slug: "maceteros-con-drenaje",
     grupo: "Por función",
     h1: "Maceteros con drenaje (despiche)",
-    metaTitle: "Maceteros con Drenaje o Despiche · Para Exterior y Plantas Sensibles | Mundo Macetero",
+    metaTitle: "Maceteros con Drenaje o Despiche | Mundo Macetero",
     metaDescription:
-      "Todos nuestros maceteros se fabrican con o sin despiche (perforación de drenaje) a pedido. Cuándo conviene, cómo combinarlo con plato de agua y qué plantas lo necesitan.",
+      "Todos nuestros maceteros se fabrican con o sin despiche a pedido. Cuándo conviene, cómo combinarlo con plato de agua y qué plantas lo necesitan.",
     intro: [
       "El despiche es la perforación en la base por donde sale el agua sobrante. Es imprescindible a la intemperie y para plantas que no toleran encharcamiento: olivo, cítricos, suculentas, lavanda. Como fabricamos a pedido, cualquier macetero de la línea se puede pedir con despiche, y se combina con plato de agua a juego cuando el piso debe quedar limpio.",
       "Aquí están todos los modelos; al comprar eliges con o sin drenaje.",
@@ -335,9 +335,9 @@ export const INTENCIONES: Intencion[] = [
     slug: "maceteros-livianos",
     grupo: "Por función",
     h1: "Maceteros livianos",
-    metaTitle: "Maceteros Livianos Tipo Cemento · 90% Menos Peso | Mundo Macetero",
+    metaTitle: "Maceteros Livianos Tipo Cemento | Mundo Macetero",
     metaDescription:
-      "Maceteros ultra livianos con aspecto de cemento: tecnología EIFS de fachada, cerca de 90% menos peso que el hormigón, resistentes al exterior. Fabricados a pedido en Quilicura, Chile.",
+      "Maceteros ultra livianos con aspecto de cemento: tecnología EIFS, cerca de 90% menos peso que el hormigón y aptos para exterior. Hechos en Chile.",
     intro: [
       "Todos los maceteros Mundo Macetero son livianos: usamos tecnología EIFS (poliestireno expandido, malla de fibra de vidrio y recubrimiento de cemento), la misma de las fachadas de edificios, y el resultado pesa cerca de 90% menos que un macetero de hormigón del mismo tamaño, con la misma textura y resistencia al clima.",
       "Eso permite formatos grandes en terrazas y balcones, mover las piezas en la limpieza o al cambiar la distribución, y despachar a todo Chile sin grúa. Aquí está la línea completa.",
@@ -355,9 +355,9 @@ export const INTENCIONES: Intencion[] = [
     slug: "maceteros-de-cemento",
     grupo: "Por función",
     h1: "Maceteros de cemento",
-    metaTitle: "Maceteros de Cemento Livianos · Fabricados en Chile | Mundo Macetero",
+    metaTitle: "Maceteros de Cemento Livianos | Mundo Macetero",
     metaDescription:
-      "Maceteros de cemento sin el peso del cemento: recubrimiento de cemento real sobre EIFS, resistentes al exterior, en formatos de 40 a 200 cm y terminaciones a mano. Fabricados en Chile.",
+      "Maceteros de cemento sin el peso del cemento: recubrimiento real sobre EIFS, aptos para exterior, de 40 a 200 cm y terminados a mano en Chile.",
     intro: [
       "Si buscas maceteros de cemento, estos tienen exactamente esa superficie (recubrimiento de cemento aplicado sobre malla de fibra de vidrio y núcleo de poliestireno expandido) sin el problema del cemento: el peso. Se ven y se sienten como hormigón, resisten el exterior como una fachada y se mueven con una mano.",
       "Terminaciones cemento natural, blanco, negro y texturas especiales, en cubo, redondo, Gotar, Gema, cónico, vaso, RP, Belga, copón, colonial, bowl, piramidal, Milán y jardineras.",
@@ -377,9 +377,9 @@ export const INTENCIONES: Intencion[] = [
     slug: "maceteros-para-olivo",
     grupo: "Por planta",
     h1: "Maceteros para olivo",
-    metaTitle: "Maceteros para Olivo · Tamaño, Drenaje y Formato Ideal | Mundo Macetero",
+    metaTitle: "Maceteros para Olivo | Mundo Macetero",
     metaDescription:
-      "Qué macetero usar para un olivo: desde 50 a 60 cm con despiche, en cubo, redondo o RP, cemento natural, blanco o negro. Livianos para terraza y resistentes al exterior. Fabricados en Chile.",
+      "Qué macetero usar para un olivo: desde 50 a 60 cm con despiche, en cubo, redondo o RP. Livianos para terraza y resistentes al exterior.",
     intro: [
       "El olivo en macetero necesita volumen de raíz, drenaje libre y un envase estable frente al viento. Recomendamos cubo, redondo, RP o Belga desde 50 a 60 cm para un ejemplar joven y 70 a 80 cm para uno formado, siempre con despiche y sustrato drenante.",
       "En cemento natural o negro el olivo se ve mediterráneo y contemporáneo; en blanco, más luminoso. Como los maceteros son livianos, un olivo grande se puede tener en terraza y en piso alto.",
@@ -399,7 +399,7 @@ export const INTENCIONES: Intencion[] = [
     h1: "Maceteros para palmeras",
     metaTitle: "Maceteros para Palmeras · Altos y Profundos | Mundo Macetero",
     metaDescription:
-      "Maceteros para palmeras (kentia, fénix, areca) y plantas de raíz profunda: formatos altos Gotar, cónico, vaso y Milán, livianos y resistentes al exterior. Fabricados en Chile.",
+      "Maceteros para palmeras (kentia, fénix, areca) y plantas de raíz profunda: Gotar, cónico, vaso y Milán, altos y aptos para exterior.",
     intro: [
       "Las palmeras crecen hacia abajo antes que a los lados, así que el macetero debe ser profundo más que ancho. Los formatos indicados son el Gotar en tallas M a XXL, el cónico, el vaso y el Milán, todos desde 55 cm de alto, con despiche.",
       "El Gotar, con su base angosta y cadera alta, deja ver la palmera completa y aporta altura visual sin ocupar mucho piso; el Milán es la pieza para halls y accesos de gran altura.",
@@ -419,9 +419,9 @@ export const INTENCIONES: Intencion[] = [
     slug: "maceteros-de-diseno",
     grupo: "Por estilo",
     h1: "Maceteros de diseño",
-    metaTitle: "Maceteros de Diseño Premium · Piezas Únicas Hechas a Mano | Mundo Macetero",
+    metaTitle: "Maceteros de Diseño Premium | Mundo Macetero",
     metaDescription:
-      "Maceteros de diseño con proporciones cuidadas y terminación a mano: Gotar, Gema, Marroc, Milán, copón y Luxor RP. Cada pieza es única. Fabricados a pedido en Chile.",
+      "Maceteros de diseño con proporciones cuidadas y terminación a mano: Gotar, Gema, Marroc, Milán, copón y Luxor RP. Cada pieza es única.",
     intro: [
       "Un macetero de diseño se distingue por la forma, la proporción y la terminación. El Gotar con silueta de gota, el Gema facetado, el Marroc con textura cantera y óxido de cobre, el Milán de líneas rectas y gran altura, el copón sobre pie y el Luxor RP de cadera ancha son las piezas protagonistas de la línea.",
       "Cada una se fabrica a pedido y se termina a mano, por lo que no hay dos exactamente iguales. Son las piezas para accesos, halls, terrazas de hotel y proyectos de arquitectura.",
@@ -439,9 +439,9 @@ export const INTENCIONES: Intencion[] = [
     slug: "maceteros-cuadrados",
     grupo: "Por estilo",
     h1: "Maceteros cuadrados y rectangulares",
-    metaTitle: "Maceteros Cuadrados y Rectangulares · Cubos y Jardineras | Mundo Macetero",
+    metaTitle: "Maceteros Cuadrados y Jardineras | Mundo Macetero",
     metaDescription:
-      "Maceteros cuadrados (cubos de 40 a 120 cm) y rectangulares (jardineras de 90 a 200 cm) para alinear contra muros, esquinas y bordes. Livianos, fabricados en Chile.",
+      "Maceteros cuadrados (cubos de 40 a 120 cm) y jardineras de 90 a 200 cm para alinear contra muros, esquinas y bordes. Hechos en Chile.",
     intro: [
       "El formato cuadrado y rectangular es el que mejor aprovecha el espacio: calza contra un muro o en una esquina y se alinea en serie sin dejar espacio muerto entre piezas. Los cubos van de 40 a 120 cm de lado y las jardineras de 90 a 200 cm de largo con 30 a 50 cm de alto y profundidad.",
       "En cemento natural, negro y grafito, con o sin despiche, son la base de cercos verdes, separaciones de terraza y bordes de piscina.",
@@ -459,7 +459,7 @@ export const INTENCIONES: Intencion[] = [
     slug: "maceteros-mas-vendidos",
     grupo: "Por estilo",
     h1: "Maceteros más vendidos",
-    metaTitle: "Maceteros Más Vendidos · Cubo, Jardineras y Plato de Agua | Mundo Macetero",
+    metaTitle: "Maceteros Más Vendidos | Mundo Macetero",
     metaDescription:
       "Los productos más vendidos de Mundo Macetero: macetero cubo, jardineras y plato de agua. Livianos, resistentes al exterior y fabricados a pedido en Chile.",
     intro: [

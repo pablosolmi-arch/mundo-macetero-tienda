@@ -4,10 +4,10 @@ import { EQUIPO_IMGS } from "../../../content/images";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Quiénes somos · Fabricantes de maceteros livianos en Chile",
+  title: "Quiénes somos",
   alternates: { canonical: "/quienes-somos" },
   description:
-    "Mundo Macetero: maceteros ultra livianos tipo cemento fabricados en Chile, en nuestro taller de Quilicura.",
+    "Alejandro de Solminihac y Karina Salinas fabrican maceteros ultra livianos tipo cemento en su taller de Quilicura, Santiago de Chile.",
 };
 
 const CARD: React.CSSProperties = {

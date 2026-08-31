@@ -147,18 +147,21 @@ export const HERO_SLIDES: HeroSlide[] = [
     sub: "Mándanos una foto. Te lo devolvemos transformado.",
     cta: "¡Envíanos tu foto!",
     href: "/tu-espacio",
+    alt: "Terraza decorada con maceteros livianos de Mundo Macetero",
   },
   {
     titulo: "Maceteros que transforman tus espacios",
     sub: "Bienvenido a Mundo Macetero.",
     cta: "Ver Maceteros",
     href: "/tienda",
+    alt: "Conjunto de maceteros tipo cemento de Mundo Macetero en un espacio interior",
   },
   {
     titulo: "Encuentra la jardinera que más te guste",
     sub: "Distintas medidas, colores y terminaciones.",
     cta: "Ver Jardineras",
     href: "/tienda/jardinera",
+    alt: "Jardinera rectangular de Mundo Macetero plantada con verde",
   },
 ];
 

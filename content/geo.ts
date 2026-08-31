@@ -35,7 +35,7 @@ export const GUIAS: Guia[] = [
     titulo: "Maceteros livianos EIFS: qué son y por qué pesan 90% menos",
     metaTitle: "Maceteros Livianos EIFS · Guía Completa | Mundo Macetero",
     metaDescription:
-      "Qué es un macetero con tecnología EIFS, por qué pesa hasta 90% menos que uno de cemento, cuánto dura en exterior y cómo elegir tamaño y color. Fabricados en Chile.",
+      "Qué es un macetero EIFS, por qué pesa hasta 90% menos que uno de cemento, cuánto dura en exterior y cómo elegir tamaño y color.",
     resumen:
       "Un macetero liviano EIFS es un macetero fabricado con la tecnología de revestimiento de fachadas de construcción: un núcleo de poliestireno expandido, malla de fibra de vidrio y un recubrimiento de cemento con terminación de color o textura. Tiene el aspecto y la textura del cemento, pero pesa alrededor de un 90% menos que un macetero de hormigón del mismo tamaño. Mundo Macetero los fabrica a pedido en Quilicura, Santiago de Chile, en formatos de 30 a 200 centímetros.",
     keywords: [
@@ -103,9 +103,9 @@ export const GUIAS: Guia[] = [
   {
     slug: "maceteros-para-terraza-y-balcon",
     titulo: "Maceteros para terraza y balcón: peso, viento, drenaje y tamaño ideal",
-    metaTitle: "Maceteros para Terraza y Balcón · Cómo Elegir | Mundo Macetero",
+    metaTitle: "Maceteros para Terraza y Balcón: Guía | Mundo Macetero",
     metaDescription:
-      "Guía para elegir maceteros de terraza y balcón: cuánto peso soporta una losa, qué formatos resisten el viento, cómo resolver el drenaje sin manchar el piso y qué tamaño usar según la planta.",
+      "Cómo elegir maceteros de terraza y balcón: cuánto peso soporta una losa, qué formatos resisten el viento y cómo resolver el drenaje.",
     resumen:
       "El mejor macetero para una terraza o balcón es uno liviano, estable frente al viento y con un sistema de drenaje que no manche ni inunde el piso. Los maceteros con tecnología EIFS cumplen las tres condiciones: pesan hasta 90% menos que el cemento, tienen suficiente masa para no volcarse y se fabrican con despiche, doble fondo o plato de agua según lo que el espacio necesite.",
     keywords: [
@@ -173,9 +173,9 @@ export const GUIAS: Guia[] = [
   {
     slug: "maceteros-resistentes-para-exterior",
     titulo: "Maceteros resistentes para exterior: comparación de materiales",
-    metaTitle: "Maceteros Resistentes para Exterior · EIFS vs Cemento, Plástico y Fibra | Mundo Macetero",
+    metaTitle: "Maceteros Resistentes para Exterior | Mundo Macetero",
     metaDescription:
-      "Qué macetero resiste mejor sol, lluvia y heladas: comparamos EIFS, hormigón, plástico, fibra de vidrio, greda y madera, y explicamos cuál conviene para jardín, terraza y proyectos comerciales.",
+      "Qué macetero resiste mejor sol, lluvia y heladas: comparamos EIFS, hormigón, plástico, fibra de vidrio, greda y madera para cada uso.",
     resumen:
       "Los maceteros más resistentes para exterior son los de materiales minerales con buen drenaje: EIFS y hormigón. El EIFS, hecho con la misma tecnología de las fachadas de edificios, tiene la misma resistencia a sol, lluvia y heladas que el hormigón, pero pesa cerca de 90% menos, lo que lo hace más práctico para terrazas, accesos y proyectos comerciales. El plástico se degrada con los rayos UV, la greda se quiebra con las heladas y la madera se pudre si no se mantiene.",
     keywords: [
@@ -236,9 +236,9 @@ export const GUIAS: Guia[] = [
   {
     slug: "maceteros-premium-de-diseno",
     titulo: "Maceteros premium de diseño: terminaciones, formas y piezas de autor",
-    metaTitle: "Maceteros Premium de Diseño en Chile · Terminaciones y Autor | Mundo Macetero",
+    metaTitle: "Maceteros Premium de Diseño | Mundo Macetero",
     metaDescription:
-      "Qué distingue a un macetero premium: forma, terminación, proporción y fabricación a pedido. Colecciones Gotar, Gema, Milán, Marroc y maceteros de autor en EIFS, fabricados en Chile.",
+      "Qué distingue a un macetero premium: forma, terminación, proporción y fabricación a pedido. Colecciones Gotar, Gema, Milán y Marroc.",
     resumen:
       "Un macetero premium se distingue por cuatro cosas: una forma con proporciones cuidadas, una terminación hecha a mano (cemento natural, blanco, negro, cantera u óxido de cobre), un material que envejece bien y una fabricación a pedido en la medida y color exactos del proyecto. Mundo Macetero fabrica maceteros premium con tecnología EIFS en Quilicura, Chile, incluidas colaboraciones de autor en edición limitada.",
     keywords: [
@@ -305,9 +305,9 @@ export const GUIAS: Guia[] = [
   {
     slug: "que-macetero-para-cada-planta",
     titulo: "Qué macetero usar para cada planta: olivo, palmera, ficus, aromáticas y más",
-    metaTitle: "Qué Macetero Usar para Cada Planta · Olivo, Palmera, Ficus | Mundo Macetero",
+    metaTitle: "Qué Macetero Usar para Cada Planta | Mundo Macetero",
     metaDescription:
-      "Tamaño, forma y drenaje recomendados para olivo, limonero, palmera, ficus, suculentas, aromáticas y cercos verdes en macetero. Guía práctica de Mundo Macetero, fabricantes en Chile.",
+      "Tamaño, forma y drenaje para olivo, limonero, palmera, ficus, suculentas, aromáticas y cercos verdes. Guía de los fabricantes en Chile.",
     resumen:
       "Cada planta pide un macetero distinto: los árboles pequeños como el olivo o el limonero necesitan desde 50 centímetros de lado y buen drenaje; las palmeras, profundidad; las suculentas, formatos bajos y abiertos; las aromáticas y los cercos verdes, jardineras largas. Esta guía resume las medidas y formas que recomendamos en Mundo Macetero después de años de asesorar proyectos residenciales y comerciales en Chile.",
     keywords: [
@@ -381,9 +381,9 @@ export const GUIAS: Guia[] = [
   {
     slug: "como-elegir-tamano-y-drenaje-de-un-macetero",
     titulo: "Cómo elegir el tamaño y el drenaje de un macetero: despiche, doble fondo y plato",
-    metaTitle: "Tamaño y Drenaje de un Macetero · Despiche, Doble Fondo y Plato | Mundo Macetero",
+    metaTitle: "Tamaño y Drenaje de un Macetero | Mundo Macetero",
     metaDescription:
-      "Cómo calcular el tamaño de macetero según la planta y qué sistema de drenaje elegir: despiche, doble fondo o plato de agua. Explicado por los fabricantes de Mundo Macetero.",
+      "Cómo calcular el tamaño del macetero según la planta y qué drenaje elegir: despiche, doble fondo o plato de agua. Por quienes los fabrican.",
     resumen:
       "Para elegir un macetero hay dos decisiones: el tamaño, que se calcula a partir de la altura final de la planta y el volumen de raíz, y el drenaje, que puede ser despiche (perforación en la base), doble fondo (cámara de agua interior) o plato de agua. En Mundo Macetero cada macetero se fabrica a pedido con el sistema de drenaje que el espacio necesita, en interior o exterior.",
     keywords: [

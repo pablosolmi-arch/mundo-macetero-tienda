@@ -8,7 +8,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: "Tienda · Maceteros EIFS livianos",
   description:
-    "Todos los maceteros, jardineras y accesorios de Mundo Macetero: tecnología EIFS, 90% más livianos que el cemento, resistentes al exterior y fabricados a pedido en Chile.",
+    "Todos los maceteros, jardineras y accesorios: tecnología EIFS, 90% más livianos que el cemento, resistentes al exterior y fabricados a pedido en Chile.",
   alternates: { canonical: "/tienda" },
 };
 

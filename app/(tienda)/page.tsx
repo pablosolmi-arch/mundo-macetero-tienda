@@ -236,7 +236,7 @@ export default async function HomePage() {
               }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}  loading="lazy" decoding="async" />
+              <img src={src} alt={`Proyecto de Mundo Macetero con maceteros instalados ${i + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}  loading="lazy" decoding="async" />
             </div>
           ))}
         </div>

@@ -4,7 +4,9 @@ import { TERMINACIONES } from "../../../content/site";
 
 export const metadata: Metadata = {
   title: "Paleta de Colores y Terminaciones",
-  description: "Terminaciones disponibles para todos los maceteros de Mundo Macetero.",
+  description:
+    "Todas las terminaciones disponibles para nuestros maceteros: cemento natural, blanco, negro, cantera beige y negro, y óxido de cobre, aplicadas a mano.",
+  alternates: { canonical: "/paleta" },
 };
 
 export default function PaletaPage() {

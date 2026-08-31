@@ -63,7 +63,7 @@ export function ProductGallery({
               }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}  loading="lazy" decoding="async" />
+              <img src={src} alt={`${alt}, vista ${i + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}  loading="lazy" decoding="async" />
             </button>
           ))}
         </div>
