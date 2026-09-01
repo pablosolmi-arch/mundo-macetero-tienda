@@ -10,6 +10,15 @@ export function formatCLP(value: string | number): string {
   }).format(amount);
 }
 
+// Porcentaje escrito como en Chile: coma decimal, no punto. "3,2%", "74%".
+export function formatPorcentaje(valor: number, decimales = 1): string {
+  const n = valor.toLocaleString("es-CL", {
+    minimumFractionDigits: decimales,
+    maximumFractionDigits: decimales,
+  });
+  return `${n}%`;
+}
+
 // Antigüedad de un cliente en palabras: "Hace 3 meses", "Hace 2 años". Por
 // debajo del mes se dice "Este mes" en lugar de "Hace 0 meses".
 export function formatAntiguedad(desde: Date, ahora: Date = new Date()): string {

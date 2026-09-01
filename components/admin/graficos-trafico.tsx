@@ -3,14 +3,16 @@
 // Todo se dibuja con CSS y SVG en línea, sin librerías de gráficos, y sin estado:
 // son componentes de servidor que reciben las cifras ya calculadas en
 // queries/admin-trafico.ts.
-import { formatCLP } from "../../lib/format";
+import { formatCLP, formatPorcentaje } from "../../lib/format";
 import type {
   CanalTrafico,
   DispositivoTrafico,
   FuenteTrafico,
   PaginaVista,
   SesionesDia,
+  TotalesSesiones,
 } from "../../queries/admin-trafico";
+import { GraficoBarras } from "./GraficoBarras";
 
 const TARJETA: React.CSSProperties = {
   background: "#fff",
@@ -67,7 +69,14 @@ const CELDA: React.CSSProperties = {
   verticalAlign: "top",
 };
 
-const CELDA_NUM: React.CSSProperties = { ...CELDA, textAlign: "right", whiteSpace: "nowrap" };
+// El padding izquierdo es lo que separa una columna de la anterior: sin él los
+// números y los encabezados quedaban pegados ("SESIONESPEDIDOS").
+const CELDA_NUM: React.CSSProperties = {
+  ...CELDA,
+  textAlign: "right",
+  whiteSpace: "nowrap",
+  paddingLeft: "16px",
+};
 
 const ENCABEZADO: React.CSSProperties = {
   ...CELDA,
@@ -78,41 +87,84 @@ const ENCABEZADO: React.CSSProperties = {
   letterSpacing: "0.04em",
 };
 
+const ENCABEZADO_NUM: React.CSSProperties = {
+  ...ENCABEZADO,
+  textAlign: "right",
+  whiteSpace: "nowrap",
+  paddingLeft: "16px",
+};
+
+const DOS_COLUMNAS: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit,minmax(460px,1fr))",
+  gap: "16px",
+};
+
 function haySinDato(claves: string[]): boolean {
   return claves.includes("sin dato");
 }
 
-function SesionesPorDia({ datos }: { datos: SesionesDia[] }) {
-  const maximo = Math.max(1, ...datos.map((d) => d.sesiones));
+// Ojo con la diferencia, que antes no se decía en ninguna parte: el total de la
+// tarjeta son sesiones distintas de TODO el período (contadas una vez), y cada
+// barra son las sesiones distintas DE ESE DÍA. Sumar las barras da más que el
+// total, porque la sesión que vuelve otro día aparece en los dos.
+function SesionesPorDia({
+  dias,
+  datos,
+  totales,
+}: {
+  dias: number;
+  datos: SesionesDia[];
+  totales: TotalesSesiones;
+}) {
   return (
     <div style={TARJETA}>
       <div className="font-display" style={TITULO}>
-        Sesiones por día
+        Sesiones por día · últimos {dias} días
       </div>
-      {datos.length === 0 ? (
+      <div
+        style={{
+          display: "flex",
+          gap: "26px",
+          flexWrap: "wrap",
+          margin: "-6px 0 14px",
+          fontSize: "13px",
+        }}
+      >
+        <span>
+          <strong style={{ fontWeight: 700 }}>
+            {totales.sesionesUnicas.toLocaleString("es-CL")}
+          </strong>{" "}
+          <span style={{ color: "#6f6c66" }}>sesiones únicas en el período</span>
+        </span>
+        <span>
+          <strong style={{ fontWeight: 700 }}>{totales.paginas.toLocaleString("es-CL")}</strong>{" "}
+          <span style={{ color: "#6f6c66" }}>páginas vistas</span>
+        </span>
+        <span>
+          <strong style={{ fontWeight: 700 }}>
+            {totales.paginasPorSesion.toLocaleString("es-CL", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+          </strong>{" "}
+          <span style={{ color: "#6f6c66" }}>páginas por sesión</span>
+        </span>
+      </div>
+      {totales.sesionesUnicas === 0 ? (
         <div style={VACIO}>Todavía no hay sesiones registradas en el período.</div>
       ) : (
         <>
-          <div style={{ display: "flex", alignItems: "flex-end", gap: "3px", height: "140px" }}>
-            {datos.map((d) => (
-              <div
-                key={d.dia}
-                title={`${d.dia}: ${d.sesiones} sesiones, ${d.paginas} páginas vistas`}
-                style={{
-                  flex: 1,
-                  minWidth: "4px",
-                  // Con pocos días una barra sola llenaría la tarjeta entera.
-                  maxWidth: "46px",
-                  height: `${Math.max(2, (d.sesiones / maximo) * 100)}%`,
-                  background: d.sesiones > 0 ? "#a5613f" : "#e3e1dc",
-                  borderRadius: "2px 2px 0 0",
-                }}
-              />
-            ))}
-          </div>
-          <div style={{ ...VACIO, marginTop: "10px" }}>
-            {datos.reduce((n, d) => n + d.sesiones, 0)} sesiones y{" "}
-            {datos.reduce((n, d) => n + d.paginas, 0)} páginas vistas en el período.
+          <GraficoBarras
+            dias={dias}
+            datos={datos.map((d) => ({
+              dia: d.dia,
+              valor: d.sesiones,
+              detalle: `${d.paginas.toLocaleString("es-CL")} páginas vistas`,
+            }))}
+            etiquetaValor="sesiones únicas del día"
+          />
+          <div style={{ ...VACIO, marginTop: "10px", lineHeight: 1.5 }}>
+            Cada barra son las sesiones únicas del día. Una misma sesión que vuelve otro día
+            cuenta en ambos días; el total del período la cuenta una vez. Una sesión expira
+            tras 30 días sin actividad.
           </div>
         </>
       )}
@@ -120,53 +172,62 @@ function SesionesPorDia({ datos }: { datos: SesionesDia[] }) {
   );
 }
 
-function PorCanal({ datos }: { datos: CanalTrafico[] }) {
+function PorCanal({ dias, datos }: { dias: number; datos: CanalTrafico[] }) {
   const maximo = Math.max(1, ...datos.map((d) => d.sesiones));
   return (
     <div style={TARJETA}>
       <div className="font-display" style={TITULO}>
-        Tráfico por canal
+        Tráfico por canal · últimos {dias} días
       </div>
       {datos.length === 0 ? (
         <div style={VACIO}>Todavía no hay sesiones registradas en el período.</div>
       ) : (
         <>
-          {datos.map((c) => (
-            <div key={c.canal} style={{ marginBottom: "12px" }}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: "10px",
-                  fontSize: "13px",
-                  marginBottom: "4px",
-                }}
-              >
-                <span>{nombreCanal(c.canal)}</span>
-                <span style={{ color: "#6f6c66", whiteSpace: "nowrap" }}>
-                  {c.sesiones} ses.
-                  <span style={{ color: "#2a2925", marginLeft: "10px", fontWeight: 600 }}>
-                    {c.pedidos} ped.
-                  </span>
-                  <span style={{ color: "#9b978f", marginLeft: "10px" }}>
-                    {c.sesiones > 0 ? `${c.conversion.toFixed(2)}%` : "sin sesiones"}
-                  </span>
-                </span>
-              </div>
-              <div
-                style={{ height: "8px", background: "#efede9", borderRadius: "4px", overflow: "hidden" }}
-                title={`${nombreCanal(c.canal)}: ${c.sesiones} sesiones, ${c.pedidos} pedidos, ${formatCLP(c.ingresos)}`}
-              >
-                <div
-                  style={{
-                    width: `${(c.sesiones / maximo) * 100}%`,
-                    height: "100%",
-                    background: c.pedidos > 0 ? "#4c7a4c" : "#a5613f",
-                  }}
-                />
-              </div>
-            </div>
-          ))}
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "420px" }}>
+              <thead>
+                <tr>
+                  <th style={ENCABEZADO}>Canal</th>
+                  <th style={ENCABEZADO_NUM}>Sesiones únicas</th>
+                  <th style={ENCABEZADO_NUM}>Pedidos</th>
+                  <th style={ENCABEZADO_NUM}>Ingresos</th>
+                  <th style={ENCABEZADO_NUM}>Conversión</th>
+                </tr>
+              </thead>
+              <tbody>
+                {datos.map((c) => (
+                  <tr key={c.canal}>
+                    <td style={CELDA}>
+                      {nombreCanal(c.canal)}
+                      <div
+                        style={{
+                          height: "6px",
+                          background: "#efede9",
+                          borderRadius: "3px",
+                          overflow: "hidden",
+                          marginTop: "5px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: `${(c.sesiones / maximo) * 100}%`,
+                            height: "100%",
+                            background: c.pedidos > 0 ? "#4c7a4c" : "#a5613f",
+                          }}
+                        />
+                      </div>
+                    </td>
+                    <td style={CELDA_NUM}>{c.sesiones.toLocaleString("es-CL")}</td>
+                    <td style={{ ...CELDA_NUM, fontWeight: 600 }}>{c.pedidos}</td>
+                    <td style={CELDA_NUM}>{c.ingresos > 0 ? formatCLP(c.ingresos) : "—"}</td>
+                    <td style={{ ...CELDA_NUM, color: "#6f6c66" }}>
+                      {c.sesiones > 0 ? formatPorcentaje(c.conversion, 2) : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           {haySinDato(datos.map((d) => d.canal)) && (
             <div style={{ ...VACIO, marginTop: "10px" }}>{NOTA_SIN_DATO}</div>
           )}
@@ -176,11 +237,11 @@ function PorCanal({ datos }: { datos: CanalTrafico[] }) {
   );
 }
 
-function Fuentes({ datos }: { datos: FuenteTrafico[] }) {
+function Fuentes({ dias, datos }: { dias: number; datos: FuenteTrafico[] }) {
   return (
     <div style={TARJETA}>
       <div className="font-display" style={TITULO}>
-        Fuentes y campañas
+        Fuentes y campañas · últimos {dias} días
       </div>
       {datos.length === 0 ? (
         <div style={VACIO}>Todavía no hay fuentes registradas en el período.</div>
@@ -190,8 +251,8 @@ function Fuentes({ datos }: { datos: FuenteTrafico[] }) {
             <tr>
               <th style={ENCABEZADO}>Fuente</th>
               <th style={ENCABEZADO}>Canal</th>
-              <th style={{ ...ENCABEZADO, textAlign: "right" }}>Sesiones</th>
-              <th style={{ ...ENCABEZADO, textAlign: "right" }}>Pedidos</th>
+              <th style={ENCABEZADO_NUM}>Sesiones únicas</th>
+              <th style={ENCABEZADO_NUM}>Pedidos</th>
             </tr>
           </thead>
           <tbody>
@@ -215,7 +276,7 @@ function Fuentes({ datos }: { datos: FuenteTrafico[] }) {
   );
 }
 
-function Dispositivos({ datos }: { datos: DispositivoTrafico[] }) {
+function Dispositivos({ dias, datos }: { dias: number; datos: DispositivoTrafico[] }) {
   const total = datos.reduce((n, d) => n + d.sesiones, 0);
   // Anillo dibujado con un solo círculo por segmento: el largo del trazo es la
   // porción, y el desplazamiento lo corre hasta donde terminó el anterior.
@@ -235,7 +296,7 @@ function Dispositivos({ datos }: { datos: DispositivoTrafico[] }) {
   return (
     <div style={TARJETA}>
       <div className="font-display" style={TITULO}>
-        Dispositivos
+        Dispositivos · últimos {dias} días
       </div>
       {total === 0 ? (
         <div style={VACIO}>Todavía no hay sesiones registradas en el período.</div>
@@ -285,7 +346,7 @@ function Dispositivos({ datos }: { datos: DispositivoTrafico[] }) {
                 <span style={{ color: "#6f6c66", whiteSpace: "nowrap" }}>
                   {d.sesiones}
                   <span style={{ color: "#9b978f", marginLeft: "6px" }}>
-                    {Math.round((d.sesiones / total) * 100)}%
+                    {formatPorcentaje((d.sesiones / total) * 100, 0)}
                   </span>
                 </span>
               </div>
@@ -300,49 +361,75 @@ function Dispositivos({ datos }: { datos: DispositivoTrafico[] }) {
   );
 }
 
-function Paginas({ datos }: { datos: PaginaVista[] }) {
+function Paginas({
+  dias,
+  datos,
+  totalPaginas,
+}: {
+  dias: number;
+  datos: PaginaVista[];
+  // Todas las páginas vistas del período, para el "% del total": el top diez no
+  // alcanza para calcularlo, y con la suma de las diez el porcentaje mentiría.
+  totalPaginas: number;
+}) {
   return (
     <div style={TARJETA}>
       <div className="font-display" style={TITULO}>
-        Páginas más vistas
+        Páginas más vistas · últimos {dias} días
       </div>
       {datos.length === 0 ? (
         <div style={VACIO}>Todavía no hay páginas vistas en el período.</div>
       ) : (
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr>
-              <th style={ENCABEZADO}>Página</th>
-              <th style={{ ...ENCABEZADO, textAlign: "right" }}>Vistas</th>
-              <th style={{ ...ENCABEZADO, textAlign: "right" }}>Sesiones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {datos.map((p) => (
-              <tr key={p.path}>
-                <td style={CELDA}>
-                  {p.nombre ?? (p.path === "/" ? "Portada" : p.path)}
-                  {p.nombre && <div style={{ fontSize: "11.5px", color: "#9b978f" }}>{p.path}</div>}
-                </td>
-                <td style={CELDA_NUM}>{p.vistas}</td>
-                <td style={CELDA_NUM}>{p.sesiones}</td>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "380px" }}>
+            <thead>
+              <tr>
+                <th style={ENCABEZADO}>Página</th>
+                <th style={ENCABEZADO_NUM}>Vistas</th>
+                <th style={ENCABEZADO_NUM}>Sesiones únicas</th>
+                <th style={ENCABEZADO_NUM}>% del total</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {datos.map((p) => (
+                <tr key={p.path}>
+                  <td style={CELDA}>
+                    {p.nombre ?? (p.path === "/" ? "Portada" : p.path)}
+                    {p.nombre && (
+                      <div style={{ fontSize: "11.5px", color: "#9b978f" }}>{p.path}</div>
+                    )}
+                  </td>
+                  <td style={CELDA_NUM}>{p.vistas.toLocaleString("es-CL")}</td>
+                  <td style={CELDA_NUM}>{p.sesiones.toLocaleString("es-CL")}</td>
+                  <td style={{ ...CELDA_NUM, color: "#6f6c66" }}>
+                    {totalPaginas > 0 ? formatPorcentaje((p.vistas / totalPaginas) * 100) : "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div style={{ ...VACIO, marginTop: "10px" }}>
+            El porcentaje es sobre las {totalPaginas.toLocaleString("es-CL")} páginas vistas del
+            período, no solo sobre estas diez.
+          </div>
+        </div>
       )}
     </div>
   );
 }
 
 export function SeccionTrafico({
+  dias,
   sesiones,
+  totales,
   canales,
   fuentes,
   equipos,
   paginas,
 }: {
+  dias: number;
   sesiones: SesionesDia[];
+  totales: TotalesSesiones;
   canales: CanalTrafico[];
   fuentes: FuenteTrafico[];
   equipos: DispositivoTrafico[];
@@ -355,23 +442,25 @@ export function SeccionTrafico({
       </h2>
       <p style={{ fontSize: "12.5px", color: "#6f6c66", margin: "0 0 16px" }}>
         Calculado con los eventos de la propia tienda: una sesión es un visitante
-        anónimo con actividad, sin guardar IP, correo ni nombre.
+        anónimo con actividad, sin guardar IP, correo ni nombre. Los días son días
+        chilenos y el filtro de arriba manda en todas estas tarjetas.
       </p>
 
-      <SesionesPorDia datos={sesiones} />
+      <SesionesPorDia dias={dias} datos={sesiones} totales={totales} />
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))",
-          gap: "16px",
-          marginTop: "16px",
-        }}
-      >
-        <PorCanal datos={canales} />
-        <Fuentes datos={fuentes} />
-        <Dispositivos datos={equipos} />
-        <Paginas datos={paginas} />
+      {/* Las tablas de cinco columnas van solas en su fila: en una grilla de
+          tres se cortaban y el encabezado quedaba ilegible. */}
+      <div style={{ marginTop: "16px" }}>
+        <PorCanal dias={dias} datos={canales} />
+      </div>
+
+      <div style={{ ...DOS_COLUMNAS, marginTop: "16px" }}>
+        <Fuentes dias={dias} datos={fuentes} />
+        <Dispositivos dias={dias} datos={equipos} />
+      </div>
+
+      <div style={{ marginTop: "16px" }}>
+        <Paginas dias={dias} datos={paginas} totalPaginas={totales.paginas} />
       </div>
     </div>
   );

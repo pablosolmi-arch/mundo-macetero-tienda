@@ -1,9 +1,10 @@
 // queries/admin.ts — lecturas del panel de administración.
-import { and, asc, desc, eq, gte, inArray, lt, lte, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, lt, lte, sql } from "drizzle-orm";
 import { db } from "../db/client";
 import { adminUsers, orderEvents, orderItems, orders, siteEvents } from "../db/schema";
 import { parseCodigoPedido } from "../lib/pedido-codigo";
 import type { ArticuloPedido } from "../lib/pedido-vista";
+import { dentroDelPeriodo, diaSantiago } from "./dia-santiago";
 
 export interface FiltroPedidos {
   // Estado del pago: pending | paid | rejected | annulled
@@ -142,7 +143,7 @@ export interface KpisPedidos {
 // `metricas` a propósito: acá interesa el trabajo por hacer (qué falta preparar,
 // qué se entregó), no el embudo de conversión.
 export async function kpisPedidos(dias = 30): Promise<KpisPedidos> {
-  const desde = new Date(Date.now() - dias * 24 * 60 * 60 * 1000);
+  const enElPeriodo = dentroDelPeriodo(orders.createdAt, dias);
 
   const [resumen] = await db
     .select({
@@ -154,7 +155,7 @@ export async function kpisPedidos(dias = 30): Promise<KpisPedidos> {
       entregados: sql<number>`count(*) filter (where ${orders.fulfillment} = 'entregado')::int`,
     })
     .from(orders)
-    .where(gte(orders.createdAt, desde));
+    .where(enElPeriodo);
 
   // Unidades pedidas: se cuentan sobre los pedidos del período, sin filtrar por
   // estado de pago, igual que la columna "Pedidos".
@@ -162,7 +163,7 @@ export async function kpisPedidos(dias = 30): Promise<KpisPedidos> {
     .select({ unidades: sql<number>`coalesce(sum(${orderItems.qty}), 0)::int` })
     .from(orderItems)
     .innerJoin(orders, eq(orders.id, orderItems.orderId))
-    .where(gte(orders.createdAt, desde));
+    .where(enElPeriodo);
 
   return {
     dias,
@@ -228,7 +229,16 @@ export interface Metricas {
   pendientes: number;
   porEntregar: number;
   reembolsado: number;
+  // Todos los pasos son sesiones únicas del período, incluido el último: así el
+  // embudo compara siempre lo mismo. Antes "pagos" era un conteo de pedidos y no
+  // cuadraba con los otros pasos.
   embudo: { visitas: number; fichas: number; carritos: number; checkouts: number; pagos: number };
+  // Pedidos pagados que vinieron de una sesión medida: una misma sesión puede
+  // comprar dos veces, así que este número puede ser mayor que embudo.pagos.
+  pedidosDelEmbudo: number;
+  // Ventas pagadas que no pasaron por el embudo (cargadas a mano en el panel o
+  // anteriores a la medición): se informan aparte para no inflar la conversión.
+  ventasManuales: number;
   conversion: number;
   topProductos: { nombre: string; unidades: number; ingresos: number }[];
   porDia: { dia: string; pedidos: number; ingresos: number }[];
@@ -237,7 +247,8 @@ export interface Metricas {
 // Todo se calcula sobre nuestra propia base: los pedidos vienen de `orders` y el
 // embudo de `site_events`, así que la conversión es real y no una estimación.
 export async function metricas(dias = 30): Promise<Metricas> {
-  const desde = new Date(Date.now() - dias * 24 * 60 * 60 * 1000);
+  const enElPeriodo = dentroDelPeriodo(orders.createdAt, dias);
+  const eventosDelPeriodo = dentroDelPeriodo(siteEvents.createdAt, dias);
 
   const [resumen] = await db
     .select({
@@ -248,16 +259,35 @@ export async function metricas(dias = 30): Promise<Metricas> {
       reembolsado: sql<string>`coalesce(sum(${orders.refundedAmount}), 0)`,
     })
     .from(orders)
-    .where(gte(orders.createdAt, desde));
+    .where(enElPeriodo);
 
-  const eventos = await db
-    .select({ tipo: siteEvents.tipo, n: sql<number>`count(distinct ${siteEvents.sessionId})::int` })
+  // Un solo recorrido de los eventos: cada paso es un conteo de sesiones únicas.
+  // "visitas" NO es la suma de 'visita' y 'producto': quien entró a la portada y
+  // después a una ficha es una sola sesión, y sumarlas la contaba dos veces.
+  const [eventos] = await db
+    .select({
+      visitas: sql<number>`count(distinct ${siteEvents.sessionId}) filter (where ${siteEvents.tipo} in ('visita', 'producto'))::int`,
+      fichas: sql<number>`count(distinct ${siteEvents.sessionId}) filter (where ${siteEvents.tipo} = 'producto')::int`,
+      carritos: sql<number>`count(distinct ${siteEvents.sessionId}) filter (where ${siteEvents.tipo} = 'agregar')::int`,
+      checkouts: sql<number>`count(distinct ${siteEvents.sessionId}) filter (where ${siteEvents.tipo} = 'checkout')::int`,
+    })
     .from(siteEvents)
-    .where(gte(siteEvents.createdAt, desde))
-    .groupBy(siteEvents.tipo);
+    .where(eventosDelPeriodo);
 
-  const porTipo = new Map(eventos.map((e) => [e.tipo, e.n]));
-  const visitas = (porTipo.get("visita") ?? 0) + (porTipo.get("producto") ?? 0);
+  // El último paso también en sesiones únicas, para que sea comparable con los
+  // anteriores; los pedidos van al lado como dato, y las ventas sin sesión
+  // (manuales) quedan fuera del embudo y se informan por separado.
+  const [pagos] = await db
+    .select({
+      sesiones: sql<number>`count(distinct ${orders.sessionId}) filter (where ${orders.sessionId} is not null and ${orders.origen} <> 'manual')::int`,
+      pedidos: sql<number>`count(*) filter (where ${orders.sessionId} is not null and ${orders.origen} <> 'manual')::int`,
+      manuales: sql<number>`count(*) filter (where ${orders.sessionId} is null or ${orders.origen} = 'manual')::int`,
+    })
+    .from(orders)
+    .where(and(eq(orders.status, "paid"), enElPeriodo));
+
+  const visitas = eventos?.visitas ?? 0;
+  const sesionesQuePagaron = pagos?.sesiones ?? 0;
   const pagados = resumen?.pagados ?? 0;
 
   const top = await db
@@ -268,21 +298,22 @@ export async function metricas(dias = 30): Promise<Metricas> {
     })
     .from(orderItems)
     .innerJoin(orders, eq(orders.id, orderItems.orderId))
-    .where(and(eq(orders.status, "paid"), gte(orders.createdAt, desde)))
+    .where(and(eq(orders.status, "paid"), enElPeriodo))
     .groupBy(orderItems.productName)
     .orderBy(desc(sql`sum(${orderItems.qty})`))
     .limit(8);
 
+  const dia = diaSantiago(orders.createdAt);
   const porDia = await db
     .select({
-      dia: sql<string>`to_char(${orders.createdAt}, 'YYYY-MM-DD')`,
+      dia,
       pedidos: sql<number>`count(*)::int`,
       ingresos: sql<string>`coalesce(sum(case when ${orders.status} = 'paid' then ${orders.amount} else 0 end), 0)`,
     })
     .from(orders)
-    .where(gte(orders.createdAt, desde))
-    .groupBy(sql`to_char(${orders.createdAt}, 'YYYY-MM-DD')`)
-    .orderBy(sql`to_char(${orders.createdAt}, 'YYYY-MM-DD')`);
+    .where(enElPeriodo)
+    .groupBy(dia)
+    .orderBy(dia);
 
   const ingresos = Number(resumen?.ingresos ?? 0);
 
@@ -296,18 +327,72 @@ export async function metricas(dias = 30): Promise<Metricas> {
     reembolsado: Number(resumen?.reembolsado ?? 0),
     embudo: {
       visitas,
-      fichas: porTipo.get("producto") ?? 0,
-      carritos: porTipo.get("agregar") ?? 0,
-      checkouts: porTipo.get("checkout") ?? 0,
-      pagos: pagados,
+      fichas: eventos?.fichas ?? 0,
+      carritos: eventos?.carritos ?? 0,
+      checkouts: eventos?.checkouts ?? 0,
+      pagos: sesionesQuePagaron,
     },
-    conversion: visitas > 0 ? (pagados / visitas) * 100 : 0,
+    pedidosDelEmbudo: pagos?.pedidos ?? 0,
+    ventasManuales: pagos?.manuales ?? 0,
+    // Conversión = de cada 100 sesiones que entraron, cuántas terminaron
+    // pagando. Se mide en sesiones, no en pedidos, para que sea el último paso
+    // del embudo y no otra cosa.
+    conversion: visitas > 0 ? (sesionesQuePagaron / visitas) * 100 : 0,
     topProductos: top.map((t) => ({
       nombre: t.nombre,
       unidades: t.unidades,
       ingresos: Number(t.ingresos),
     })),
     porDia: porDia.map((d) => ({ dia: d.dia, pedidos: d.pedidos, ingresos: Number(d.ingresos) })),
+  };
+}
+
+export interface CheckoutPendiente {
+  commerceOrder: string;
+  numero: number | null;
+  createdAt: Date;
+  monto: number;
+  canal: string;
+}
+
+export interface CheckoutsSinPagar {
+  filas: CheckoutPendiente[];
+  // Cuántos hay en total y cuánta plata suman, aunque la lista muestre menos.
+  total: number;
+  monto: number;
+}
+
+// Pedidos que llegaron al checkout y nunca se pagaron: la plata que quedó sobre
+// la mesa en el período. La lista se recorta, pero el total y el monto son de
+// todos los pendientes.
+export async function checkoutsSinPagar(dias = 30, limite = 10): Promise<CheckoutsSinPagar> {
+  const condicion = and(eq(orders.status, "pending"), dentroDelPeriodo(orders.createdAt, dias));
+
+  const [resumen] = await db
+    .select({
+      total: sql<number>`count(*)::int`,
+      monto: sql<string>`coalesce(sum(${orders.amount}), 0)`,
+    })
+    .from(orders)
+    .where(condicion);
+
+  const filas = await db
+    .select({
+      commerceOrder: orders.commerceOrder,
+      numero: orders.numero,
+      createdAt: orders.createdAt,
+      monto: orders.amount,
+      canal: sql<string>`coalesce(nullif(${orders.origenCanal}, ''), 'sin dato')`,
+    })
+    .from(orders)
+    .where(condicion)
+    .orderBy(desc(orders.createdAt))
+    .limit(limite);
+
+  return {
+    filas: filas.map((f) => ({ ...f, monto: Number(f.monto) })),
+    total: resumen?.total ?? 0,
+    monto: Number(resumen?.monto ?? 0),
   };
 }
 

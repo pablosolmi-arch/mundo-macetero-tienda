@@ -11,9 +11,11 @@ import { eq, inArray } from "drizzle-orm";
 import { db } from "../../db/client";
 import { orderEvents, orderItems, orders, siteEvents } from "../../db/schema";
 import {
+  checkoutsSinPagar,
   itemsDePedidos,
   kpisPedidos,
   listarPedidos,
+  metricas,
   obtenerPedido,
   resumenConversion,
 } from "../../queries/admin";
@@ -181,6 +183,43 @@ describe("consultas del panel de administración", () => {
     expect(resumen.sesionesAntes).toBeNull();
     // El pendiente sería su segundo pedido: ya tiene uno pagado.
     expect(resumen.numeroDelCliente).toBe(2);
+  });
+
+
+  it("lista los checkouts que quedaron sin pagar", async () => {
+    const sinPagar = await checkoutsSinPagar(30);
+    // El pendiente de la prueba está en el período y suma sus $5.000.
+    expect(sinPagar.total).toBeGreaterThanOrEqual(1);
+    expect(sinPagar.monto).toBeGreaterThanOrEqual(5000);
+    expect(sinPagar.filas.length).toBeLessThanOrEqual(10);
+    const nuestro = sinPagar.filas.find((f) => f.commerceOrder === REF_PENDIENTE);
+    expect(nuestro).toBeDefined();
+    expect(nuestro!.monto).toBe(5000);
+    expect(nuestro!.numero).toBeNull();
+    // Sin canal de origen: se agrupa como "sin dato", no queda vacío.
+    expect(nuestro!.canal).toBe("sin dato");
+    expect(nuestro!.createdAt).toBeInstanceOf(Date);
+    // Del más nuevo al más antiguo.
+    const fechas = sinPagar.filas.map((f) => f.createdAt.getTime());
+    expect([...fechas].sort((a, b) => b - a)).toEqual(fechas);
+  });
+
+  it("el embudo mide todos sus pasos en sesiones únicas", async () => {
+    const m = await metricas(30);
+    // Cada paso es un subconjunto del anterior salvo el pago, que puede venir de
+    // una sesión que no registró checkout (pedidos viejos, o pagos reintentados).
+    expect(m.embudo.fichas).toBeLessThanOrEqual(m.embudo.visitas);
+    expect(m.embudo.carritos).toBeLessThanOrEqual(m.embudo.visitas);
+    expect(m.embudo.checkouts).toBeLessThanOrEqual(m.embudo.visitas);
+    // Un pedido por sesión como mínimo: nunca menos pedidos que sesiones que pagaron.
+    expect(m.pedidosDelEmbudo).toBeGreaterThanOrEqual(m.embudo.pagos);
+    // El pedido manual de la prueba está pendiente, no pagado, así que no suma acá.
+    expect(m.ventasManuales).toBeGreaterThanOrEqual(0);
+    expect(m.conversion).toBeGreaterThanOrEqual(0);
+    // Los días vienen en formato ISO y ordenados.
+    const dias = m.porDia.map((d) => d.dia);
+    expect(dias.every((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))).toBe(true);
+    expect([...dias].sort()).toEqual(dias);
   });
 
   describe("clientes", () => {

@@ -1,22 +1,45 @@
 import Link from "next/link";
-import { metricas } from "../../../queries/admin";
+import { checkoutsSinPagar, metricas } from "../../../queries/admin";
 import {
   dispositivos,
+  embudoPorCanal,
+  embudoPorProducto,
   paginasMasVistas,
   sesionesPorDia,
   topFuentes,
+  totalesSesiones,
   traficoPorCanal,
 } from "../../../queries/admin-trafico";
 import { SeccionTrafico } from "../../../components/admin/graficos-trafico";
-import { formatCLP } from "../../../lib/format";
+import { GraficoBarras, montoCorto } from "../../../components/admin/GraficoBarras";
+import {
+  CheckoutsPendientes,
+  EmbudoCanales,
+  EmbudoCompra,
+  EmbudoProductos,
+} from "../../../components/admin/embudo";
+import { formatCLP, formatPorcentaje } from "../../../lib/format";
 
 export const dynamic = "force-dynamic";
+
+// Solo estos tres: cualquier otro valor en la URL cae al de siempre. Todas las
+// consultas de la página reciben este mismo número, así que el filtro manda en
+// cada tarjeta del Resumen, no solo en algunas.
+const RANGOS = [7, 30, 90];
 
 const TARJETA: React.CSSProperties = {
   background: "#fff",
   border: "1px solid #e9e6e1",
   borderRadius: "12px",
   padding: "18px 20px",
+};
+
+// 460px de mínimo: con menos entraba una tercera columna y las tablas quedaban
+// tan angostas que se cortaban solas.
+const DOS_COLUMNAS: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit,minmax(460px,1fr))",
+  gap: "16px",
 };
 
 function Dato({ etiqueta, valor, nota }: { etiqueta: string; valor: string; nota?: string }) {
@@ -37,27 +60,25 @@ export default async function AdminResumen({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const params = await searchParams;
-  const dias = Number(typeof params.dias === "string" ? params.dias : 30) || 30;
-  // Todas en paralelo: son consultas independientes y la página se abre en cada
-  // visita al panel.
-  const [m, sesiones, canales, fuentes, equipos, paginas] = await Promise.all([
-    metricas(dias),
-    sesionesPorDia(dias),
-    traficoPorCanal(dias),
-    topFuentes(dias),
-    dispositivos(dias),
-    paginasMasVistas(dias),
-  ]);
+  const pedido = Number(typeof params.dias === "string" ? params.dias : 30);
+  const dias = RANGOS.includes(pedido) ? pedido : 30;
+  const rango = `últimos ${dias} días`;
 
-  const pasos = [
-    { nombre: "Visitas", n: m.embudo.visitas },
-    { nombre: "Vieron una ficha", n: m.embudo.fichas },
-    { nombre: "Agregaron al carrito", n: m.embudo.carritos },
-    { nombre: "Iniciaron el pago", n: m.embudo.checkouts },
-    { nombre: "Pagaron", n: m.embudo.pagos },
-  ];
-  const maxPaso = Math.max(1, ...pasos.map((p) => p.n));
-  const maxDia = Math.max(1, ...m.porDia.map((d) => d.ingresos));
+  // Todas en paralelo: son consultas independientes y la página se abre en cada
+  // visita al panel. Todas reciben `dias`.
+  const [m, sesiones, totales, canales, fuentes, equipos, paginas, porCanal, porProducto, pendientes] =
+    await Promise.all([
+      metricas(dias),
+      sesionesPorDia(dias),
+      totalesSesiones(dias),
+      traficoPorCanal(dias),
+      topFuentes(dias),
+      dispositivos(dias),
+      paginasMasVistas(dias),
+      embudoPorCanal(dias),
+      embudoPorProducto(dias),
+      checkoutsSinPagar(dias),
+    ]);
 
   return (
     <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
@@ -66,7 +87,7 @@ export default async function AdminResumen({
           Resumen
         </h1>
         <div style={{ display: "flex", gap: "8px", fontSize: "13px" }}>
-          {[7, 30, 90].map((d) => (
+          {RANGOS.map((d) => (
             <Link
               key={d}
               href={`/admin?dias=${d}`}
@@ -85,6 +106,11 @@ export default async function AdminResumen({
         </div>
       </div>
 
+      <p style={{ fontSize: "12.5px", color: "#6f6c66", margin: "8px 0 0" }}>
+        Todo lo que sigue es de los {rango}, contados en días chilenos: hoy más los{" "}
+        {dias - 1} días anteriores completos.
+      </p>
+
       <div
         style={{
           display: "grid",
@@ -93,84 +119,80 @@ export default async function AdminResumen({
           margin: "20px 0 26px",
         }}
       >
-        <Dato etiqueta="Ingresos" valor={formatCLP(m.ingresos)} nota={`${m.pedidosPagados} pedidos pagados`} />
-        <Dato etiqueta="Ticket promedio" valor={m.pedidosPagados ? formatCLP(m.ticketPromedio) : "—"} />
         <Dato
-          etiqueta="Conversión"
-          valor={m.embudo.visitas ? `${m.conversion.toFixed(2)}%` : "—"}
-          nota={m.embudo.visitas ? `${m.embudo.visitas} visitantes` : "sin visitas registradas"}
+          etiqueta={`Ingresos · ${rango}`}
+          valor={formatCLP(m.ingresos)}
+          nota={`${m.pedidosPagados} ${m.pedidosPagados === 1 ? "pedido pagado" : "pedidos pagados"}`}
         />
-        <Dato etiqueta="Por entregar" valor={String(m.porEntregar)} nota="pagados y sin despachar" />
-        <Dato etiqueta="Pagos sin completar" valor={String(m.pendientes)} nota="checkout iniciado, sin pagar" />
-        {m.reembolsado > 0 && <Dato etiqueta="Reembolsado" valor={formatCLP(m.reembolsado)} />}
+        <Dato
+          etiqueta={`Ticket promedio · ${rango}`}
+          valor={m.pedidosPagados ? formatCLP(m.ticketPromedio) : "—"}
+        />
+        <Dato
+          etiqueta={`Conversión · ${rango}`}
+          valor={m.embudo.visitas ? formatPorcentaje(m.conversion, 2) : "—"}
+          nota={
+            m.embudo.visitas
+              ? `${m.embudo.pagos} de ${m.embudo.visitas} sesiones compraron`
+              : "sin visitas registradas"
+          }
+        />
+        <Dato
+          etiqueta={`Por entregar · ${rango}`}
+          valor={String(m.porEntregar)}
+          nota="pagados y sin despachar"
+        />
+        <Dato
+          etiqueta={`Pagos sin completar · ${rango}`}
+          valor={String(m.pendientes)}
+          nota="checkout iniciado, sin pagar"
+        />
+        {m.reembolsado > 0 && (
+          <Dato etiqueta={`Reembolsado · ${rango}`} valor={formatCLP(m.reembolsado)} />
+        )}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))", gap: "16px" }}>
-        <div style={TARJETA}>
-          <div className="font-display" style={{ fontSize: "15px", fontWeight: 600, marginBottom: "14px" }}>
-            Embudo de compra
-          </div>
-          {pasos.map((p, i) => (
-            <div key={p.nombre} style={{ marginBottom: "10px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", marginBottom: "4px" }}>
-                <span>{p.nombre}</span>
-                <span style={{ color: "#6f6c66" }}>
-                  {p.n}
-                  {i > 0 && pasos[i - 1].n > 0 && (
-                    <span style={{ color: "#9b978f", marginLeft: "6px" }}>
-                      {Math.round((p.n / pasos[i - 1].n) * 100)}%
-                    </span>
-                  )}
-                </span>
-              </div>
-              <div style={{ height: "8px", background: "#efede9", borderRadius: "4px", overflow: "hidden" }}>
-                <div
-                  style={{
-                    width: `${(p.n / maxPaso) * 100}%`,
-                    height: "100%",
-                    background: i === pasos.length - 1 ? "#4c7a4c" : "#a5613f",
-                  }}
-                />
-              </div>
-            </div>
-          ))}
-          {m.embudo.visitas === 0 && (
-            <div style={{ fontSize: "12.5px", color: "#9b978f", marginTop: "10px" }}>
-              Todavía no hay visitas registradas. El embudo se llena a medida que entra tráfico.
-            </div>
-          )}
+      <div style={{ ...TARJETA, marginBottom: "16px" }}>
+        <div className="font-display" style={{ fontSize: "15px", fontWeight: 600, marginBottom: "4px" }}>
+          Ingresos por día · {rango}
         </div>
+        <p style={{ fontSize: "12px", color: "#6f6c66", margin: "0 0 14px" }}>
+          Solo pedidos pagados. Los días sin ventas se dibujan en cero, no se saltan.
+        </p>
+        {m.ingresos === 0 ? (
+          // Un gráfico entero en cero es una franja en blanco que no dice nada;
+          // los días sin ventas se dibujan cuando hay al menos una venta que ver.
+          <div style={{ fontSize: "12.5px", color: "#9b978f" }}>
+            Sin ventas pagadas en el período.
+          </div>
+        ) : (
+          <GraficoBarras
+            dias={dias}
+            datos={m.porDia.map((d) => ({
+              dia: d.dia,
+              valor: d.ingresos,
+              detalle: `${d.pedidos} ${d.pedidos === 1 ? "pedido" : "pedidos"}`,
+            }))}
+            etiquetaValor="en ventas pagadas"
+            formatoEjeY={montoCorto}
+            formatoValor={formatCLP}
+          />
+        )}
+      </div>
+
+      {/* Las tarjetas de tabla ancha van solas en su fila: apretadas en tres
+          columnas las columnas se pisaban y el encabezado quedaba ilegible. */}
+      <div style={DOS_COLUMNAS}>
+        <EmbudoCompra
+          dias={dias}
+          embudo={m.embudo}
+          pedidos={m.pedidosDelEmbudo}
+          ventasManuales={m.ventasManuales}
+        />
 
         <div style={TARJETA}>
           <div className="font-display" style={{ fontSize: "15px", fontWeight: 600, marginBottom: "14px" }}>
-            Ingresos por día
-          </div>
-          {m.porDia.length === 0 ? (
-            <div style={{ fontSize: "12.5px", color: "#9b978f" }}>Sin pedidos en el período.</div>
-          ) : (
-            <div style={{ display: "flex", alignItems: "flex-end", gap: "3px", height: "140px" }}>
-              {m.porDia.map((d) => (
-                <div
-                  key={d.dia}
-                  title={`${d.dia}: ${formatCLP(d.ingresos)} (${d.pedidos} pedidos)`}
-                  style={{
-                    flex: 1,
-                    minWidth: "4px",
-                    // Con pocos días una barra sola llenaría la tarjeta entera.
-                    maxWidth: "46px",
-                    height: `${Math.max(2, (d.ingresos / maxDia) * 100)}%`,
-                    background: d.ingresos > 0 ? "#a5613f" : "#e3e1dc",
-                    borderRadius: "2px 2px 0 0",
-                  }}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div style={TARJETA}>
-          <div className="font-display" style={{ fontSize: "15px", fontWeight: 600, marginBottom: "14px" }}>
-            Más vendidos
+            Más vendidos · {rango}
           </div>
           {m.topProductos.length === 0 ? (
             <div style={{ fontSize: "12.5px", color: "#9b978f" }}>Sin ventas en el período.</div>
@@ -195,10 +217,22 @@ export default async function AdminResumen({
             ))
           )}
         </div>
+
+      </div>
+
+      <div style={{ marginTop: "16px" }}>
+        <EmbudoCanales dias={dias} datos={porCanal} />
+      </div>
+
+      <div style={{ ...DOS_COLUMNAS, marginTop: "16px" }}>
+        <EmbudoProductos dias={dias} datos={porProducto} />
+        <CheckoutsPendientes dias={dias} datos={pendientes} />
       </div>
 
       <SeccionTrafico
+        dias={dias}
         sesiones={sesiones}
+        totales={totales}
         canales={canales}
         fuentes={fuentes}
         equipos={equipos}
