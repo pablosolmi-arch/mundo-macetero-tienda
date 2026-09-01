@@ -7,10 +7,17 @@
 // Los eventos anteriores a la atribución no tienen canal, fuente ni dispositivo:
 // se agrupan como "sin dato" en vez de desaparecer, para que los totales cuadren
 // con el resto del panel.
-import { and, desc, eq, inArray, isNotNull, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, isNotNull, ne, sql } from "drizzle-orm";
 import { db } from "../db/client";
 import { orders, products, siteEvents } from "../db/schema";
 import { dentroDelPeriodo, diaSantiago } from "./dia-santiago";
+import {
+  CAMPOS_CHECKOUT,
+  ETIQUETAS_CAMPO,
+  ETIQUETAS_MOTIVO,
+  type CampoCheckout,
+  type MotivoCheckout,
+} from "../lib/eventos-checkout";
 
 export const SIN_DATO = "sin dato";
 
@@ -69,6 +76,34 @@ export interface DispositivoTrafico {
   sesiones: number;
 }
 
+export interface CampoAbandono {
+  campo: CampoCheckout;
+  etiqueta: string;
+  // Sesiones distintas que completaron ese campo al menos una vez.
+  sesiones: number;
+  // Respecto de las sesiones que abrieron el checkout.
+  porcentaje: number;
+}
+
+export interface ErrorCheckout {
+  motivo: string;
+  etiqueta: string;
+  veces: number;
+  sesiones: number;
+}
+
+export interface AbandonoCheckout {
+  // Sesiones que abrieron la página del checkout: es el 100% de los porcentajes.
+  llegaron: number;
+  campos: CampoAbandono[];
+  // Sesiones que apretaron pagar y salió la petición.
+  envios: number;
+  // Sesiones que llegaron a tener un pedido creado, pagado o no: es el paso
+  // siguiente a apretar pagar y el que hoy está en cero.
+  pedidos: number;
+  errores: ErrorCheckout[];
+}
+
 export interface PaginaVista {
   path: string;
   // Nombre del producto cuando la página es una ficha; null en el resto.
@@ -89,6 +124,9 @@ function pedidosDelPeriodo(dias: number) {
 // Solo estos dos tipos son "una página vista"; 'agregar' y 'checkout' son acciones
 // dentro de una página que ya se contó.
 const TIPOS_PAGINA = ["visita", "producto"];
+
+// La página del formulario de checkout: su visita es el 100% del abandono.
+const RUTA_CHECKOUT = "/checkout";
 
 // El texto de reemplazo va literal en el SQL (no como parámetro) porque la misma
 // expresión se repite en el GROUP BY: con dos parámetros distintos Postgres no las
@@ -316,6 +354,80 @@ export async function embudoPorProducto(dias = 30, limite = 10): Promise<EmbudoP
       carritos: f.carritos,
       conversion: f.fichas > 0 ? (f.carritos / f.fichas) * 100 : 0,
     }));
+}
+
+// Dónde se abandona el formulario de checkout: hasta qué campo alcanzó a llegar
+// cada sesión, cuántas apretaron pagar y cuántas terminaron con un pedido
+// creado. El 100% son las sesiones que ABRIERON la página del checkout (la
+// visita a /checkout), no el evento 'checkout', que ya es "apretó pagar".
+//
+// Los campos van en el orden de la pantalla, incluidos los que nadie completó:
+// un cero al principio de la lista es justamente el dato que se busca.
+export async function abandonoCheckout(dias = 30): Promise<AbandonoCheckout> {
+  const enElPeriodo = eventosDelPeriodo(dias);
+
+  const [resumen, porCampo, fallas, pedidos] = await Promise.all([
+    db
+      .select({
+        llegaron: sql<number>`count(distinct ${siteEvents.sessionId}) filter (where ${siteEvents.tipo} = 'visita' and ${siteEvents.path} = ${RUTA_CHECKOUT})::int`,
+        envios: sql<number>`count(distinct ${siteEvents.sessionId}) filter (where ${siteEvents.tipo} = 'checkout_envio')::int`,
+      })
+      .from(siteEvents)
+      .where(enElPeriodo),
+    db
+      .select({
+        campo: siteEvents.campo,
+        sesiones: sql<number>`count(distinct ${siteEvents.sessionId})::int`,
+      })
+      .from(siteEvents)
+      .where(and(enElPeriodo, eq(siteEvents.tipo, "checkout_campo"), isNotNull(siteEvents.campo)))
+      .groupBy(siteEvents.campo),
+    db
+      .select({
+        motivo: siteEvents.campo,
+        veces: sql<number>`count(*)::int`,
+        sesiones: sql<number>`count(distinct ${siteEvents.sessionId})::int`,
+      })
+      .from(siteEvents)
+      .where(and(enElPeriodo, eq(siteEvents.tipo, "checkout_error"), isNotNull(siteEvents.campo)))
+      .groupBy(siteEvents.campo)
+      .orderBy(desc(sql`count(*)`)),
+    // Cualquier pedido del sitio, pagado o no: el paso que sigue a apretar
+    // pagar es que exista el pedido, y las ventas cargadas a mano no pasaron
+    // por el formulario.
+    db
+      .select({ sesiones: sql<number>`count(distinct ${orders.sessionId})::int` })
+      .from(orders)
+      .where(and(pedidosDelPeriodo(dias), isNotNull(orders.sessionId), ne(orders.origen, "manual"))),
+  ]);
+
+  const llegaron = resumen[0]?.llegaron ?? 0;
+  const sesionesPorCampo = new Map(porCampo.map((f) => [f.campo, f.sesiones]));
+
+  return {
+    llegaron,
+    campos: CAMPOS_CHECKOUT.map((campo) => {
+      const sesiones = sesionesPorCampo.get(campo) ?? 0;
+      return {
+        campo,
+        etiqueta: ETIQUETAS_CAMPO[campo],
+        sesiones,
+        porcentaje: llegaron > 0 ? (sesiones / llegaron) * 100 : 0,
+      };
+    }),
+    envios: resumen[0]?.envios ?? 0,
+    pedidos: pedidos[0]?.sesiones ?? 0,
+    errores: fallas
+      .filter((f): f is typeof f & { motivo: string } => !!f.motivo)
+      .map((f) => ({
+        motivo: f.motivo,
+        // Un motivo que ya no exista en el código igual se muestra por su
+        // código, en vez de desaparecer del informe.
+        etiqueta: ETIQUETAS_MOTIVO[f.motivo as MotivoCheckout] ?? f.motivo,
+        veces: f.veces,
+        sesiones: f.sesiones,
+      })),
+  };
 }
 
 export async function paginasMasVistas(dias = 30): Promise<PaginaVista[]> {

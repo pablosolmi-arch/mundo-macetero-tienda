@@ -7,7 +7,18 @@
 
 import { detectarDispositivo, resolverOrigen, type Canal } from "./origen";
 
-export type EventoTipo = "visita" | "producto" | "agregar" | "checkout";
+// Los tres últimos miden lo que pasa DENTRO del formulario de checkout: qué
+// campos alcanzó a completar la sesión, por qué se rechazó el envío y si llegó a
+// apretar pagar. Viajan con `campo`, que es el nombre del campo o un código
+// corto de error, nunca lo que la persona escribió.
+export type EventoTipo =
+  | "visita"
+  | "producto"
+  | "agregar"
+  | "checkout"
+  | "checkout_campo"
+  | "checkout_error"
+  | "checkout_envio";
 
 const CLAVE_SESION = "mm_sid";
 const CLAVE_ORIGEN = "mm_origen";
@@ -86,13 +97,17 @@ export function origenSesion(): OrigenSesion {
   }
 }
 
-export function track(tipo: EventoTipo, extra?: { path?: string; productSlug?: string }): void {
+export function track(
+  tipo: EventoTipo,
+  extra?: { path?: string; productSlug?: string; campo?: string },
+): void {
   if (typeof window === "undefined") return;
   const origen = origenSesion();
   const cuerpo = JSON.stringify({
     tipo,
     path: extra?.path ?? window.location.pathname,
     productSlug: extra?.productSlug ?? null,
+    campo: extra?.campo ?? null,
     sessionId: origen.sessionId,
     referrer: document.referrer || "",
     canal: origen.canal,

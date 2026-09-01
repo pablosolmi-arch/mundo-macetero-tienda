@@ -8,6 +8,7 @@ import { like } from "drizzle-orm";
 import { db } from "../../db/client";
 import { siteEvents } from "../../db/schema";
 import {
+  abandonoCheckout,
   dispositivos,
   embudoPorCanal,
   embudoPorProducto,
@@ -179,5 +180,98 @@ describe("consultas de tráfico", () => {
 
   it("respeta el límite del top de productos", async () => {
     expect((await embudoPorProducto(7)).length).toBeLessThanOrEqual(10);
+  });
+});
+
+// La misma regla que arriba: eventos propios con un prefijo reconocible, y se
+// borran al final. Las cifras reales de la tienda solo se leen.
+const PREFIJO_ABANDONO = "test-abandono-";
+
+describe("abandono del checkout", () => {
+  beforeAll(async () => {
+    await db.insert(siteEvents).values([
+      // Dos sesiones abren el checkout: son el 100% de los porcentajes.
+      { tipo: "visita", path: "/checkout", sessionId: `${PREFIJO_ABANDONO}1`, canal: "directo" },
+      { tipo: "visita", path: "/checkout", sessionId: `${PREFIJO_ABANDONO}2`, canal: "directo" },
+      // La primera completa correo y nombre; la segunda solo el correo.
+      { tipo: "checkout_campo", path: "/checkout", campo: "email", sessionId: `${PREFIJO_ABANDONO}1` },
+      { tipo: "checkout_campo", path: "/checkout", campo: "nombre", sessionId: `${PREFIJO_ABANDONO}1` },
+      { tipo: "checkout_campo", path: "/checkout", campo: "email", sessionId: `${PREFIJO_ABANDONO}2` },
+      // Solo la primera aprieta pagar, y le falla la pasarela dos veces.
+      { tipo: "checkout_envio", path: "/checkout", sessionId: `${PREFIJO_ABANDONO}1` },
+      {
+        tipo: "checkout_error",
+        path: "/checkout",
+        campo: "pasarela_sin_config",
+        sessionId: `${PREFIJO_ABANDONO}1`,
+      },
+      {
+        tipo: "checkout_error",
+        path: "/checkout",
+        campo: "pasarela_sin_config",
+        sessionId: `${PREFIJO_ABANDONO}1`,
+      },
+    ]);
+  });
+
+  afterAll(async () => {
+    await db.delete(siteEvents).where(like(siteEvents.sessionId, `${PREFIJO_ABANDONO}%`));
+  });
+
+  it("devuelve los once campos en el orden del formulario", async () => {
+    const datos = await abandonoCheckout(7);
+    expect(datos.campos.map((c) => c.campo)).toEqual([
+      "email",
+      "nombre",
+      "apellido",
+      "fono",
+      "entrega",
+      "direccion",
+      "depto",
+      "region",
+      "comuna",
+      "notas",
+      "cupon",
+    ]);
+    // Un campo que nadie completó igual sale, en cero: ese es el dato.
+    const apellido = datos.campos.find((c) => c.campo === "apellido");
+    expect(apellido!.sesiones).toBe(0);
+    expect(apellido!.etiqueta).toBe("Apellido");
+  });
+
+  it("cuenta sesiones únicas por campo y el % sobre las que abrieron el checkout", async () => {
+    const datos = await abandonoCheckout(7);
+    expect(datos.llegaron).toBeGreaterThanOrEqual(2);
+
+    const email = datos.campos.find((c) => c.campo === "email")!;
+    const nombre = datos.campos.find((c) => c.campo === "nombre")!;
+    expect(email.sesiones).toBeGreaterThanOrEqual(2);
+    expect(nombre.sesiones).toBeGreaterThanOrEqual(1);
+    // La caída del formulario: nunca puede completar un campo más gente que la
+    // que abrió la página.
+    for (const c of datos.campos) {
+      expect(c.sesiones).toBeLessThanOrEqual(datos.llegaron);
+      expect(c.porcentaje).toBeCloseTo((c.sesiones / datos.llegaron) * 100);
+    }
+  });
+
+  it("cierra la cadena con quién apretó pagar y quién creó el pedido", async () => {
+    const datos = await abandonoCheckout(7);
+    expect(datos.envios).toBeGreaterThanOrEqual(1);
+    expect(datos.pedidos).toBeGreaterThanOrEqual(0);
+  });
+
+  it("lista los motivos de error con veces y sesiones", async () => {
+    const datos = await abandonoCheckout(7);
+    const falla = datos.errores.find((e) => e.motivo === "pasarela_sin_config");
+    expect(falla).toBeDefined();
+    expect(falla!.veces).toBeGreaterThanOrEqual(2);
+    expect(falla!.sesiones).toBeGreaterThanOrEqual(1);
+    // Dos intentos de la misma sesión son dos veces, una sesión.
+    expect(falla!.veces).toBeGreaterThanOrEqual(falla!.sesiones);
+    expect(falla!.etiqueta).toBe("Pasarela sin configurar");
+    // Ordenado por veces, de mayor a menor.
+    const veces = datos.errores.map((e) => e.veces);
+    expect([...veces].sort((a, b) => b - a)).toEqual(veces);
   });
 });

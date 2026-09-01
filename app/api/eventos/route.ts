@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "../../../db/client";
 import { siteEvents } from "../../../db/schema";
 import { CANALES, DISPOSITIVOS } from "../../../lib/origen";
+import { VALORES_CAMPO_EVENTO } from "../../../lib/eventos-checkout";
 
 // Recibe los eventos de la tienda. Es un endpoint público por necesidad (lo llama
 // el navegador), así que: valida el tipo contra una lista blanca, recorta los
@@ -10,7 +11,17 @@ import { CANALES, DISPOSITIVOS } from "../../../lib/origen";
 
 export const dynamic = "force-dynamic";
 
-const TIPOS = new Set(["visita", "producto", "agregar", "checkout"]);
+const TIPOS = new Set([
+  "visita",
+  "producto",
+  "agregar",
+  "checkout",
+  // Lo que pasa dentro del formulario de checkout: campo completado, error de
+  // envío y clic en pagar.
+  "checkout_campo",
+  "checkout_error",
+  "checkout_envio",
+]);
 // El canal y el dispositivo los calcula el navegador, así que llegan como
 // cualquier otro dato del cliente: solo se guardan si están en la lista blanca.
 const CANALES_VALIDOS = new Set<string>(CANALES);
@@ -20,8 +31,8 @@ function corta(valor: unknown, max: number): string {
   return typeof valor === "string" ? valor.slice(0, max) : "";
 }
 
-function deLista(valor: unknown, lista: Set<string>): string | null {
-  const v = corta(valor, 30).trim().toLowerCase();
+function deLista(valor: unknown, lista: ReadonlySet<string>, max = 30): string | null {
+  const v = corta(valor, max).trim().toLowerCase();
   return lista.has(v) ? v : null;
 }
 
@@ -35,6 +46,9 @@ export async function POST(req: Request) {
       tipo,
       path: corta(body.path, 300),
       productSlug: corta(body.productSlug, 120) || null,
+      // Nombre de campo o código de error, y solo si está en la lista blanca:
+      // así este endpoint público nunca puede guardar texto del visitante.
+      campo: deLista(body.campo, VALORES_CAMPO_EVENTO, 40),
       sessionId: corta(body.sessionId, 60),
       referrer: corta(body.referrer, 300),
       canal: deLista(body.canal, CANALES_VALIDOS),

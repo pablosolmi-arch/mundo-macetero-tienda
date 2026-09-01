@@ -236,10 +236,15 @@ export const orderEvents = pgTable("order_events", {
 // checkout → pago. Sin datos personales: solo un identificador de sesión anónimo.
 export const siteEvents = pgTable("site_events", {
   id: serial("id").primaryKey(),
-  // 'visita' | 'producto' | 'agregar' | 'checkout' | 'pago'
+  // 'visita' | 'producto' | 'agregar' | 'checkout' | 'pago' |
+  // 'checkout_campo' | 'checkout_error' | 'checkout_envio'
   tipo: text("tipo").notNull(),
   path: text("path").notNull().default(""),
   productSlug: text("product_slug"),
+  // Solo en los eventos del checkout: el NOMBRE del campo que se completó
+  // ('email', 'comuna'…) o el código corto del error ('falta_email',
+  // 'pasarela'…). Nunca el valor que escribió la persona.
+  campo: text("campo"),
   // Identificador aleatorio de la sesión del visitante, no ligado a una persona.
   sessionId: text("session_id").notNull().default(""),
   // Monto en los eventos de pago, para calcular ingresos por origen.

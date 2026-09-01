@@ -1,13 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useCart } from "../../../components/cart/CartContext";
 import { formatCLP } from "../../../lib/format";
 import { calcTotales, type Entrega } from "../../../lib/pricing";
 import { COMUNAS_RM, ENVIO, REGIONES, TIENDA } from "../../../content/site";
 import { montoDescuento } from "../../../lib/descuento-monto";
 import { origenSesion, track } from "../../../lib/track";
+import {
+  motivoRespuestaCheckout,
+  type CampoCheckout,
+  type MotivoCheckout,
+} from "../../../lib/eventos-checkout";
 import { IniciarCheckout } from "../../../components/site/EventosGA4";
 
 const INPUT: React.CSSProperties = {
@@ -43,6 +48,21 @@ function radioCard(on: boolean): React.CSSProperties {
   };
 }
 
+// Cada campo del formulario con el nombre que viaja en el evento: nunca el
+// valor escrito, solo el nombre del campo.
+const CAMPO_EVENTO = {
+  email: "email",
+  nombre: "nombre",
+  apellido: "apellido",
+  fono: "fono",
+  entrega: "entrega",
+  dir: "direccion",
+  depto: "depto",
+  region: "region",
+  comuna: "comuna",
+  nota: "notas",
+} as const satisfies Record<string, CampoCheckout>;
+
 export default function CheckoutPage() {
   const { items, subtotal, codigo, aplicarCodigo, quitarCodigo } = useCart();
   const [form, setForm] = useState({
@@ -62,9 +82,24 @@ export default function CheckoutPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Los campos que ya avisamos: el evento se manda UNA vez por campo y por
+  // sesión de formulario, si no un campo largo mandaría un evento por tecla.
+  const avisados = useRef(new Set<CampoCheckout>());
+
+  const avisarCampo = (campo: CampoCheckout) => {
+    if (avisados.current.has(campo)) return;
+    avisados.current.add(campo);
+    track("checkout_campo", { campo });
+  };
+
+  const avisarError = (campo: MotivoCheckout) => track("checkout_error", { campo });
+
   const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) => {
     setForm((f) => ({ ...f, [k]: v }));
     setError("");
+    // Entrega y región ya vienen con un valor, así que su primer aviso es la
+    // primera vez que la persona los toca; el resto, al dejar de estar vacíos.
+    if (v.trim()) avisarCampo(CAMPO_EVENTO[k]);
   };
 
   const esDespacho = form.entrega === "despacho";
@@ -79,15 +114,34 @@ export default function CheckoutPage() {
 
   async function pagar() {
     const falta: string[] = [];
-    if (!form.email.trim() || !form.email.includes("@")) falta.push("correo válido");
-    if (!form.nombre.trim()) falta.push("nombre");
-    if (!form.fono.trim()) falta.push("teléfono");
+    // `motivos` va en paralelo a `falta`: el texto es para la persona y el
+    // código corto para la medición, uno por cada cosa que impidió el envío.
+    const motivos: MotivoCheckout[] = [];
+    if (!form.email.trim() || !form.email.includes("@")) {
+      falta.push("correo válido");
+      motivos.push(form.email.trim() ? "email_invalido" : "falta_email");
+    }
+    if (!form.nombre.trim()) {
+      falta.push("nombre");
+      motivos.push("falta_nombre");
+    }
+    if (!form.fono.trim()) {
+      falta.push("teléfono");
+      motivos.push("falta_fono");
+    }
     if (esDespacho) {
-      if (!form.dir.trim()) falta.push("dirección");
-      if (!form.comuna.trim()) falta.push("comuna");
+      if (!form.dir.trim()) {
+        falta.push("dirección");
+        motivos.push("falta_direccion");
+      }
+      if (!form.comuna.trim()) {
+        falta.push("comuna");
+        motivos.push("falta_comuna");
+      }
     }
     if (falta.length) {
       setError(`Completa: ${falta.join(", ")}.`);
+      for (const motivo of motivos) avisarError(motivo);
       return;
     }
 
@@ -97,6 +151,9 @@ export default function CheckoutPage() {
     // Identificador anónimo de la sesión y el origen de su primer contacto, para
     // que el pedido quede atribuido al canal que realmente trajo la venta.
     const visita = origenSesion();
+    // Se apretó pagar y la petición sale: es el paso que cierra la cadena de
+    // campos completados.
+    track("checkout_envio");
     try {
       // Only identifiers and quantities travel to the server; it recomputes every
       // price, the shipping cost and the discount before charging.
@@ -137,8 +194,10 @@ export default function CheckoutPage() {
         return;
       }
       setError(data.message ?? "No se pudo iniciar el pago.");
+      avisarError(motivoRespuestaCheckout(res.status, data.message));
     } catch {
       setError("No se pudo conectar con el servicio de pago.");
+      avisarError("sin_conexion");
     } finally {
       setLoading(false);
     }
@@ -293,6 +352,8 @@ export default function CheckoutPage() {
                     onChange={(e) => {
                       setForm((f) => ({ ...f, region: e.target.value, comuna: "" }));
                       setError("");
+                      // Cambiar de región no pasa por `set`, así que el aviso va acá.
+                      avisarCampo("region");
                     }}
                     aria-label="Región"
                     style={INPUT}
@@ -488,6 +549,7 @@ export default function CheckoutPage() {
                   onChange={(e) => {
                     setCodigoInput(e.target.value);
                     setCodigoMsg("");
+                    if (e.target.value.trim()) avisarCampo("cupon");
                   }}
                   placeholder="Código de descuento"
                   style={{ ...INPUT, padding: "10px 12px", fontSize: "13px" }}

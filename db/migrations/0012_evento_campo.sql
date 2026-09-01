@@ -1,0 +1,1 @@
+ALTER TABLE "site_events" ADD COLUMN "campo" text;

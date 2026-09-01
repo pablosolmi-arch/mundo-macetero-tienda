@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { checkoutsSinPagar, metricas } from "../../../queries/admin";
 import {
+  abandonoCheckout,
   dispositivos,
   embudoPorCanal,
   embudoPorProducto,
@@ -13,6 +14,7 @@ import {
 import { SeccionTrafico } from "../../../components/admin/graficos-trafico";
 import { GraficoBarras, montoCorto } from "../../../components/admin/GraficoBarras";
 import {
+  AbandonoDelCheckout,
   CheckoutsPendientes,
   EmbudoCanales,
   EmbudoCompra,
@@ -66,8 +68,19 @@ export default async function AdminResumen({
 
   // Todas en paralelo: son consultas independientes y la página se abre en cada
   // visita al panel. Todas reciben `dias`.
-  const [m, sesiones, totales, canales, fuentes, equipos, paginas, porCanal, porProducto, pendientes] =
-    await Promise.all([
+  const [
+    m,
+    sesiones,
+    totales,
+    canales,
+    fuentes,
+    equipos,
+    paginas,
+    porCanal,
+    porProducto,
+    pendientes,
+    abandono,
+  ] = await Promise.all([
       metricas(dias),
       sesionesPorDia(dias),
       totalesSesiones(dias),
@@ -78,6 +91,7 @@ export default async function AdminResumen({
       embudoPorCanal(dias),
       embudoPorProducto(dias),
       checkoutsSinPagar(dias),
+      abandonoCheckout(dias),
     ]);
 
   return (
@@ -227,6 +241,12 @@ export default async function AdminResumen({
       <div style={{ ...DOS_COLUMNAS, marginTop: "16px" }}>
         <EmbudoProductos dias={dias} datos={porProducto} />
         <CheckoutsPendientes dias={dias} datos={pendientes} />
+      </div>
+
+      {/* Debajo de "Checkouts sin pagar": ahí se ve cuánto quedó sin pagar y
+          acá, en qué parte del formulario se fue esa gente. */}
+      <div style={{ marginTop: "16px" }}>
+        <AbandonoDelCheckout dias={dias} datos={abandono} />
       </div>
 
       <SeccionTrafico

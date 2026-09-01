@@ -11,7 +11,7 @@ import Link from "next/link";
 import { codigoPedido } from "../../lib/pedido-codigo";
 import { formatCLP, formatPorcentaje } from "../../lib/format";
 import type { CheckoutsSinPagar } from "../../queries/admin";
-import type { EmbudoCanal, EmbudoProducto } from "../../queries/admin-trafico";
+import type { AbandonoCheckout, EmbudoCanal, EmbudoProducto } from "../../queries/admin-trafico";
 import type { CifrasEmbudo } from "../../lib/embudo";
 import { lecturaDelEmbudo, pasosDelEmbudo } from "../../lib/embudo";
 
@@ -314,6 +314,126 @@ export function EmbudoProductos({ dias, datos }: { dias: number; datos: EmbudoPr
             Sesiones únicas: una misma sesión que ve la ficha tres veces cuenta una.
           </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+// Una fila de la caída del checkout: nombre, sesiones, % y la barra. Los pasos
+// finales (apretó pagar, creó el pedido) usan la misma fila para que se lean
+// como continuación de los campos, no como otra cosa.
+function FilaAbandono({
+  nombre,
+  sesiones,
+  total,
+  destacado = false,
+}: {
+  nombre: string;
+  sesiones: number;
+  total: number;
+  destacado?: boolean;
+}) {
+  return (
+    <div style={{ marginBottom: "10px" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "baseline",
+          gap: "10px",
+          fontSize: "13px",
+          marginBottom: "4px",
+        }}
+      >
+        <span style={{ fontWeight: destacado ? 600 : 400 }}>{nombre}</span>
+        <span style={{ whiteSpace: "nowrap" }}>
+          <strong style={{ fontWeight: 600 }}>{sesiones.toLocaleString("es-CL")}</strong>
+          <span style={{ color: "#9b978f", marginLeft: "8px" }}>{porcentaje(sesiones, total)}</span>
+        </span>
+      </div>
+      <div
+        style={{ height: "9px", background: "#efede9", borderRadius: "4px", overflow: "hidden" }}
+        title={`${nombre}: ${sesiones} sesiones únicas`}
+      >
+        <div
+          style={{
+            width: `${total > 0 ? (sesiones / total) * 100 : 0}%`,
+            height: "100%",
+            background: destacado ? "#4c7a4c" : "#a5613f",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+// En qué parte del formulario se queda la gente. Cada barra es "sesiones que
+// completaron este campo", en el orden en que los campos aparecen en pantalla,
+// así que el primer desplome marca dónde se abandona.
+export function AbandonoDelCheckout({ dias, datos }: { dias: number; datos: AbandonoCheckout }) {
+  const hayMedicion =
+    datos.llegaron > 0 || datos.campos.some((c) => c.sesiones > 0) || datos.errores.length > 0;
+
+  return (
+    <div style={TARJETA}>
+      <div className="font-display" style={TITULO}>
+        Dónde se abandona el checkout · últimos {dias} días
+      </div>
+      <p style={BAJADA}>
+        Sesiones únicas que completaron cada campo, en el orden del formulario. El % es
+        sobre las {datos.llegaron.toLocaleString("es-CL")} sesiones que abrieron el
+        checkout. Se guarda el nombre del campo, nunca lo que se escribió.
+      </p>
+
+      {!hayMedicion ? (
+        <div style={VACIO}>Aún no hay datos: la medición empieza ahora.</div>
+      ) : (
+        <>
+          {datos.campos.map((c) => (
+            <FilaAbandono
+              key={c.campo}
+              nombre={c.etiqueta}
+              sesiones={c.sesiones}
+              total={datos.llegaron}
+            />
+          ))}
+
+          <div style={{ borderTop: "1px solid #f0eeea", paddingTop: "12px", marginTop: "14px" }}>
+            <FilaAbandono nombre="Apretó pagar" sesiones={datos.envios} total={datos.llegaron} />
+            <FilaAbandono
+              nombre="Creó el pedido"
+              sesiones={datos.pedidos}
+              total={datos.llegaron}
+              destacado
+            />
+          </div>
+
+          {datos.errores.length > 0 && (
+            <div style={{ marginTop: "16px", overflowX: "auto" }}>
+              <div style={{ fontSize: "12.5px", fontWeight: 600, marginBottom: "6px" }}>
+                Por qué se rechazó el envío
+              </div>
+              <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "320px" }}>
+                <thead>
+                  <tr>
+                    <th style={ENCABEZADO}>Motivo</th>
+                    <th style={ENCABEZADO_NUM}>Veces</th>
+                    <th style={ENCABEZADO_NUM}>Sesiones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {datos.errores.map((e) => (
+                    <tr key={e.motivo}>
+                      <td style={CELDA}>{e.etiqueta}</td>
+                      <td style={CELDA_NUM}>{e.veces.toLocaleString("es-CL")}</td>
+                      <td style={CELDA_NUM}>{e.sesiones.toLocaleString("es-CL")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
