@@ -3,6 +3,7 @@ import { CartDrawer } from "../../components/cart/CartDrawer";
 import { Header } from "../../components/site/Header";
 import { Footer } from "../../components/site/Footer";
 import { Tracker } from "../../components/site/Tracker";
+import { GoogleTagManager } from "../../components/site/GoogleTagManager";
 import { getNavData } from "../../queries/catalog";
 import { navIntenciones } from "../../lib/intenciones";
 import { TIENDA } from "../../content/site";
@@ -130,6 +131,7 @@ export default async function TiendaLayout({ children }: { children: React.React
       <Footer />
       <CartDrawer />
       <Tracker />
+      <GoogleTagManager />
     </CartProvider>
   );
 }

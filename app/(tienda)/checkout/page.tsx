@@ -8,6 +8,7 @@ import { calcTotales, type Entrega } from "../../../lib/pricing";
 import { COMUNAS_RM, ENVIO, REGIONES, TIENDA } from "../../../content/site";
 import { montoDescuento } from "../../../lib/descuento-monto";
 import { origenSesion, track } from "../../../lib/track";
+import { IniciarCheckout } from "../../../components/site/EventosGA4";
 
 const INPUT: React.CSSProperties = {
   width: "100%",
@@ -169,7 +170,18 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div style={{ maxWidth: "1120px", margin: "0 auto", padding: "40px 24px 70px" }}>
+    <>
+      <IniciarCheckout
+        items={items.map((it) => ({
+          item_id: it.productSlug,
+          item_name: it.name,
+          item_variant: it.variantName ?? undefined,
+          price: it.unitPrice,
+          quantity: it.qty,
+        }))}
+        total={totales.total}
+      />
+      <div style={{ maxWidth: "1120px", margin: "0 auto", padding: "40px 24px 70px" }}>
       <h1 className="font-display" style={{ fontSize: "clamp(24px,3vw,34px)", fontWeight: 700, margin: "0 0 4px" }}>
         Finalizar compra
       </h1>
@@ -543,6 +555,7 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { agregarAlCarro } from "../../lib/gtm";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -332,6 +333,13 @@ export function AddToCart({
               },
               qty,
             );
+            agregarAlCarro({
+              item_id: productSlug,
+              item_name: productName,
+              item_variant: selected?.name ?? undefined,
+              price: unitPrice,
+              quantity: qty,
+            });
           }}
           className={agotado ? undefined : "mm-btn-dark"}
           style={{

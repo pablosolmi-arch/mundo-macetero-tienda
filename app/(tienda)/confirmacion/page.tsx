@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { getOrderWithItems } from "../../../queries/orders";
 import { formatCLP } from "../../../lib/format";
 import { codigoPedido } from "../../../lib/pedido-codigo";
+import { Compra } from "../../../components/site/EventosGA4";
+import { getAllActiveProducts } from "../../../queries/catalog";
 import { ClearCartOnPaid } from "../../../components/cart/ClearCartOnPaid";
 
 export const metadata: Metadata = { title: "Estado de tu pedido" };
@@ -47,6 +49,14 @@ const FALLBACK = {
   iconBg: "#a5613f",
 };
 
+// `<slug>-<variantId>` cuando se conocen ambos, que es como se publica cada
+// variante en el feed; si falta el slug (producto archivado), cae al nombre para
+// no perder la conversión.
+function idParaAds(slug: string | undefined, variantId: number | null, nombre: string): string {
+  if (!slug) return nombre;
+  return variantId ? `${slug}-${variantId}` : slug;
+}
+
 export default async function ConfirmacionPage({
   searchParams,
 }: {
@@ -56,12 +66,35 @@ export default async function ConfirmacionPage({
   const pedidoRef = typeof params.pedido === "string" ? params.pedido : null;
   const order = pedidoRef ? await getOrderWithItems(pedidoRef) : null;
 
+  // El identificador que se reporta a Ads tiene que ser el mismo del feed de
+  // Merchant Center (`<slug>-<variantId>`), o el remarketing dinámico no puede
+  // emparejar la venta con el producto anunciado. La tabla de items guarda el
+  // nombre, no el slug, así que se resuelve por id.
+  const slugPorId = new Map(
+    order ? (await getAllActiveProducts()).map((p) => [p.id, p.slug] as const) : [],
+  );
+
   const estado = order?.status ?? (typeof params.estado === "string" ? params.estado : "desconocido");
   const copy = COPY[estado] ?? FALLBACK;
 
   return (
     <div style={{ maxWidth: "640px", margin: "0 auto", padding: "60px 24px 80px" }}>
       {estado === "paid" && <ClearCartOnPaid />}
+      {/* La conversión se reporta con los datos del pedido leídos de la base, no
+          con lo que traiga el navegador, y sin ningún dato personal del comprador. */}
+      {estado === "paid" && order && (
+        <Compra
+          referencia={order.commerceOrder}
+          total={Number(order.amount)}
+          items={order.items.map((it) => ({
+            item_id: idParaAds(slugPorId.get(it.productId ?? -1), it.variantId, it.productName),
+            item_name: it.productName,
+            item_variant: it.variantName ?? undefined,
+            price: Number(it.unitPrice),
+            quantity: it.qty,
+          }))}
+        />
+      )}
       <div
         style={{
           background: "#fff",

@@ -22,6 +22,7 @@ import { DESTACADO } from "../../../../content/menu";
 import { MATERIAL_PARRAFO, MATERIAL_PUNTOS } from "../../../../content/material";
 import { formatCLP } from "../../../../lib/format";
 import { GoogleRating } from "../../../../components/site/GoogleRating";
+import { VerProducto } from "../../../../components/site/EventosGA4";
 
 interface Props {
   params: Promise<{ productSlug: string }>;
@@ -72,6 +73,9 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "28px 24px 70px" }}>
+      <VerProducto
+        item={{ item_id: product.slug, item_name: product.name, price: basePrice, quantity: 1 }}
+      />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
       <script
         type="application/ld+json"
