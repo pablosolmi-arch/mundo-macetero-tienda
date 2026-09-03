@@ -459,6 +459,76 @@ button {
   }
 }
 
+/* Botón flotante de WhatsApp. z-index bajo los overlays del menú móvil (80/90) y
+   del carrito (100), así queda tapado cuando alguno está abierto. La onda que
+   avisa que el botón está ahí vive en los pseudo-elementos, no en el transform
+   del enlace, para no pisar el scale del :hover. */
+.mm-wa-float {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #25d366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18), 0 1px 4px rgba(0, 0, 0, 0.1);
+  z-index: 60;
+  text-decoration: none;
+  transition: transform .2s cubic-bezier(.34, 1.56, .64, 1), box-shadow .2s;
+}
+.mm-wa-float:hover {
+  transform: scale(1.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+}
+.mm-wa-float::before,
+.mm-wa-float::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #25d366;
+  z-index: -1;
+  animation: mmWaPulse 4.2s cubic-bezier(.22, .61, .36, 1) infinite;
+}
+.mm-wa-float::after {
+  animation-delay: .8s;
+}
+.mm-wa-float:hover::before,
+.mm-wa-float:hover::after {
+  animation: none;
+  opacity: 0;
+}
+.mm-wa-float svg {
+  animation: mmWaNudge 6s ease-in-out 2s infinite;
+}
+
+@keyframes mmWaPulse {
+  0% { transform: scale(1); opacity: .38; }
+  55% { transform: scale(1.65); opacity: 0; }
+  100% { transform: scale(1.65); opacity: 0; }
+}
+@keyframes mmWaNudge {
+  0%, 84%, 100% { transform: rotate(0deg); }
+  88% { transform: rotate(-8deg); }
+  92% { transform: rotate(6deg); }
+  96% { transform: rotate(-3deg); }
+}
+
+@media (max-width: 640px) {
+  .mm-wa-float { bottom: 16px; right: 16px; width: 52px; height: 52px; }
+}
+/* Dentro del checkout con productos el botón desaparece: ahí la única acción que
+   importa es pagar y el flotante puede quedar encima del botón en móvil. */
+body:has([data-checkout]) .mm-wa-float { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .mm-wa-float::before,
+  .mm-wa-float::after { display: none; }
+  .mm-wa-float svg { animation: none; }
+}
+
 .mm-footer-link:hover {
   border-color: #d99e77;
   color: #d99e77;

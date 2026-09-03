@@ -240,7 +240,9 @@ export default function CheckoutPage() {
         }))}
         total={totales.total}
       />
-      <div style={{ maxWidth: "1120px", margin: "0 auto", padding: "40px 24px 70px" }}>
+      {/* data-checkout: el CSS lo usa para esconder el botón flotante de WhatsApp
+          mientras se paga, así nunca tapa el botón de pago en móvil. */}
+      <div data-checkout style={{ maxWidth: "1120px", margin: "0 auto", padding: "40px 24px 70px" }}>
       <h1 className="font-display" style={{ fontSize: "clamp(24px,3vw,34px)", fontWeight: 700, margin: "0 0 4px" }}>
         Finalizar compra
       </h1>
