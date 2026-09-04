@@ -85,11 +85,20 @@ export const ETIQUETAS_MOTIVO: Record<MotivoCheckout, string> = {
   desconocido: "Otro",
 };
 
+// Desde dónde se apretó WhatsApp. Viaja en el mismo campo `campo` que los
+// eventos del checkout, así que entra en la misma lista blanca. Hoy solo existe
+// el botón flotante; si mañana se mide otro punto de contacto se agrega acá y
+// los números quedan separados.
+export const ORIGENES_WHATSAPP = ["flotante"] as const;
+
+export type OrigenWhatsapp = (typeof ORIGENES_WHATSAPP)[number];
+
 // Todo lo que puede viajar en el campo `campo` de un evento: el servidor no
 // guarda nada que no esté acá.
 export const VALORES_CAMPO_EVENTO: ReadonlySet<string> = new Set<string>([
   ...CAMPOS_CHECKOUT,
   ...MOTIVOS_CHECKOUT,
+  ...ORIGENES_WHATSAPP,
 ]);
 
 // El error que devolvió POST /api/checkout, en código corto. Primero el estado

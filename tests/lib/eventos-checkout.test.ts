@@ -8,6 +8,7 @@ import {
   ETIQUETAS_CAMPO,
   ETIQUETAS_MOTIVO,
   MOTIVOS_CHECKOUT,
+  ORIGENES_WHATSAPP,
   VALORES_CAMPO_EVENTO,
   motivoRespuestaCheckout,
 } from "../../lib/eventos-checkout";
@@ -68,6 +69,14 @@ describe("vocabulario de eventos del checkout", () => {
     ];
     for (const [mensaje, motivo] of casos) {
       expect(motivoRespuestaCheckout(400, mensaje)).toBe(motivo);
+    }
+  });
+
+  it("acepta el origen del clic a WhatsApp en el campo del evento", () => {
+    // Sin esto el endpoint público descarta el `campo` y el panel no puede
+    // distinguir desde qué botón se apretó WhatsApp.
+    for (const origen of ORIGENES_WHATSAPP) {
+      expect(VALORES_CAMPO_EVENTO.has(origen)).toBe(true);
     }
   });
 

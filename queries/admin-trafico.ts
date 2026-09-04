@@ -33,6 +33,10 @@ export interface TotalesSesiones {
   sesionesUnicas: number;
   paginas: number;
   paginasPorSesion: number;
+  // Clics en el botón flotante de WhatsApp, y cuántas sesiones distintas lo
+  // apretaron: un mismo visitante puede apretarlo dos veces.
+  whatsapp: number;
+  whatsappSesiones: number;
 }
 
 export interface EmbudoCanal {
@@ -158,6 +162,8 @@ export async function totalesSesiones(dias = 30): Promise<TotalesSesiones> {
     .select({
       sesiones: sql<number>`count(distinct ${siteEvents.sessionId})::int`,
       paginas: sql<number>`count(*) filter (where ${siteEvents.tipo} in ('visita', 'producto'))::int`,
+      whatsapp: sql<number>`count(*) filter (where ${siteEvents.tipo} = 'whatsapp')::int`,
+      whatsappSesiones: sql<number>`count(distinct ${siteEvents.sessionId}) filter (where ${siteEvents.tipo} = 'whatsapp')::int`,
     })
     .from(siteEvents)
     .where(eventosDelPeriodo(dias));
@@ -168,6 +174,8 @@ export async function totalesSesiones(dias = 30): Promise<TotalesSesiones> {
     sesionesUnicas,
     paginas,
     paginasPorSesion: sesionesUnicas > 0 ? paginas / sesionesUnicas : 0,
+    whatsapp: fila?.whatsapp ?? 0,
+    whatsappSesiones: fila?.whatsappSesiones ?? 0,
   };
 }
 

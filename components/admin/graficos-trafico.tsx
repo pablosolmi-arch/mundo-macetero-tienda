@@ -147,6 +147,15 @@ function SesionesPorDia({
           </strong>{" "}
           <span style={{ color: "#6f6c66" }}>páginas por sesión</span>
         </span>
+        <span>
+          <strong style={{ fontWeight: 700 }}>{totales.whatsapp.toLocaleString("es-CL")}</strong>{" "}
+          <span style={{ color: "#6f6c66" }}>
+            clics a WhatsApp
+            {totales.whatsapp > 0
+              ? ` (${totales.whatsappSesiones.toLocaleString("es-CL")} ${totales.whatsappSesiones === 1 ? "sesión" : "sesiones"})`
+              : ""}
+          </span>
+        </span>
       </div>
       {totales.sesionesUnicas === 0 ? (
         <div style={VACIO}>Todavía no hay sesiones registradas en el período.</div>

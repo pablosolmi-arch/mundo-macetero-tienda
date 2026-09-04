@@ -18,7 +18,11 @@ export type EventoTipo =
   | "checkout"
   | "checkout_campo"
   | "checkout_error"
-  | "checkout_envio";
+  | "checkout_envio"
+  // Clic en el botón flotante de WhatsApp. Va con `campo` = de dónde se apretó
+  // ('flotante'), para poder sumar otros puntos de contacto más adelante sin
+  // mezclar los números.
+  | "whatsapp";
 
 const CLAVE_SESION = "mm_sid";
 const CLAVE_ORIGEN = "mm_origen";

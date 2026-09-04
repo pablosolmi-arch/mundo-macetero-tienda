@@ -59,6 +59,22 @@ export function iniciarCheckout(items: ItemGA4[], total: number): void {
   empujar({ event: "begin_checkout", ecommerce: { currency: "CLP", value: total, items } });
 }
 
+/**
+ * Eventos que no son de comercio: no llevan `ecommerce` ni limpian el objeto
+ * anterior, porque no tienen items ni valor de conversión. GTM los recibe por
+ * nombre y la agencia decide adentro si alguno se marca como conversión.
+ */
+export function empujarSimple(evento: string, datos?: Record<string, string>): void {
+  if (typeof window === "undefined") return;
+  window.dataLayer = window.dataLayer ?? [];
+  window.dataLayer.push({ event: evento, ...datos });
+}
+
+/** Clic en un botón de WhatsApp. `origen` dice desde dónde se apretó. */
+export function clicWhatsapp(origen: string): void {
+  empujarSimple("click_whatsapp", { origen });
+}
+
 export function compra(referencia: string, total: number, items: ItemGA4[]): void {
   empujar({
     event: "purchase",

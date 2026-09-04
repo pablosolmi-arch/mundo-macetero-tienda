@@ -21,6 +21,8 @@ const TIPOS = new Set([
   "checkout_campo",
   "checkout_error",
   "checkout_envio",
+  // Clic en el botón flotante de WhatsApp.
+  "whatsapp",
 ]);
 // El canal y el dispositivo los calcula el navegador, así que llegan como
 // cualquier otro dato del cliente: solo se guardan si están en la lista blanca.
