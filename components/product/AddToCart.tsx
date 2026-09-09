@@ -3,16 +3,20 @@
 import { agregarAlCarro } from "../../lib/gtm";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useCart } from "../cart/CartContext";
 import { formatCLP } from "../../lib/format";
-import { HEXES } from "../../content/site";
+import { ENVIO, HEXES } from "../../content/site";
 import {
   HEX_TERMINACION,
   TERMINACIONES,
   TERMINACION_PENDIENTE,
   esEjeDeColor,
 } from "../../content/terminaciones";
+import { VentajasClave } from "./VentajasClave";
+import { PREGUNTAS, linkWhatsapp } from "../../lib/whatsapp";
+import { asesoriaIniciada, clicWhatsapp } from "../../lib/gtm";
+import { track } from "../../lib/track";
 
 // Buy box: one group of buttons per option axis (size, drainage…), the standard
 // finish choice, a price that tracks the selected combination, quantity and
@@ -108,6 +112,25 @@ export function AddToCart({
   const [terminacion, setTerminacion] = useState<string | null>(null);
   const [faltaTerminacion, setFaltaTerminacion] = useState(false);
 
+  // El botón de comprar real. Cuando se va de pantalla aparece la barra fija de
+  // abajo, que llama exactamente a la misma función: no hay una segunda lógica
+  // de compra que se pueda desincronizar de esta.
+  const botonRef = useRef<HTMLButtonElement>(null);
+  const [botonALaVista, setBotonALaVista] = useState(true);
+
+  useEffect(() => {
+    const boton = botonRef.current;
+    if (!boton || typeof IntersectionObserver === "undefined") return;
+    const observador = new IntersectionObserver(
+      ([entrada]) => setBotonALaVista(entrada.isIntersecting),
+      // Un poco de margen abajo: la barra no aparece justo cuando el botón roza
+      // el borde, si no titila mientras se desliza la página.
+      { rootMargin: "-60px 0px -20px 0px" },
+    );
+    observador.observe(boton);
+    return () => observador.disconnect();
+  }, []);
+
   // Una variante calza cuando coincide en todos los ejes VISIBLES; el de color se
   // ignora, así que varias variantes pueden calzar y manda la primera disponible.
   function coincide(v: VariantOption, sel: string[], salvo = -1): boolean {
@@ -154,18 +177,58 @@ export function AddToCart({
   // pero el dueño quiere preguntar igual por el tono.
   const etiquetaTerminacion = productSlug === "bases-metalicas" ? "Color" : "Terminación";
 
+  // La compra, en un solo lugar: la llaman el botón de la ficha y la barra fija
+  // de móvil. Si falta la terminación no agrega nada y marca el aviso, igual que
+  // antes.
+  function agregar() {
+    if (!terminacion) {
+      setFaltaTerminacion(true);
+      return;
+    }
+    add(
+      {
+        productSlug,
+        name: productName,
+        variantId: selected?.id ?? null,
+        variantName: selected?.name ?? null,
+        terminacion,
+        unitPrice,
+        image,
+      },
+      qty,
+    );
+    agregarAlCarro({
+      item_id: productSlug,
+      item_name: productName,
+      item_variant: selected?.name ?? undefined,
+      price: unitPrice,
+      quantity: qty,
+    });
+  }
+
+  // Lo que se está mirando, para que el mensaje de WhatsApp llegue con contexto y
+  // el vendedor no tenga que preguntar de qué macetero se trata.
+  const contexto = {
+    producto: productName,
+    variante: selected?.name && selected.name !== "Default Title" ? selected.name : null,
+    terminacion,
+  };
+
+  const ORIGEN = "ficha";
+
   return (
     <>
       <div style={{ display: "flex", alignItems: "baseline", gap: "12px", marginBottom: "6px" }}>
         <span style={{ fontSize: "24px", fontWeight: 700 }}>{formatCLP(unitPrice * qty)}</span>
       </div>
-      <div style={{ fontSize: "12.5px", color: "#6f6c66", marginBottom: "22px" }}>
-        Los{" "}
-        <Link href="/politicas" style={{ textDecoration: "underline" }}>
-          gastos de envío
-        </Link>{" "}
-        se calculan en la pantalla de pago.
+      {/* Antes acá decía que el envío "se calcula en la pantalla de pago", que no
+          es cierto: el sitio nunca cobra despacho. La regla real se dice completa
+          bajo el botón y en el acordeón "Envío y retiro". */}
+      <div style={{ fontSize: "12px", color: "#9b978f", marginBottom: "16px" }}>
+        CLP · IVA incluido
       </div>
+
+      <VentajasClave />
 
       {axes.map((eje, i) => eje.oculto ? null : (
         <div key={eje.nombre} style={{ marginBottom: "18px" }}>
@@ -274,6 +337,68 @@ export function AddToCart({
         )}
       </div>
 
+      {/* La duda que frena la compra aparece justo acá, al elegir medida y
+          terminación, así que la ayuda se ofrece en este punto y no al final.
+          Lleva al sistema de asesoramiento que ya existe (/asesoramiento), con el
+          producto que se está mirando en la URL para que llegue en la solicitud. */}
+      <div
+        style={{
+          background: "#f6f2ec",
+          border: "1px solid #e9e2d6",
+          borderRadius: "12px",
+          padding: "14px 16px",
+          marginBottom: "6px",
+        }}
+      >
+        <div style={{ fontSize: "13.5px", fontWeight: 700, marginBottom: "3px" }}>
+          ¿No estás seguro del tamaño o la terminación?
+        </div>
+        <div style={{ fontSize: "12.5px", color: "#6f6c66", lineHeight: 1.5, marginBottom: "11px" }}>
+          Te ayudamos a elegir el macetero adecuado para tu planta y tu espacio.
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "9px", alignItems: "center" }}>
+          <Link
+            href={`/asesoramiento?producto=${encodeURIComponent(productSlug)}`}
+            onClick={() => {
+              try {
+                track("asesoria", { campo: ORIGEN });
+                asesoriaIniciada(ORIGEN);
+              } catch {
+                // Métricas: nunca pueden impedir que pida ayuda.
+              }
+            }}
+            style={{
+              display: "inline-block",
+              background: "#fff",
+              border: "1px solid #d8d5cf",
+              borderRadius: "8px",
+              padding: "10px 15px",
+              fontSize: "13px",
+              fontWeight: 700,
+              color: "#2a2925",
+            }}
+          >
+            Quiero que me asesoren
+          </Link>
+          <a
+            href={linkWhatsapp({ ...contexto, pregunta: PREGUNTAS.asesoria })}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => {
+              try {
+                track("whatsapp", { campo: ORIGEN });
+                clicWhatsapp(ORIGEN);
+              } catch {
+                // Igual que arriba.
+              }
+            }}
+            style={{ fontSize: "12.5px", fontWeight: 600, color: "#a5613f", textDecoration: "underline" }}
+          >
+            o pregúntanos por WhatsApp
+          </a>
+        </div>
+      </div>
+
       <div style={{ display: "flex", gap: "12px", alignItems: "stretch", margin: "24px 0 10px", flexWrap: "wrap" }}>
         <div
           style={{
@@ -315,32 +440,9 @@ export function AddToCart({
           </button>
         </div>
         <button
+          ref={botonRef}
           disabled={agotado}
-          onClick={() => {
-            if (!terminacion) {
-              setFaltaTerminacion(true);
-              return;
-            }
-            add(
-              {
-                productSlug,
-                name: productName,
-                variantId: selected?.id ?? null,
-                variantName: selected?.name ?? null,
-                terminacion,
-                unitPrice,
-                image,
-              },
-              qty,
-            );
-            agregarAlCarro({
-              item_id: productSlug,
-              item_name: productName,
-              item_variant: selected?.name ?? undefined,
-              price: unitPrice,
-              quantity: qty,
-            });
-          }}
+          onClick={agregar}
           className={agotado ? undefined : "mm-btn-dark"}
           style={{
             flex: 1,
@@ -358,9 +460,37 @@ export function AddToCart({
           {agotado ? "Sin stock en esta combinación" : "Agregar al carrito"}
         </button>
       </div>
-      <div style={{ fontSize: "12.5px", color: "#4c7a4c", fontWeight: 600, marginBottom: "24px" }}>
-        ✓ Despacho gratis en comunas del sector oriente · Retiro en tienda disponible
+      <div style={{ fontSize: "12.5px", color: "#4c7a4c", fontWeight: 600, marginBottom: "6px" }}>
+        ✓ Despacho gratis en {ENVIO.comunasOriente.join(", ")} · Retiro gratis en Quilicura
       </div>
+      {/* El sitio NUNCA cobra despacho: en el resto de la Región Metropolitana y
+          en regiones se cotiza con transportista y se coordina después. Decirlo
+          acá evita la sorpresa que hoy aparece recién en el checkout. */}
+      <div style={{ fontSize: "12px", color: "#6f6c66", lineHeight: 1.5, marginBottom: "24px" }}>
+        En el resto de la Región Metropolitana y en regiones el despacho se cotiza con un transportista y
+        lo coordinamos contigo después de la compra: no se cobra en esta compra.{" "}
+        <Link href="/politicas" style={{ textDecoration: "underline" }}>
+          Ver política de envíos
+        </Link>
+      </div>
+
+      {/* Barra fija de compra, solo en teléfono y solo cuando el botón real salió
+          de pantalla. El botón de acá llama a la misma función `agregar`. */}
+      {!botonALaVista && !agotado && (
+        <div className="mm-comprar-fijo">
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: "12px", color: "#6f6c66", lineHeight: 1.2 }}>
+              {selected?.name && selected.name !== "Default Title" ? selected.name : productName}
+            </div>
+            <div style={{ fontSize: "16px", fontWeight: 700, lineHeight: 1.3 }}>
+              {formatCLP(unitPrice * qty)}
+            </div>
+          </div>
+          <button onClick={agregar} className="mm-btn-dark mm-comprar-fijo-boton">
+            Agregar al carrito
+          </button>
+        </div>
+      )}
     </>
   );
 }

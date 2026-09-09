@@ -11,9 +11,15 @@ export const TIENDA = {
   instagram: "https://www.instagram.com/mundomacetero/",
   facebook: "https://www.facebook.com/maceteroslivianos",
   whatsapp: "https://wa.me/56992891754",
-  // Número de ventas: es el que atiende el botón flotante de la tienda.
+  // Número de ventas: es el que atiende el botón flotante de la tienda y el que
+  // usa lib/whatsapp.ts para armar los mensajes con contexto del producto.
+  whatsappVentasNumero: "56998294954",
   whatsappVentas:
     "https://wa.me/56998294954?text=%C2%A1Hola%21%20Vi%20los%20maceteros%20en%20mundomacetero.cl%20y%20quiero%20hacer%20una%20consulta",
+  // Teléfono para llamar, en formato marcable. Es el mismo número de ventas: el
+  // cliente que prefiere hablar antes de comprar llega a quien puede venderle.
+  telefonoVentas: "+56998294954",
+  telefonoVentasTexto: "+56 9 9829 4954",
 } as const;
 
 // Delivery rule, as the shop actually operates it: free only in Santiago's eastern

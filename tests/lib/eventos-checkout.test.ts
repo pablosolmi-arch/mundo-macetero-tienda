@@ -8,7 +8,10 @@ import {
   ETIQUETAS_CAMPO,
   ETIQUETAS_MOTIVO,
   MOTIVOS_CHECKOUT,
-  ORIGENES_WHATSAPP,
+  ETIQUETAS_DUDA,
+  ETIQUETAS_ORIGEN,
+  MOTIVOS_DUDA,
+  ORIGENES_CONTACTO,
   VALORES_CAMPO_EVENTO,
   motivoRespuestaCheckout,
 } from "../../lib/eventos-checkout";
@@ -72,11 +75,20 @@ describe("vocabulario de eventos del checkout", () => {
     }
   });
 
-  it("acepta el origen del clic a WhatsApp en el campo del evento", () => {
+  it("acepta el origen del contacto en el campo del evento", () => {
     // Sin esto el endpoint público descarta el `campo` y el panel no puede
-    // distinguir desde qué botón se apretó WhatsApp.
-    for (const origen of ORIGENES_WHATSAPP) {
+    // distinguir desde qué pantalla se pidió ayuda.
+    for (const origen of ORIGENES_CONTACTO) {
       expect(VALORES_CAMPO_EVENTO.has(origen)).toBe(true);
+      expect(ETIQUETAS_ORIGEN[origen]).toBeTruthy();
+    }
+  });
+
+  it("acepta los cuatro motivos de duda del modal de abandono", () => {
+    expect([...MOTIVOS_DUDA]).toEqual(["duda_producto", "duda_despacho", "duda_pago", "duda_otra"]);
+    for (const motivo of MOTIVOS_DUDA) {
+      expect(VALORES_CAMPO_EVENTO.has(motivo)).toBe(true);
+      expect(ETIQUETAS_DUDA[motivo]).toBeTruthy();
     }
   });
 

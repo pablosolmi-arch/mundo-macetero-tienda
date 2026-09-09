@@ -85,20 +85,64 @@ export const ETIQUETAS_MOTIVO: Record<MotivoCheckout, string> = {
   desconocido: "Otro",
 };
 
-// Desde dónde se apretó WhatsApp. Viaja en el mismo campo `campo` que los
-// eventos del checkout, así que entra en la misma lista blanca. Hoy solo existe
-// el botón flotante; si mañana se mide otro punto de contacto se agrega acá y
-// los números quedan separados.
-export const ORIGENES_WHATSAPP = ["flotante"] as const;
+// Desde dónde nació el contacto. Viaja en el mismo campo `campo` que los eventos
+// del checkout, así que entra en la misma lista blanca. Sirve para los tres
+// eventos de contacto (WhatsApp, llamada y asesoramiento) y así se puede saber
+// qué pantalla genera las conversaciones sin mezclar los números.
+export const ORIGENES_CONTACTO = [
+  // Botón flotante, presente en toda la tienda.
+  "flotante",
+  // Ficha de producto, junto a las opciones de tamaño y terminación.
+  "ficha",
+  // Carrito.
+  "carrito",
+  // Modal que aparece cuando la sesión da señales de abandonar el checkout.
+  "modal",
+] as const;
 
-export type OrigenWhatsapp = (typeof ORIGENES_WHATSAPP)[number];
+export type OrigenContacto = (typeof ORIGENES_CONTACTO)[number];
+
+export const ETIQUETAS_ORIGEN: Record<OrigenContacto, string> = {
+  flotante: "Botón flotante",
+  ficha: "Ficha de producto",
+  carrito: "Carrito",
+  modal: "Modal de abandono",
+};
+
+// Lo que le falta saber a quien está a punto de abandonar el checkout. Es UNA
+// sola pregunta con cuatro respuestas: el objetivo es aprender por qué no
+// compran, no hacerle una encuesta a alguien que ya estaba dudando.
+export const MOTIVOS_DUDA = [
+  "duda_producto",
+  "duda_despacho",
+  "duda_pago",
+  "duda_otra",
+] as const;
+
+export type MotivoDuda = (typeof MOTIVOS_DUDA)[number];
+
+export const ETIQUETAS_DUDA: Record<MotivoDuda, string> = {
+  duda_producto: "Producto",
+  duda_despacho: "Despacho",
+  duda_pago: "Pago",
+  duda_otra: "Otra duda",
+};
+
+// La clave corta que usa lib/whatsapp.ts para elegir la pregunta ya escrita.
+export const CLAVE_DUDA: Record<MotivoDuda, string> = {
+  duda_producto: "producto",
+  duda_despacho: "despacho",
+  duda_pago: "pago",
+  duda_otra: "otra",
+};
 
 // Todo lo que puede viajar en el campo `campo` de un evento: el servidor no
 // guarda nada que no esté acá.
 export const VALORES_CAMPO_EVENTO: ReadonlySet<string> = new Set<string>([
   ...CAMPOS_CHECKOUT,
   ...MOTIVOS_CHECKOUT,
-  ...ORIGENES_WHATSAPP,
+  ...ORIGENES_CONTACTO,
+  ...MOTIVOS_DUDA,
 ]);
 
 // El error que devolvió POST /api/checkout, en código corto. Primero el estado

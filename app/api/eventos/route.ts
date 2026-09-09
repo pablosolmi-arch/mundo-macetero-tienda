@@ -21,8 +21,16 @@ const TIPOS = new Set([
   "checkout_campo",
   "checkout_error",
   "checkout_envio",
-  // Clic en el botón flotante de WhatsApp.
+  // Contacto: WhatsApp, clic al botón de llamar y asesoramiento pedido desde la
+  // ficha. Los tres viajan con el origen en `campo`.
   "whatsapp",
+  "llamar",
+  "asesoria",
+  // Modal de abandono del checkout: mostrado, motivo de la duda y teléfono
+  // dejado para que lo llamemos.
+  "abandono_visto",
+  "abandono_motivo",
+  "llamada_pedida",
 ]);
 // El canal y el dispositivo los calcula el navegador, así que llegan como
 // cualquier otro dato del cliente: solo se guardan si están en la lista blanca.

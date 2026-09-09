@@ -5,6 +5,10 @@ import { useState } from "react";
 import { useCart } from "../../../components/cart/CartContext";
 import { formatCLP } from "../../../lib/format";
 import { montoDescuento } from "../../../lib/descuento-monto";
+import { ENVIO } from "../../../content/site";
+import { VALOR_UNA_LINEA } from "../../../content/valor";
+import { EnlaceWhatsapp } from "../../../components/site/EnlaceWhatsapp";
+import { PREGUNTAS } from "../../../lib/whatsapp";
 
 export default function CarritoPage() {
   const { items, subtotal, changeQty, remove, codigo, aplicarCodigo, quitarCodigo } = useCart();
@@ -265,7 +269,7 @@ export default function CarritoPage() {
               }}
             >
               <span style={{ color: "#6f6c66" }}>Envío</span>
-              <span style={{ color: "#6f6c66", fontSize: "13px" }}>Se calcula en el checkout</span>
+              <span style={{ color: "#6f6c66", fontSize: "13px" }}>Se define en el paso siguiente</span>
             </div>
             <div
               style={{
@@ -278,6 +282,47 @@ export default function CarritoPage() {
             >
               <span>Total parcial</span>
               <span>{formatCLP(subtotal - descuento)}</span>
+            </div>
+
+            {/* Lo que todavía no está resuelto, dicho antes de entrar al pago y no
+                dentro de él: el envío y el plazo. Las comunas y la regla salen de
+                ENVIO, la misma fuente que usa lib/pricing.ts. */}
+            <div
+              style={{
+                background: "#f6f2ec",
+                border: "1px solid #e9e2d6",
+                borderRadius: "10px",
+                padding: "12px 14px",
+                marginBottom: "14px",
+                fontSize: "12.5px",
+                color: "#4c4944",
+                lineHeight: 1.55,
+              }}
+            >
+              <div style={{ fontWeight: 700, marginBottom: "5px" }}>Antes de pagar, para que no haya sorpresas</div>
+              <div>
+                Despacho <strong>gratis</strong> en {ENVIO.comunasOriente.join(", ")} y retiro gratis en Quilicura. En
+                el resto de la Región Metropolitana y en regiones el despacho se cotiza con un transportista y lo
+                coordinamos después: <strong>no se cobra en esta compra</strong>.
+              </div>
+              <div style={{ marginTop: "6px" }}>
+                Muchos maceteros se fabrican a pedido en la medida y terminación que elegiste. Al confirmar el pago te
+                informamos el plazo de fabricación y la fecha de entrega o retiro.
+              </div>
+              <div style={{ marginTop: "7px" }}>
+                <EnlaceWhatsapp
+                  origen="carrito"
+                  contexto={{
+                    producto: items[0]?.name ?? null,
+                    variante: items[0]?.variantName ?? null,
+                    terminacion: items[0]?.terminacion ?? null,
+                    pregunta: PREGUNTAS.despacho,
+                  }}
+                  style={{ color: "#a5613f", fontWeight: 700, textDecoration: "underline" }}
+                >
+                  Resolver una duda por WhatsApp
+                </EnlaceWhatsapp>
+              </div>
             </div>
 
             <Link
@@ -308,6 +353,21 @@ export default function CarritoPage() {
             >
               Seguir comprando
             </Link>
+            {/* Una línea, no la ficha completa: recuerda qué se está comprando
+                cuando el carrito muestra un monto alto. */}
+            <div
+              style={{
+                fontSize: "11.5px",
+                color: "#9b978f",
+                lineHeight: 1.5,
+                marginTop: "16px",
+                paddingTop: "14px",
+                borderTop: "1px solid #f0eeea",
+                textWrap: "pretty",
+              }}
+            >
+              {VALOR_UNA_LINEA}
+            </div>
           </div>
         </div>
       )}

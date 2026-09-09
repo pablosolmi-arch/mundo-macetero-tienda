@@ -459,14 +459,74 @@ button {
   }
 }
 
-/* Botón flotante de WhatsApp. z-index bajo los overlays del menú móvil (80/90) y
-   del carrito (100), así queda tapado cuando alguno está abierto. La onda que
-   avisa que el botón está ahí vive en los pseudo-elementos, no en el transform
-   del enlace, para no pisar el scale del :hover. */
-.mm-wa-float {
+/* Contacto flotante: la burbuja de WhatsApp y, encima, el botón para llamar.
+   El grupo es el que está fijo a la esquina; los dos botones son hijos normales,
+   así se apilan solos y agregar un tercero no obliga a recalcular posiciones.
+   z-index bajo los overlays del menú móvil (80/90) y del carrito (100), así queda
+   tapado cuando alguno está abierto. */
+.mm-flotante {
   position: fixed;
   bottom: 22px;
   right: 22px;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+/* Llamar. En escritorio es una pastilla colapsada al ícono y solo muestra el
+   número cuando el mouse o el teclado llega al grupo: desde un computador no se
+   llama, se lee el número para marcarlo en el teléfono. Discreto a propósito:
+   blanco con borde, para que WhatsApp siga siendo la acción principal. */
+.mm-flotante-llamar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 22px;
+  background: #fff;
+  border: 1px solid #e0ddd7;
+  color: #2a2925;
+  text-decoration: none;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, .12);
+  transition: gap .22s ease, padding .22s ease, box-shadow .2s, border-color .2s;
+  white-space: nowrap;
+}
+.mm-flotante-llamar:hover {
+  border-color: #a5613f;
+  color: #a5613f;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, .18);
+}
+.mm-flotante-fono {
+  font-size: 13.5px;
+  font-weight: 700;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-width .26s ease, opacity .2s ease;
+}
+/* :focus-within incluido para que quien navega con teclado también vea el
+   número, no solo quien usa mouse. */
+.mm-flotante:hover .mm-flotante-fono,
+.mm-flotante:focus-within .mm-flotante-fono {
+  max-width: 150px;
+  opacity: 1;
+}
+.mm-flotante:hover .mm-flotante-llamar,
+.mm-flotante:focus-within .mm-flotante-llamar {
+  gap: 8px;
+  padding: 0 16px 0 13px;
+}
+
+/* La onda que avisa que el botón de WhatsApp está ahí vive en los
+   pseudo-elementos, no en el transform del enlace, para no pisar el scale del
+   :hover. z-index 0 mantiene el mismo apilado que cuando el enlace era el
+   elemento fijo: la onda queda bajo el ícono. */
+.mm-wa-float {
+  position: relative;
+  z-index: 0;
   width: 56px;
   height: 56px;
   border-radius: 50%;
@@ -475,7 +535,6 @@ button {
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18), 0 1px 4px rgba(0, 0, 0, 0.1);
-  z-index: 60;
   text-decoration: none;
   transition: transform .2s cubic-bezier(.34, 1.56, .64, 1), box-shadow .2s;
 }
@@ -518,15 +577,73 @@ button {
 }
 
 @media (max-width: 640px) {
-  .mm-wa-float { bottom: 16px; right: 16px; width: 52px; height: 52px; }
+  .mm-flotante { bottom: 16px; right: 16px; gap: 8px; }
+  .mm-wa-float { width: 52px; height: 52px; }
+  /* En el teléfono no existe el hover, así que el botón de llamar se queda
+     redondo y sin número: un toque marca directo. Más chico que WhatsApp para
+     que se lea como la acción secundaria. */
+  .mm-flotante-llamar { width: 40px; height: 40px; padding: 0; justify-content: center; }
+  .mm-flotante-fono { display: none; }
+  .mm-flotante:hover .mm-flotante-llamar,
+  .mm-flotante:focus-within .mm-flotante-llamar { gap: 0; padding: 0; }
 }
-/* Dentro del checkout con productos el botón desaparece: ahí la única acción que
-   importa es pagar y el flotante puede quedar encima del botón en móvil. */
-body:has([data-checkout]) .mm-wa-float { display: none; }
+/* Barra fija de compra en teléfono. Aparece cuando el botón real de la ficha se
+   fue de pantalla, y su botón llama a la misma función: no hay lógica de compra
+   duplicada. Solo bajo 760px: en escritorio el botón queda a la vista junto a la
+   foto y una barra fija sería ruido. z-index bajo el carrito (100) y bajo el
+   modal de ayuda del checkout. */
+.mm-comprar-fijo {
+  display: none;
+}
+@media (max-width: 760px) {
+  .mm-comprar-fijo {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 70;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+    background: rgba(255, 255, 255, .97);
+    border-top: 1px solid #e3e1dc;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, .08);
+    animation: mmSubeBarra .22s ease;
+  }
+  .mm-comprar-fijo-boton {
+    border: none;
+    border-radius: 9px;
+    padding: 13px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    flex: none;
+  }
+  /* El flotante sube para no quedar tapado por la barra. */
+  body:has(.mm-comprar-fijo) .mm-flotante {
+    bottom: calc(78px + env(safe-area-inset-bottom));
+  }
+}
+@keyframes mmSubeBarra {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mm-comprar-fijo { animation: none; }
+}
+
+/* Dentro del checkout con productos el grupo desaparece: ahí la única acción que
+   importa es pagar y el flotante puede quedar encima del botón en móvil. Quien
+   se traba en el checkout recibe el modal de ayuda, que ofrece lo mismo. */
+body:has([data-checkout]) .mm-flotante { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .mm-wa-float::before,
   .mm-wa-float::after { display: none; }
   .mm-wa-float svg { animation: none; }
+  .mm-flotante-llamar,
+  .mm-flotante-fono { transition: none; }
 }
 
 .mm-footer-link:hover {

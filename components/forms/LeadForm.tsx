@@ -37,9 +37,13 @@ interface LeadFormProps {
   okBody: string;
   // Rendered under the button, e.g. asking for a photo over WhatsApp.
   nota?: React.ReactNode;
+  // Contexto que no escribe la persona y que igual tiene que llegar en la
+  // solicitud: hoy, el producto desde el que apretó "quiero que me asesoren".
+  // Viaja al comienzo de `detalle` para que el equipo lo lea primero.
+  contexto?: string;
 }
 
-export function LeadForm({ tipo, fields, submitLabel, okTitle, okBody, nota }: LeadFormProps) {
+export function LeadForm({ tipo, fields, submitLabel, okTitle, okBody, nota, contexto }: LeadFormProps) {
   const [values, setValues] = useState<Record<string, string>>({});
   const [state, setState] = useState<"idle" | "loading" | "ok">("idle");
   const [error, setError] = useState("");
@@ -57,10 +61,10 @@ export function LeadForm({ tipo, fields, submitLabel, okTitle, okBody, nota }: L
     // Everything that is not a first-class column travels in `detalle`, labelled,
     // so no answer is silently dropped.
     const known = new Set(["nombre", "email", "telefono", "empresa", "mensaje"]);
-    const detalle = fields
+    const respuestas = fields
       .filter((f) => !known.has(f.name))
-      .map((f) => `${f.placeholder}: ${values[f.name] ?? ""}`)
-      .join("\n");
+      .map((f) => `${f.placeholder}: ${values[f.name] ?? ""}`);
+    const detalle = [...(contexto ? [contexto] : []), ...respuestas].join("\n");
 
     try {
       const res = await fetch("/api/leads", {

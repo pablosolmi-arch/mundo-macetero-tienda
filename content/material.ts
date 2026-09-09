@@ -11,7 +11,7 @@ export const MATERIAL_PARRAFO =
 export const MATERIAL_PUNTOS: string[] = [
   "Apto para interior y exterior",
   "Ideal para terrazas, balcones y pisos en altura: no sobrecarga la losa",
-  "Térmico: la tierra mantiene mejor la humedad y se riega hasta 40% menos",
+  "Térmico: la tierra mantiene mejor la humedad y necesita hasta 40% menos agua",
   "Perforaciones de drenaje, doble fondo o plato de agua a pedido",
   "Se limpia con paño húmedo; no requiere sellantes ni mantención",
   "Fabricado a pedido en Quilicura, Chile, con garantía",

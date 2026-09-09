@@ -23,10 +23,16 @@ import { MATERIAL_PARRAFO, MATERIAL_PUNTOS } from "../../../../content/material"
 import { formatCLP } from "../../../../lib/format";
 import { GoogleRating } from "../../../../components/site/GoogleRating";
 import { VerProducto } from "../../../../components/site/EventosGA4";
+import { Comparacion } from "../../../../components/product/Comparacion";
+import { EnlaceWhatsapp } from "../../../../components/site/EnlaceWhatsapp";
+import { ENVIO } from "../../../../content/site";
+import { PREGUNTAS } from "../../../../lib/whatsapp";
 
 interface Props {
   params: Promise<{ productSlug: string }>;
 }
+
+const TIENDA_HORARIO = "Lun a Vie, 8:30 a 18:00";
 
 const DETAILS: React.CSSProperties = { borderTop: "1px solid #e3e1dc", padding: "14px 2px" };
 const SUMMARY: React.CSSProperties = { fontSize: "14px", fontWeight: 700, cursor: "pointer" };
@@ -183,16 +189,49 @@ export default async function ProductPage({ params }: Props) {
             </ul>
           </details>
 
-          <details style={{ ...DETAILS, borderBottom: "1px solid #e3e1dc" }}>
+          {/* Abierto a propósito: el despacho es la duda que más frena la compra y
+              hasta ahora había que abrir el acordeón para saber si llegaba gratis
+              a la comuna. Las comunas salen de ENVIO, la misma fuente que usa
+              lib/pricing.ts para calcular el total, así que ficha, carrito y
+              checkout no pueden decir cosas distintas. */}
+          <details style={{ ...DETAILS, borderBottom: "1px solid #e3e1dc" }} open>
             <summary style={SUMMARY}>Envío y retiro</summary>
-            <p style={{ fontSize: "14px", lineHeight: 1.65, color: "#4c4944", margin: "10px 0 0" }}>
-              Retiro gratis en nuestra tienda de Quilicura (Lun a Vie, 8:30 a 18:00). Despacho gratis en las comunas
-              del sector oriente de Santiago. Para el resto de la Región Metropolitana y otras regiones, el despacho se
-              cotiza con un transportista externo y lo coordinamos contigo después de la compra.
+            <ul
+              style={{
+                fontSize: "14px",
+                lineHeight: 1.7,
+                color: "#4c4944",
+                margin: "10px 0 0",
+                paddingLeft: "20px",
+              }}
+            >
+              <li>
+                <strong>Despacho gratis</strong> en {ENVIO.comunasOriente.join(", ")}.
+              </li>
+              <li>
+                <strong>Retiro gratis</strong> en nuestra tienda de Quilicura ({TIENDA_HORARIO}).
+              </li>
+              <li>
+                <strong>Resto de la Región Metropolitana y regiones:</strong> el despacho se cotiza con un
+                transportista y lo coordinamos contigo después de la compra. No se cobra en esta compra.
+              </li>
+            </ul>
+            <p style={{ fontSize: "13px", color: "#6f6c66", margin: "10px 0 0" }}>
+              ¿Dudas con tu dirección?{" "}
+              <EnlaceWhatsapp
+                origen="ficha"
+                contexto={{ producto: product.name, pregunta: PREGUNTAS.despacho }}
+                style={{ color: "#a5613f", fontWeight: 600, textDecoration: "underline" }}
+              >
+                Pregúntanos por WhatsApp
+              </EnlaceWhatsapp>{" "}
+              y te decimos el costo antes de que compres.
             </p>
           </details>
         </div>
       </div>
+
+      <Comparacion />
 
       {relacionados.length > 0 && (
         <div style={{ marginTop: "60px" }}>

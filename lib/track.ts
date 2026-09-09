@@ -19,10 +19,16 @@ export type EventoTipo =
   | "checkout_campo"
   | "checkout_error"
   | "checkout_envio"
-  // Clic en el botón flotante de WhatsApp. Va con `campo` = de dónde se apretó
-  // ('flotante'), para poder sumar otros puntos de contacto más adelante sin
-  // mezclar los números.
-  | "whatsapp";
+  // Los cuatro de contacto. Van con `campo` = de dónde se apretó ('flotante',
+  // 'ficha', 'carrito', 'modal'), para no mezclar los números de cada pantalla.
+  | "whatsapp"
+  | "llamar"
+  | "asesoria"
+  // El modal que aparece cuando la sesión da señales de abandonar el checkout:
+  // se mostró, qué duda eligió (`campo` = 'duda_*') y si dejó su teléfono.
+  | "abandono_visto"
+  | "abandono_motivo"
+  | "llamada_pedida";
 
 const CLAVE_SESION = "mm_sid";
 const CLAVE_ORIGEN = "mm_origen";

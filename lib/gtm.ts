@@ -75,6 +75,33 @@ export function clicWhatsapp(origen: string): void {
   empujarSimple("click_whatsapp", { origen });
 }
 
+/** Clic en el botón de llamar. Es el mismo número de ventas que WhatsApp. */
+export function clicLlamar(origen: string): void {
+  empujarSimple("click_llamar", { origen });
+}
+
+/** El cliente pidió asesoramiento (formulario o WhatsApp de asesoría). */
+export function asesoriaIniciada(origen: string): void {
+  empujarSimple("asesoria_iniciada", { origen });
+}
+
+/**
+ * El modal de ayuda del checkout. Son tres momentos distintos y la agencia
+ * decide adentro de GTM si alguno se marca como conversión: `motivo` es el
+ * código corto de la duda, nunca texto escrito por la persona.
+ */
+export function modalAbandonoVisto(): void {
+  empujarSimple("checkout_ayuda_vista");
+}
+
+export function motivoAbandono(motivo: string): void {
+  empujarSimple("checkout_ayuda_motivo", { motivo });
+}
+
+export function llamadaPedida(origen: string): void {
+  empujarSimple("llamada_pedida", { origen });
+}
+
 export function compra(referencia: string, total: number, items: ItemGA4[]): void {
   empujar({
     event: "purchase",
