@@ -69,8 +69,6 @@ const Chevron = ({ size = 9, abierto = false }: { size?: number; abierto?: boole
   </svg>
 );
 
-const HEADER_ALTO_ESCRITORIO = 96;
-
 type Menu = "tienda" | "intenciones" | "ases" | null;
 
 const ITEM_MOVIL: React.CSSProperties = {
@@ -301,7 +299,7 @@ export function Header({ productos, intenciones }: HeaderProps) {
               position: "absolute",
               left: 0,
               right: 0,
-              top: `${HEADER_ALTO_ESCRITORIO}px`,
+              top: "100%",
               background: "#fff",
               color: "var(--foreground)",
               boxShadow: "0 18px 40px rgba(18,22,26,.22)",
@@ -392,7 +390,7 @@ export function Header({ productos, intenciones }: HeaderProps) {
               position: "absolute",
               left: 0,
               right: 0,
-              top: `${HEADER_ALTO_ESCRITORIO}px`,
+              top: "100%",
               background: "#fff",
               color: "var(--foreground)",
               boxShadow: "0 18px 40px rgba(18,22,26,.22)",
@@ -449,7 +447,7 @@ export function Header({ productos, intenciones }: HeaderProps) {
               position: "absolute",
               left: 0,
               right: 0,
-              top: `${HEADER_ALTO_ESCRITORIO}px`,
+              top: "100%",
               background: "#fff",
               color: "var(--foreground)",
               boxShadow: "0 18px 40px rgba(18,22,26,.22)",
