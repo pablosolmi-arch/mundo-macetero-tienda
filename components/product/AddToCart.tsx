@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useCart } from "../cart/CartContext";
 import { formatCLP } from "../../lib/format";
-import { ENVIO, HEXES } from "../../content/site";
+import { HEXES } from "../../content/site";
 import {
   HEX_TERMINACION,
   TERMINACIONES,
@@ -177,6 +177,18 @@ export function AddToCart({
   // pero el dueño quiere preguntar igual por el tono.
   const etiquetaTerminacion = productSlug === "bases-metalicas" ? "Color" : "Terminación";
 
+  // El nombre de la variante TAL COMO se eligió en pantalla: solo los ejes
+  // visibles. El nombre que trae el catálogo incluye el eje de color oculto, y
+  // el carrito y el resumen del pedido terminaban diciendo "… / Oxido de Cobre"
+  // al lado de "Terminación: Cemento Natural", dos colores distintos para el
+  // mismo macetero. El precio y el stock se siguen resolviendo con la variante
+  // real (`selected`), esto es solo lo que se lee.
+  const nombreVisible =
+    axes
+      .map((eje, i) => (eje.oculto ? null : seleccion[i]))
+      .filter((v): v is string => !!v)
+      .join(" / ") || null;
+
   // La compra, en un solo lugar: la llaman el botón de la ficha y la barra fija
   // de móvil. Si falta la terminación no agrega nada y marca el aviso, igual que
   // antes.
@@ -190,7 +202,7 @@ export function AddToCart({
         productSlug,
         name: productName,
         variantId: selected?.id ?? null,
-        variantName: selected?.name ?? null,
+        variantName: nombreVisible,
         terminacion,
         unitPrice,
         image,
@@ -200,7 +212,7 @@ export function AddToCart({
     agregarAlCarro({
       item_id: productSlug,
       item_name: productName,
-      item_variant: selected?.name ?? undefined,
+      item_variant: nombreVisible ?? undefined,
       price: unitPrice,
       quantity: qty,
     });
@@ -210,7 +222,7 @@ export function AddToCart({
   // el vendedor no tenga que preguntar de qué macetero se trata.
   const contexto = {
     producto: productName,
-    variante: selected?.name && selected.name !== "Default Title" ? selected.name : null,
+    variante: nombreVisible,
     terminacion,
   };
 
@@ -460,18 +472,11 @@ export function AddToCart({
           {agotado ? "Sin stock en esta combinación" : "Agregar al carrito"}
         </button>
       </div>
-      <div style={{ fontSize: "12.5px", color: "#4c7a4c", fontWeight: 600, marginBottom: "6px" }}>
-        ✓ Despacho gratis en {ENVIO.comunasOriente.join(", ")} · Retiro gratis en Quilicura
-      </div>
-      {/* El sitio NUNCA cobra despacho: en el resto de la Región Metropolitana y
-          en regiones se cotiza con transportista y se coordina después. Decirlo
-          acá evita la sorpresa que hoy aparece recién en el checkout. */}
-      <div style={{ fontSize: "12px", color: "#6f6c66", lineHeight: 1.5, marginBottom: "24px" }}>
-        En el resto de la Región Metropolitana y en regiones el despacho se cotiza con un transportista y
-        lo coordinamos contigo después de la compra: no se cobra en esta compra.{" "}
-        <Link href="/politicas" style={{ textDecoration: "underline" }}>
-          Ver política de envíos
-        </Link>
+      {/* Una línea corta y nada más: la regla completa, con las comunas nombradas
+          una por una, está justo abajo en "Envío y retiro", que ahora viene
+          abierto. Repetir la lista en los dos lugares solo alarga la ficha. */}
+      <div style={{ fontSize: "12.5px", color: "#4c7a4c", fontWeight: 600, marginBottom: "24px" }}>
+        ✓ Despacho gratis en el sector oriente · Retiro gratis en Quilicura
       </div>
 
       {/* Barra fija de compra, solo en teléfono y solo cuando el botón real salió
@@ -479,8 +484,21 @@ export function AddToCart({
       {!botonALaVista && !agotado && (
         <div className="mm-comprar-fijo">
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: "12px", color: "#6f6c66", lineHeight: 1.2 }}>
-              {selected?.name && selected.name !== "Default Title" ? selected.name : productName}
+            {/* El nombre del producto, no el de la variante: el nombre de la
+                variante trae el eje de color que la ficha esconde a propósito
+                (la terminación se pregunta aparte), y aparecería acá diciendo
+                "Oxido de Cobre" sin que nadie lo haya elegido. */}
+            <div
+              style={{
+                fontSize: "12px",
+                color: "#6f6c66",
+                lineHeight: 1.2,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {productName}
             </div>
             <div style={{ fontSize: "16px", fontWeight: 700, lineHeight: 1.3 }}>
               {formatCLP(unitPrice * qty)}

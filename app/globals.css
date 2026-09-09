@@ -607,7 +607,9 @@ button {
     justify-content: space-between;
     gap: 14px;
     padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
-    background: rgba(255, 255, 255, .97);
+    /* Opaco, no translúcido: detrás pasan fotos de producto y el precio quedaba
+       ilegible sobre ellas. */
+    background: #fff;
     border-top: 1px solid #e3e1dc;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, .08);
     animation: mmSubeBarra .22s ease;

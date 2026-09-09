@@ -8,6 +8,8 @@
 // Formato: texto plano. app/(tienda)/politicas/page.tsx renderiza cada párrafo
 // en un <p>, sin HTML ni markdown.
 
+import { ENVIO } from "./site";
+
 export interface Politica {
   slug: string;
   titulo: string;
@@ -20,7 +22,10 @@ export const POLITICAS: Politica[] = [
     titulo: "Política de envío",
     parrafos: [
       "Retiro en tienda, gratis: Puedes retirar tu pedido sin costo en Las Esteras Norte 2610, Galpón 16, Quilicura, de lunes a viernes de 8:30 a 18:00. Te avisamos por correo o teléfono cuando tu pedido esté listo para retirar.",
-      "Despacho gratis en el sector oriente de Santiago: El despacho es gratuito en las comunas del sector oriente de Santiago. No tienes que pagar nada adicional por la entrega.",
+      // Las comunas se nombran una por una y salen de ENVIO, la misma lista que
+      // usa lib/pricing.ts para calcular el total: la política, la ficha y el
+      // checkout no pueden decir cosas distintas.
+      `Despacho gratis en el sector oriente de Santiago: El despacho es gratuito en ${ENVIO.comunasOriente.join(", ")}. No tienes que pagar nada adicional por la entrega.`,
       "Resto de la Región Metropolitana y otras regiones: El despacho se cotiza con un transportista externo y lo coordinamos contigo después de la compra. El valor depende de la dirección, del tamaño y de la cantidad de maceteros, y se paga aparte de la compra online. Si el costo no te acomoda, puedes optar por el retiro en tienda o cancelar el pedido y te devolvemos el total.",
       "Cobertura: Solo despachamos dentro de Chile.",
       "Plazos: Muchos de nuestros maceteros se fabrican a pedido según el tamaño y el color que elijas. Al confirmar tu compra te informamos el plazo de fabricación y la fecha estimada de entrega o retiro.",

@@ -15,6 +15,7 @@ import {
 } from "../../../lib/eventos-checkout";
 import { IniciarCheckout } from "../../../components/site/EventosGA4";
 import { AyudaAntesDeIrte } from "../../../components/checkout/AyudaAntesDeIrte";
+import { EnlaceWhatsapp } from "../../../components/site/EnlaceWhatsapp";
 
 const INPUT: React.CSSProperties = {
   width: "100%",
@@ -436,8 +437,13 @@ export default function CheckoutPage() {
               <span style={{ flex: 1 }}>
                 <span style={{ fontWeight: 700, fontSize: "14px" }}>Mercado Pago</span>
                 <br />
+                {/* Los medios que la cuenta ofrece de verdad: la preferencia no
+                    restringe ninguno, así que aparecen tarjetas, saldo y
+                    transferencia bancaria. Decirlo acá importa porque "Mercado
+                    Pago" a secas hace pensar que hay que tener cuenta. */}
                 <span style={{ fontSize: "12.5px", color: "#6f6c66" }}>
-                  Tarjetas de crédito y débito, y saldo Mercado Pago
+                  Tarjetas de crédito y débito, transferencia bancaria y saldo Mercado Pago. No necesitas tener
+                  cuenta.
                 </span>
               </span>
             </div>
@@ -475,6 +481,33 @@ export default function CheckoutPage() {
           >
             {loading ? "Redirigiendo al pago…" : `Pagar ${formatCLP(totales.total)}`}
           </button>
+
+          {/* El botón flotante está oculto en el checkout para no tapar el de
+              pagar en móvil, así que la salida a WhatsApp vive acá, como texto.
+              No es otro flotante ni otra implementación: es el mismo número y el
+              mismo evento. */}
+          <div style={{ fontSize: "12.5px", color: "#6f6c66", textAlign: "center", lineHeight: 1.6 }}>
+            ¿Alguna duda antes de pagar?{" "}
+            <EnlaceWhatsapp
+              origen="modal"
+              contexto={{
+                producto: items[0]?.name ?? null,
+                variante:
+                  items[0]?.variantName && items[0].variantName !== "Default Title"
+                    ? items[0].variantName
+                    : null,
+                terminacion: items[0]?.terminacion ?? null,
+              }}
+              style={{ color: "#a5613f", fontWeight: 700, textDecoration: "underline" }}
+            >
+              Escríbenos por WhatsApp
+            </EnlaceWhatsapp>{" "}
+            o llámanos al{" "}
+            <a href={`tel:${TIENDA.telefonoVentas}`} style={{ color: "#a5613f", fontWeight: 700 }}>
+              {TIENDA.telefonoVentasTexto}
+            </a>
+            .
+          </div>
         </div>
 
         <div
