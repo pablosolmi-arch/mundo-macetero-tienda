@@ -14,9 +14,15 @@ import { dentroDelPeriodo, diaSantiago } from "./dia-santiago";
 import {
   CAMPOS_CHECKOUT,
   ETIQUETAS_CAMPO,
+  ETIQUETAS_DUDA,
   ETIQUETAS_MOTIVO,
+  ETIQUETAS_ORIGEN,
+  MOTIVOS_DUDA,
+  ORIGENES_CONTACTO,
   type CampoCheckout,
   type MotivoCheckout,
+  type MotivoDuda,
+  type OrigenContacto,
 } from "../lib/eventos-checkout";
 
 export const SIN_DATO = "sin dato";
@@ -435,6 +441,145 @@ export async function abandonoCheckout(dias = 30): Promise<AbandonoCheckout> {
         veces: f.veces,
         sesiones: f.sesiones,
       })),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Ayuda y contacto: quién pidió hablar con nosotros, desde dónde, qué duda tenía
+// y si esa sesión terminó comprando.
+//
+// Es la mitad que faltaba del embudo. Hasta ahora se veía dónde se caía la
+// gente, pero no cuántos pedían ayuda ni si esa ayuda servía para vender.
+// ---------------------------------------------------------------------------
+
+// Los eventos que cuentan como "pidió ayuda". Se miden por sesión: la misma
+// persona que escribe por WhatsApp y además pide que la llamen es UNA sesión
+// asistida, no dos.
+const EVENTOS_AYUDA = ["whatsapp", "llamar", "asesoria", "llamada_pedida"] as const;
+
+export interface ContactoPorOrigen {
+  origen: string;
+  etiqueta: string;
+  whatsapp: number;
+  llamar: number;
+  asesoria: number;
+}
+
+export interface DudaDeclarada {
+  motivo: string;
+  etiqueta: string;
+  sesiones: number;
+  porcentaje: number;
+}
+
+export interface AyudaYContacto {
+  // Sesiones distintas que hicieron algún gesto de contacto en el período.
+  sesionesAsistidas: number;
+  porOrigen: ContactoPorOrigen[];
+  // El modal del checkout: a cuántas sesiones se les mostró y qué respondieron.
+  modalVisto: number;
+  dudas: DudaDeclarada[];
+  llamadasPedidas: number;
+  // Sesiones asistidas que además dejaron un pedido pagado. Es el número que
+  // dice si conviene seguir ofreciendo ayuda o no.
+  comprasAsistidas: number;
+}
+
+export async function ayudaYContacto(dias = 30): Promise<AyudaYContacto> {
+  const enElPeriodo = eventosDelPeriodo(dias);
+
+  const [asistidas, porOrigen, modal, respuestas, llamadas, compras] = await Promise.all([
+    db
+      .select({ sesiones: sql<number>`count(distinct ${siteEvents.sessionId})::int` })
+      .from(siteEvents)
+      .where(
+        and(
+          enElPeriodo,
+          inArray(siteEvents.tipo, [...EVENTOS_AYUDA]),
+          ne(siteEvents.sessionId, ""),
+        ),
+      ),
+    db
+      .select({
+        origen: siteEvents.campo,
+        tipo: siteEvents.tipo,
+        sesiones: sql<number>`count(distinct ${siteEvents.sessionId})::int`,
+      })
+      .from(siteEvents)
+      .where(
+        and(
+          enElPeriodo,
+          inArray(siteEvents.tipo, ["whatsapp", "llamar", "asesoria"]),
+          isNotNull(siteEvents.campo),
+        ),
+      )
+      .groupBy(siteEvents.campo, siteEvents.tipo),
+    db
+      .select({ sesiones: sql<number>`count(distinct ${siteEvents.sessionId})::int` })
+      .from(siteEvents)
+      .where(and(enElPeriodo, eq(siteEvents.tipo, "abandono_visto"))),
+    db
+      .select({
+        motivo: siteEvents.campo,
+        sesiones: sql<number>`count(distinct ${siteEvents.sessionId})::int`,
+      })
+      .from(siteEvents)
+      .where(and(enElPeriodo, eq(siteEvents.tipo, "abandono_motivo"), isNotNull(siteEvents.campo)))
+      .groupBy(siteEvents.campo),
+    db
+      .select({ sesiones: sql<number>`count(distinct ${siteEvents.sessionId})::int` })
+      .from(siteEvents)
+      .where(and(enElPeriodo, eq(siteEvents.tipo, "llamada_pedida"))),
+    // Pedidos pagados cuya sesión pidió ayuda en algún momento. El gesto de
+    // ayuda no se limita al período del pedido a propósito: alguien puede
+    // escribir por WhatsApp un día y comprar tres días después.
+    db
+      .select({ sesiones: sql<number>`count(distinct ${orders.sessionId})::int` })
+      .from(orders)
+      .where(
+        and(
+          eq(orders.status, "paid"),
+          pedidosDelPeriodo(dias),
+          isNotNull(orders.sessionId),
+          ne(orders.sessionId, ""),
+          sql`exists (
+            select 1 from ${siteEvents}
+            where ${siteEvents.sessionId} = ${orders.sessionId}
+              and ${siteEvents.tipo} in ('whatsapp', 'llamar', 'asesoria', 'llamada_pedida')
+          )`,
+        ),
+      ),
+  ]);
+
+  const clave = (origen: string, tipo: string) => `${origen}|${tipo}`;
+  const cuentas = new Map(porOrigen.map((f) => [clave(f.origen ?? "", f.tipo), f.sesiones]));
+
+  const modalVisto = modal[0]?.sesiones ?? 0;
+  const porMotivo = new Map(respuestas.map((f) => [f.motivo, f.sesiones]));
+
+  return {
+    sesionesAsistidas: asistidas[0]?.sesiones ?? 0,
+    // Se listan los cuatro orígenes siempre, incluso en cero: una pantalla que
+    // no genera ni una conversación también es un dato.
+    porOrigen: ORIGENES_CONTACTO.map((origen: OrigenContacto) => ({
+      origen,
+      etiqueta: ETIQUETAS_ORIGEN[origen],
+      whatsapp: cuentas.get(clave(origen, "whatsapp")) ?? 0,
+      llamar: cuentas.get(clave(origen, "llamar")) ?? 0,
+      asesoria: cuentas.get(clave(origen, "asesoria")) ?? 0,
+    })),
+    modalVisto,
+    dudas: MOTIVOS_DUDA.map((motivo: MotivoDuda) => {
+      const sesiones = porMotivo.get(motivo) ?? 0;
+      return {
+        motivo,
+        etiqueta: ETIQUETAS_DUDA[motivo],
+        sesiones,
+        porcentaje: modalVisto > 0 ? (sesiones / modalVisto) * 100 : 0,
+      };
+    }),
+    llamadasPedidas: llamadas[0]?.sesiones ?? 0,
+    comprasAsistidas: compras[0]?.sesiones ?? 0,
   };
 }
 

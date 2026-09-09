@@ -22,7 +22,9 @@ export const VENTAJAS_CLAVE: Ventaja[] = [
   {
     destacado: "90%",
     titulo: "más liviano que el hormigón",
-    detalle: "Lo mueves tú, y sirve en terrazas y pisos en altura sin sobrecargar la losa.",
+    detalle:
+      "Hasta 90% más liviano que uno de hormigón: lo mueves tú, y sirve en terrazas y pisos en altura sin " +
+      "sobrecargar la losa.",
   },
   {
     destacado: "40%",

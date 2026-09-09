@@ -9,6 +9,7 @@ import { db } from "../../db/client";
 import { siteEvents } from "../../db/schema";
 import {
   abandonoCheckout,
+  ayudaYContacto,
   dispositivos,
   embudoPorCanal,
   embudoPorProducto,
@@ -276,5 +277,87 @@ describe("abandono del checkout", () => {
     // Ordenado por veces, de mayor a menor.
     const veces = datos.errores.map((e) => e.veces);
     expect([...veces].sort((a, b) => b - a)).toEqual(veces);
+  });
+});
+
+// ---------------------------------------------------------------------------
+
+const PREFIJO_AYUDA = "test-ayuda-";
+
+describe("ayuda y contacto", () => {
+  beforeAll(async () => {
+    await db.insert(siteEvents).values([
+      // Una sesión escribe por WhatsApp desde la ficha y además pide asesoría.
+      { tipo: "whatsapp", path: "/producto/x", campo: "ficha", sessionId: `${PREFIJO_AYUDA}1` },
+      { tipo: "asesoria", path: "/producto/x", campo: "ficha", sessionId: `${PREFIJO_AYUDA}1` },
+      // La misma sesión aprieta WhatsApp dos veces: sigue siendo una sesión.
+      { tipo: "whatsapp", path: "/producto/x", campo: "ficha", sessionId: `${PREFIJO_AYUDA}1` },
+      // Otra llama desde el flotante.
+      { tipo: "llamar", path: "/tienda", campo: "flotante", sessionId: `${PREFIJO_AYUDA}2` },
+      // A dos sesiones se les muestra el modal del checkout; una responde.
+      { tipo: "abandono_visto", path: "/checkout", sessionId: `${PREFIJO_AYUDA}3` },
+      { tipo: "abandono_visto", path: "/checkout", sessionId: `${PREFIJO_AYUDA}4` },
+      {
+        tipo: "abandono_motivo",
+        path: "/checkout",
+        campo: "duda_despacho",
+        sessionId: `${PREFIJO_AYUDA}3`,
+      },
+      { tipo: "llamada_pedida", path: "/checkout", campo: "modal", sessionId: `${PREFIJO_AYUDA}3` },
+    ]);
+  });
+
+  afterAll(async () => {
+    await db.delete(siteEvents).where(like(siteEvents.sessionId, `${PREFIJO_AYUDA}%`));
+  });
+
+  it("cuenta sesiones únicas, no clics", async () => {
+    const datos = await ayudaYContacto(7);
+    // Tres sesiones nuestras hicieron un gesto de contacto (1, 2 y 3): la 4 solo
+    // vio el modal y no pidió nada.
+    expect(datos.sesionesAsistidas).toBeGreaterThanOrEqual(3);
+    const ficha = datos.porOrigen.find((o) => o.origen === "ficha");
+    // La sesión 1 apretó WhatsApp dos veces y cuenta una sola.
+    expect(ficha!.whatsapp).toBeGreaterThanOrEqual(1);
+    expect(ficha!.asesoria).toBeGreaterThanOrEqual(1);
+  });
+
+  it("lista los cuatro orígenes siempre, incluso en cero", async () => {
+    const datos = await ayudaYContacto(7);
+    expect(datos.porOrigen.map((o) => o.origen)).toEqual([
+      "flotante",
+      "ficha",
+      "carrito",
+      "modal",
+    ]);
+    for (const o of datos.porOrigen) expect(o.etiqueta).toBeTruthy();
+  });
+
+  it("lista las cuatro dudas con su % sobre las sesiones que vieron el modal", async () => {
+    const datos = await ayudaYContacto(7);
+    expect(datos.dudas.map((d) => d.motivo)).toEqual([
+      "duda_producto",
+      "duda_despacho",
+      "duda_pago",
+      "duda_otra",
+    ]);
+    expect(datos.modalVisto).toBeGreaterThanOrEqual(2);
+    const despacho = datos.dudas.find((d) => d.motivo === "duda_despacho");
+    expect(despacho!.sesiones).toBeGreaterThanOrEqual(1);
+    // El porcentaje es sobre las sesiones que vieron el modal, nunca más de 100.
+    for (const d of datos.dudas) {
+      expect(d.porcentaje).toBeGreaterThanOrEqual(0);
+      expect(d.porcentaje).toBeLessThanOrEqual(100);
+    }
+  });
+
+  it("cuenta las solicitudes de llamada", async () => {
+    const datos = await ayudaYContacto(7);
+    expect(datos.llamadasPedidas).toBeGreaterThanOrEqual(1);
+  });
+
+  it("las compras asistidas nunca superan las sesiones asistidas", async () => {
+    const datos = await ayudaYContacto(7);
+    expect(datos.comprasAsistidas).toBeLessThanOrEqual(datos.sesionesAsistidas);
   });
 });

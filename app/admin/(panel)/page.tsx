@@ -2,6 +2,7 @@ import Link from "next/link";
 import { checkoutsSinPagar, metricas } from "../../../queries/admin";
 import {
   abandonoCheckout,
+  ayudaYContacto,
   dispositivos,
   embudoPorCanal,
   embudoPorProducto,
@@ -15,6 +16,7 @@ import { SeccionTrafico } from "../../../components/admin/graficos-trafico";
 import { GraficoBarras, montoCorto } from "../../../components/admin/GraficoBarras";
 import {
   AbandonoDelCheckout,
+  AyudaYContactoTarjeta,
   CheckoutsPendientes,
   EmbudoCanales,
   EmbudoCompra,
@@ -80,6 +82,7 @@ export default async function AdminResumen({
     porProducto,
     pendientes,
     abandono,
+    ayuda,
   ] = await Promise.all([
       metricas(dias),
       sesionesPorDia(dias),
@@ -92,6 +95,7 @@ export default async function AdminResumen({
       embudoPorProducto(dias),
       checkoutsSinPagar(dias),
       abandonoCheckout(dias),
+      ayudaYContacto(dias),
     ]);
 
   return (
@@ -247,6 +251,12 @@ export default async function AdminResumen({
           acá, en qué parte del formulario se fue esa gente. */}
       <div style={{ marginTop: "16px" }}>
         <AbandonoDelCheckout dias={dias} datos={abandono} />
+      </div>
+
+      {/* Y al lado de dónde se cae la gente, cuántos pidieron ayuda antes de
+          irse y si esa ayuda terminó en venta. */}
+      <div style={{ marginTop: "16px" }}>
+        <AyudaYContactoTarjeta dias={dias} datos={ayuda} />
       </div>
 
       <SeccionTrafico

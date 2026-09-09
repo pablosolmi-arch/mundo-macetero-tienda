@@ -14,6 +14,7 @@ import {
   type MotivoCheckout,
 } from "../../../lib/eventos-checkout";
 import { IniciarCheckout } from "../../../components/site/EventosGA4";
+import { AyudaAntesDeIrte } from "../../../components/checkout/AyudaAntesDeIrte";
 
 const INPUT: React.CSSProperties = {
   width: "100%",
@@ -81,6 +82,10 @@ export default function CheckoutPage() {
   const [codigoMsg, setCodigoMsg] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  // El pago se intentó y no salió por algo del servidor o de la pasarela. No es
+  // lo mismo que un campo sin llenar: acá la persona hizo todo y quedó parada,
+  // así que es cuando más sentido tiene ofrecerle ayuda.
+  const [fallo, setFallo] = useState(false);
 
   // Los campos que ya avisamos: el evento se manda UNA vez por campo y por
   // sesión de formulario, si no un campo largo mandaría un evento por tecla.
@@ -147,6 +152,7 @@ export default function CheckoutPage() {
 
     setLoading(true);
     setError("");
+    setFallo(false);
     track("checkout");
     // Identificador anónimo de la sesión y el origen de su primer contacto, para
     // que el pedido quede atribuido al canal que realmente trajo la venta.
@@ -195,9 +201,11 @@ export default function CheckoutPage() {
       }
       setError(data.message ?? "No se pudo iniciar el pago.");
       avisarError(motivoRespuestaCheckout(res.status, data.message));
+      setFallo(true);
     } catch {
       setError("No se pudo conectar con el servicio de pago.");
       avisarError("sin_conexion");
+      setFallo(true);
     } finally {
       setLoading(false);
     }
@@ -620,6 +628,22 @@ export default function CheckoutPage() {
         </div>
       </div>
       </div>
+
+      {/* No hay otro botón flotante acá: el flotante general está oculto en el
+          checkout y esto es lo único que puede interrumpir, una sola vez. */}
+      <AyudaAntesDeIrte
+        contacto={{ nombre: [form.nombre, form.apellido].filter(Boolean).join(" "), email: form.email, telefono: form.fono }}
+        contexto={{
+          producto: items[0]?.name ?? null,
+          variante:
+            items[0]?.variantName && items[0].variantName !== "Default Title"
+              ? items[0].variantName
+              : null,
+          terminacion: items[0]?.terminacion ?? null,
+        }}
+        activo={!loading}
+        fallo={fallo}
+      />
     </>
   );
 }

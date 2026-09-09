@@ -196,6 +196,49 @@ export async function correoRecuperarClave(
   );
 }
 
+// Al equipo, cuando alguien pide que lo contacten: asesoría, "tu espacio", un
+// proyecto profesional o una llamada desde el checkout.
+//
+// Existe porque una solicitud que solo queda en la base de datos no sirve de
+// nada: hasta ahora las consultas se guardaban en `leads` y nadie recibía aviso,
+// así que había que entrar al panel a buscarlas. La de llamada es la más urgente
+// de todas: quien la pide está con el carrito lleno esperando.
+export async function correoSolicitudContacto(s: {
+  tipo: string;
+  titulo: string;
+  nombre: string;
+  email: string;
+  telefono: string;
+  detalle: string;
+  mensaje: string;
+}): Promise<ResultadoCorreo> {
+  const filas = [
+    ["Nombre", s.nombre],
+    ["Correo", s.email],
+    ["Teléfono", s.telefono],
+  ]
+    .filter(([, valor]) => !!valor)
+    .map(
+      ([etiqueta, valor]) =>
+        `<tr><td ${CELDA} style="padding:8px 0;border-bottom:1px solid #e9e6e1;color:#6f6c66;width:90px">${etiqueta}</td>
+         <td ${CELDA}><strong>${esc(valor)}</strong></td></tr>`,
+    )
+    .join("");
+
+  // El detalle y el mensaje son texto libre escrito por la persona: se escapan y
+  // los saltos de línea se respetan, nada más.
+  const libre = [s.detalle, s.mensaje]
+    .filter(Boolean)
+    .map((t) => `<p style="font-size:14px;white-space:pre-line">${esc(t)}</p>`)
+    .join("");
+
+  return enviar(
+    EQUIPO,
+    `${s.titulo}${s.nombre ? ` · ${s.nombre}` : ""}`,
+    marco(s.titulo, `<table ${ESTILO_TABLA}>${filas}</table>${libre}`),
+  );
+}
+
 // Al cliente que dejó un pago a medias, con un link que restaura su carrito.
 export async function correoCarritoAbandonado(p: DatosPedido): Promise<ResultadoCorreo> {
   return enviar(

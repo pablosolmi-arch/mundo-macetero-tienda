@@ -11,7 +11,12 @@ import Link from "next/link";
 import { codigoPedido } from "../../lib/pedido-codigo";
 import { formatCLP, formatPorcentaje } from "../../lib/format";
 import type { CheckoutsSinPagar } from "../../queries/admin";
-import type { AbandonoCheckout, EmbudoCanal, EmbudoProducto } from "../../queries/admin-trafico";
+import type {
+  AbandonoCheckout,
+  AyudaYContacto,
+  EmbudoCanal,
+  EmbudoProducto,
+} from "../../queries/admin-trafico";
 import type { CifrasEmbudo } from "../../lib/embudo";
 import { lecturaDelEmbudo, pasosDelEmbudo } from "../../lib/embudo";
 
@@ -501,6 +506,102 @@ export function CheckoutsPendientes({
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+// Quién pidió ayuda, desde dónde, con qué duda, y si compró.
+//
+// Es el complemento de "Dónde se abandona el checkout": esa tarjeta dice dónde
+// se pierde la gente; esta dice cuántos pidieron ayuda antes de irse y si esa
+// ayuda terminó en venta.
+export function AyudaYContactoTarjeta({ dias, datos }: { dias: number; datos: AyudaYContacto }) {
+  const hayMedicion =
+    datos.sesionesAsistidas > 0 ||
+    datos.modalVisto > 0 ||
+    datos.porOrigen.some((o) => o.whatsapp + o.llamar + o.asesoria > 0);
+
+  return (
+    <div style={TARJETA}>
+      <div className="font-display" style={TITULO}>
+        Quién pidió ayuda · últimos {dias} días
+      </div>
+      <p style={BAJADA}>
+        Sesiones únicas que hicieron algún gesto de contacto: WhatsApp, el botón de llamar o el
+        formulario de asesoramiento. Se guarda de qué pantalla salió, nunca lo que se escribió.
+      </p>
+
+      {!hayMedicion ? (
+        <div style={VACIO}>Aún no hay datos: la medición empieza ahora.</div>
+      ) : (
+        <>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "22px", marginBottom: "16px" }}>
+            <Cifra etiqueta="Sesiones que pidieron ayuda" valor={datos.sesionesAsistidas} />
+            <Cifra etiqueta="Compras de sesiones asistidas" valor={datos.comprasAsistidas} />
+            <Cifra etiqueta="Pidieron que las llamemos" valor={datos.llamadasPedidas} />
+          </div>
+
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "380px" }}>
+              <thead>
+                <tr>
+                  <th style={ENCABEZADO}>Desde dónde</th>
+                  <th style={ENCABEZADO_NUM}>WhatsApp</th>
+                  <th style={ENCABEZADO_NUM}>Llamar</th>
+                  <th style={ENCABEZADO_NUM}>Asesoría</th>
+                </tr>
+              </thead>
+              <tbody>
+                {datos.porOrigen.map((o) => (
+                  <tr key={o.origen}>
+                    <td style={CELDA}>{o.etiqueta}</td>
+                    <td style={CELDA_NUM}>{o.whatsapp.toLocaleString("es-CL")}</td>
+                    <td style={CELDA_NUM}>{o.llamar.toLocaleString("es-CL")}</td>
+                    <td style={CELDA_NUM}>{o.asesoria.toLocaleString("es-CL")}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div style={{ borderTop: "1px solid #f0eeea", paddingTop: "14px", marginTop: "16px" }}>
+            <div style={{ fontSize: "12.5px", fontWeight: 600, marginBottom: "2px" }}>
+              Qué les falta saber para decidir
+            </div>
+            <p style={{ ...BAJADA, marginBottom: "10px" }}>
+              Respuestas del modal del checkout, sobre las {datos.modalVisto.toLocaleString("es-CL")}{" "}
+              sesiones a las que se les mostró.
+            </p>
+            {datos.modalVisto === 0 ? (
+              <div style={VACIO}>Todavía no se le ha mostrado a nadie.</div>
+            ) : (
+              datos.dudas.map((d) => (
+                <FilaAbandono
+                  key={d.motivo}
+                  nombre={d.etiqueta}
+                  sesiones={d.sesiones}
+                  total={datos.modalVisto}
+                />
+              ))
+            )}
+          </div>
+
+          <p style={{ ...BAJADA, marginTop: "14px", marginBottom: 0 }}>
+            Las solicitudes de llamada quedan en la tabla de contactos, con el teléfono y la duda.
+          </p>
+        </>
+      )}
+    </div>
+  );
+}
+
+function Cifra({ etiqueta, valor }: { etiqueta: string; valor: number }) {
+  return (
+    <div>
+      <div className="font-display" style={{ fontSize: "22px", fontWeight: 700, lineHeight: 1.1 }}>
+        {valor.toLocaleString("es-CL")}
+      </div>
+      <div style={{ fontSize: "11.5px", color: "#6f6c66", marginTop: "3px" }}>{etiqueta}</div>
     </div>
   );
 }
