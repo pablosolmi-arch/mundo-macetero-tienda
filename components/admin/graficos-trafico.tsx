@@ -3,6 +3,7 @@
 // Todo se dibuja con CSS y SVG en línea, sin librerías de gráficos, y sin estado:
 // son componentes de servidor que reciben las cifras ya calculadas en
 // queries/admin-trafico.ts.
+import Link from "next/link";
 import { formatCLP, formatPorcentaje } from "../../lib/format";
 import type {
   CanalTrafico,
@@ -207,7 +208,15 @@ function PorCanal({ dias, datos }: { dias: number; datos: CanalTrafico[] }) {
                 {datos.map((c) => (
                   <tr key={c.canal}>
                     <td style={CELDA}>
-                      {nombreCanal(c.canal)}
+                      <Link
+                        href={`/admin?dias=${dias}&canal=${encodeURIComponent(c.canal)}#fuentes`}
+                        style={{ color: "inherit", textDecoration: "none" }}
+                        title="Ver el detalle de fuentes de este canal"
+                      >
+                        <span style={{ borderBottom: "1px dotted #a39e94" }}>
+                          {nombreCanal(c.canal)}
+                        </span>
+                      </Link>
                       <div
                         style={{
                           height: "6px",
@@ -246,14 +255,46 @@ function PorCanal({ dias, datos }: { dias: number; datos: CanalTrafico[] }) {
   );
 }
 
-function Fuentes({ dias, datos }: { dias: number; datos: FuenteTrafico[] }) {
+function Fuentes({
+  dias,
+  datos,
+  canalFoco,
+}: {
+  dias: number;
+  datos: FuenteTrafico[];
+  // Cuando viene de un clic en una fila de "Tráfico por canal": deja solo las
+  // fuentes de ese canal y ofrece un link para volver a ver todas.
+  canalFoco: string | null;
+}) {
+  const filtrados = canalFoco ? datos.filter((f) => f.canal === canalFoco) : datos;
   return (
-    <div style={TARJETA}>
-      <div className="font-display" style={TITULO}>
-        Fuentes y campañas · últimos {dias} días
+    <div id="fuentes" style={TARJETA}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "baseline",
+          justifyContent: "space-between",
+          gap: "10px",
+          flexWrap: "wrap",
+          marginBottom: "14px",
+        }}
+      >
+        <div className="font-display" style={TITULO}>
+          Fuentes y campañas · últimos {dias} días
+          {canalFoco && ` · ${nombreCanal(canalFoco)}`}
+        </div>
+        {canalFoco && (
+          <Link href={`/admin?dias=${dias}#fuentes`} style={{ fontSize: "12.5px", color: "#6f6c66" }}>
+            Ver todas las fuentes
+          </Link>
+        )}
       </div>
-      {datos.length === 0 ? (
-        <div style={VACIO}>Todavía no hay fuentes registradas en el período.</div>
+      {filtrados.length === 0 ? (
+        <div style={VACIO}>
+          {canalFoco
+            ? `No hay fuentes registradas para "${nombreCanal(canalFoco)}" en el período.`
+            : "Todavía no hay fuentes registradas en el período."}
+        </div>
       ) : (
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
@@ -265,7 +306,7 @@ function Fuentes({ dias, datos }: { dias: number; datos: FuenteTrafico[] }) {
             </tr>
           </thead>
           <tbody>
-            {datos.map((f) => (
+            {filtrados.map((f) => (
               <tr key={`${f.canal}|${f.fuente}|${f.campana}`}>
                 <td style={CELDA}>
                   {f.fuente === "sin dato" ? "Sin dato" : f.fuente}
@@ -429,6 +470,7 @@ function Paginas({
 
 export function SeccionTrafico({
   dias,
+  canalFoco,
   sesiones,
   totales,
   canales,
@@ -437,6 +479,7 @@ export function SeccionTrafico({
   paginas,
 }: {
   dias: number;
+  canalFoco: string | null;
   sesiones: SesionesDia[];
   totales: TotalesSesiones;
   canales: CanalTrafico[];
@@ -464,7 +507,7 @@ export function SeccionTrafico({
       </div>
 
       <div style={{ ...DOS_COLUMNAS, marginTop: "16px" }}>
-        <Fuentes dias={dias} datos={fuentes} />
+        <Fuentes dias={dias} datos={fuentes} canalFoco={canalFoco} />
         <Dispositivos dias={dias} datos={equipos} />
       </div>
 

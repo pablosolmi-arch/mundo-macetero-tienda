@@ -67,6 +67,9 @@ export default async function AdminResumen({
   const pedido = Number(typeof params.dias === "string" ? params.dias : 30);
   const dias = RANGOS.includes(pedido) ? pedido : 30;
   const rango = `últimos ${dias} días`;
+  // Al hacer clic en un canal de "Tráfico por canal" se salta a "Fuentes y
+  // campañas" filtrada por ese canal (ver PorCanal/Fuentes en graficos-trafico).
+  const canalFoco = typeof params.canal === "string" ? params.canal : null;
 
   // Todas en paralelo: son consultas independientes y la página se abre en cada
   // visita al panel. Todas reciben `dias`.
@@ -261,6 +264,7 @@ export default async function AdminResumen({
 
       <SeccionTrafico
         dias={dias}
+        canalFoco={canalFoco}
         sesiones={sesiones}
         totales={totales}
         canales={canales}
