@@ -216,8 +216,8 @@ button {
    `display: none` de la versión móvil y dejaría la fila visible en el celular. */
 .mm-desktop-nav {
   align-items: center;
-  gap: 16px;
-  font-size: 13px;
+  gap: 18px;
+  font-size: 14px;
   letter-spacing: .01em;
 }
 
@@ -240,8 +240,8 @@ button {
   /* El contenedor se topa en 1280px, así que crecer el cuerpo con vw solo
      ensanchaba la fila sin darle más espacio: paso y cuerpo fijos. */
   .mm-desktop-nav {
-    gap: 16px;
-    font-size: 13px;
+    gap: 18px;
+    font-size: 14px;
   }
 }
 
@@ -846,8 +846,8 @@ body:has([data-checkout]) .mm-flotante { display: none; }
    Medido: con las largas la fila mide 597px y la mitad disponible da 453px. */
 @media (min-width: 1024px) and (max-width: 1279px) {
   .mm-desktop-nav {
-    gap: 12px;
-    font-size: 12.5px;
+    gap: 15px;
+    font-size: 13.5px;
   }
   .mm-nav-largo { display: none; }
   .mm-nav-corto { display: inline; }
