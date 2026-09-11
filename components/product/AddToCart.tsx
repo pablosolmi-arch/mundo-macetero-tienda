@@ -69,33 +69,6 @@ function hexFor(name: string): string | null {
   return null;
 }
 
-// El doble fondo (cámara de agua interior) es una decisión de fabricación, no
-// algo que el cliente deba poder marcar solo en la ficha.
-function esOpcionDobleFondo(valor: string | null): boolean {
-  return !!valor && valor.toLowerCase().includes("doble fondo");
-}
-
-// Se oculta el doble fondo SOLO cuando existe una alternativa sin doble fondo
-// para el mismo resto de la combinación (mismo tamaño/color, otro drenaje).
-// Si un modelo (ej. el Bowl) solo viene con doble fondo -- no hay "despiche"
-// alternativo para esa talla -- no se saca, porque dejaría esa talla sin
-// ninguna forma de comprarse.
-function tieneAlternativaSinDobleFondo(v: VariantOption, todas: VariantOption[]): boolean {
-  for (let axis = 0; axis < 3; axis++) {
-    if (!esOpcionDobleFondo(valueOf(v, axis))) continue;
-    const hayAlterna = todas.some((o) => {
-      if (esOpcionDobleFondo(valueOf(o, axis))) return false;
-      for (let otro = 0; otro < 3; otro++) {
-        if (otro === axis) continue;
-        if ((valueOf(o, otro) ?? "") !== (valueOf(v, otro) ?? "")) return false;
-      }
-      return true;
-    });
-    if (hayAlterna) return true;
-  }
-  return false;
-}
-
 export function AddToCart({
   productSlug,
   productName,
@@ -106,12 +79,6 @@ export function AddToCart({
 }: AddToCartProps) {
   const { add } = useCart();
   const [qty, setQty] = useState(1);
-  // Variantes vendibles de verdad: sin las de doble fondo que sí tienen una
-  // alternativa sin doble fondo para el mismo resto (ver tieneAlternativaSinDobleFondo).
-  const variantesDisponibles = useMemo(
-    () => variants.filter((v) => !tieneAlternativaSinDobleFondo(v, variants)),
-    [variants],
-  );
   // El feed de Google Merchant Center enlaza cada variante como
   // /producto/<slug>?variante=<id>, así que la ficha abre con esa combinación ya
   // elegida en vez de la primera disponible.
@@ -124,22 +91,20 @@ export function AddToCart({
       optionNames.map((nombre, i) => ({
         nombre,
         oculto: esEjeDeColor(nombre),
-        valores: [
-          ...new Set(variantesDisponibles.map((v) => valueOf(v, i)).filter((x): x is string => !!x)),
-        ],
+        valores: [...new Set(variants.map((v) => valueOf(v, i)).filter((x): x is string => !!x))],
       })),
-    [optionNames, variantesDisponibles],
+    [optionNames, variants],
   );
 
   // Default to the variant asked for in the URL, otherwise the first combination
   // that can actually be bought.
   const initial = useMemo(() => {
     const pedida = variantePedida
-      ? variantesDisponibles.find((v) => String(v.id) === variantePedida)
+      ? variants.find((v) => String(v.id) === variantePedida)
       : undefined;
-    const first = pedida ?? variantesDisponibles.find((v) => v.available) ?? variantesDisponibles[0];
+    const first = pedida ?? variants.find((v) => v.available) ?? variants[0];
     return axes.map((_, i) => (first ? (valueOf(first, i) ?? "") : ""));
-  }, [axes, variantesDisponibles, variantePedida]);
+  }, [axes, variants, variantePedida]);
 
   const [seleccion, setSeleccion] = useState<string[]>(initial);
   // Nadie sale por defecto: la terminación es una decisión del cliente, y elegirla
@@ -175,8 +140,8 @@ export function AddToCart({
   }
 
   const selected =
-    variantesDisponibles.find((v) => coincide(v, seleccion) && v.available) ??
-    variantesDisponibles.find((v) => coincide(v, seleccion)) ??
+    variants.find((v) => coincide(v, seleccion) && v.available) ??
+    variants.find((v) => coincide(v, seleccion)) ??
     null;
 
   const unitPrice = selected?.price ?? basePrice;
@@ -188,11 +153,11 @@ export function AddToCart({
 
     // If the new value makes the rest of the selection impossible, slide the other
     // axes to the first combination that works with it.
-    const exists = variantesDisponibles.some((v) => coincide(v, next));
+    const exists = variants.some((v) => coincide(v, next));
     if (!exists) {
       const fallback =
-        variantesDisponibles.find((v) => (valueOf(v, axis) ?? "") === value && v.available) ??
-        variantesDisponibles.find((v) => (valueOf(v, axis) ?? "") === value);
+        variants.find((v) => (valueOf(v, axis) ?? "") === value && v.available) ??
+        variants.find((v) => (valueOf(v, axis) ?? "") === value);
       if (fallback) {
         for (let i = 0; i < next.length; i += 1) next[i] = valueOf(fallback, i) ?? "";
       }
@@ -203,7 +168,7 @@ export function AddToCart({
   // A value is reachable when some variant has it alongside every OTHER visible
   // axis as currently selected.
   function reachable(axis: number, value: string): boolean {
-    return variantesDisponibles.some(
+    return variants.some(
       (v) => (valueOf(v, axis) ?? "") === value && v.available && coincide(v, seleccion, axis),
     );
   }
