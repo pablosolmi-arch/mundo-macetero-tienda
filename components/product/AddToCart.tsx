@@ -70,10 +70,30 @@ function hexFor(name: string): string | null {
 }
 
 // El doble fondo (cámara de agua interior) es una decisión de fabricación, no
-// algo que el cliente deba poder marcar solo en la ficha: se saca de la venta
-// por autoservicio en cualquier eje donde aparezca (Drenaje u otro).
+// algo que el cliente deba poder marcar solo en la ficha.
 function esOpcionDobleFondo(valor: string | null): boolean {
   return !!valor && valor.toLowerCase().includes("doble fondo");
+}
+
+// Se oculta el doble fondo SOLO cuando existe una alternativa sin doble fondo
+// para el mismo resto de la combinación (mismo tamaño/color, otro drenaje).
+// Si un modelo (ej. el Bowl) solo viene con doble fondo -- no hay "despiche"
+// alternativo para esa talla -- no se saca, porque dejaría esa talla sin
+// ninguna forma de comprarse.
+function tieneAlternativaSinDobleFondo(v: VariantOption, todas: VariantOption[]): boolean {
+  for (let axis = 0; axis < 3; axis++) {
+    if (!esOpcionDobleFondo(valueOf(v, axis))) continue;
+    const hayAlterna = todas.some((o) => {
+      if (esOpcionDobleFondo(valueOf(o, axis))) return false;
+      for (let otro = 0; otro < 3; otro++) {
+        if (otro === axis) continue;
+        if ((valueOf(o, otro) ?? "") !== (valueOf(v, otro) ?? "")) return false;
+      }
+      return true;
+    });
+    if (hayAlterna) return true;
+  }
+  return false;
 }
 
 export function AddToCart({
@@ -86,10 +106,10 @@ export function AddToCart({
 }: AddToCartProps) {
   const { add } = useCart();
   const [qty, setQty] = useState(1);
-  // Variantes vendibles de verdad: sin las que llevan doble fondo, que se
-  // consultan aparte en vez de elegirse solas en la ficha (ver esOpcionDobleFondo).
+  // Variantes vendibles de verdad: sin las de doble fondo que sí tienen una
+  // alternativa sin doble fondo para el mismo resto (ver tieneAlternativaSinDobleFondo).
   const variantesDisponibles = useMemo(
-    () => variants.filter((v) => ![v.option1, v.option2, v.option3].some(esOpcionDobleFondo)),
+    () => variants.filter((v) => !tieneAlternativaSinDobleFondo(v, variants)),
     [variants],
   );
   // El feed de Google Merchant Center enlaza cada variante como
